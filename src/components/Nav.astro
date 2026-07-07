@@ -1,41 +1,111 @@
-<nav style="background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100;">
-  <a
-    href="/"
-    style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 0; text-decoration: none;"
-  >
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <rect width="28" height="28" rx="6" fill="#1D9E75"></rect>
-      <path d="M7 20L14 8L21 20H7Z" fill="white" opacity="0.9"></path>
-      <circle cx="14" cy="15" r="3" fill="#1D9E75"></circle>
-    </svg>
-    <span style="font-weight: 500; font-size: 15px; color: var(--color-text-primary);">
-      Fabrica3D
+<nav class="site-nav">
+  <a href="/" class="site-logo" aria-label="3dbok inicio">
+    <span class="site-logo-mark" aria-hidden="true">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="9" fill="var(--color-brand-primary)"></rect>
+        <path d="M8 21.5L16 8.5L24 21.5H8Z" fill="white"></path>
+        <path d="M11 21.5H24L21.5 17.5H13.5L11 21.5Z" fill="var(--color-brand-sand)"></path>
+      </svg>
     </span>
+    <span class="site-logo-text">3dbok</span>
   </a>
-  <div style="display: flex; gap: 8px; align-items: center;">
-    <a
-      href="/productores"
-      style="background: none; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); text-decoration: none;"
-    >
-      Productores
-    </a>
-    <a
-      href="/seguimiento"
-      style="background: none; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); text-decoration: none;"
-    >
-      Seguir pedido
-    </a>
-    <a
-      href="/impresor"
-      style="background: none; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); text-decoration: none;"
-    >
-      Soy impresor
-    </a>
-    <a
-      href="/briefing"
-      style="background: #1D9E75; border: none; border-radius: var(--border-radius-md); padding: 6px 16px; font-size: 13px; cursor: pointer; color: white; font-weight: 500; text-decoration: none;"
-    >
-      Hacer pedido
-    </a>
+
+  <div class="site-nav-links">
+    <a href="/productores" class="site-nav-link">Productores</a>
+    <a href="/seguimiento" class="site-nav-link">Seguir pedido</a>
+    <a href="/impresor" class="site-nav-link">Soy productor</a>
+    <a href="/briefing" class="site-nav-link site-nav-link--primary">Hacer pedido</a>
   </div>
 </nav>
+
+<style>
+  .site-nav {
+    min-height: 64px;
+    padding: 0.7rem 1.5rem;
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid var(--color-border-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(14px);
+  }
+
+  .site-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+  }
+
+  .site-logo-mark {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+  }
+
+  .site-logo-text {
+    color: var(--color-brand-primary);
+    font-family: var(--font-logo);
+    font-size: 1.55rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .site-nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .site-nav-link {
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 0.45rem 0.85rem;
+    color: var(--color-text-secondary);
+    font-size: 0.82rem;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+    background: var(--color-background-primary);
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .site-nav-link:hover {
+    color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
+    background: var(--color-brand-soft);
+  }
+
+  .site-nav-link--primary {
+    border-color: var(--color-brand-primary);
+    color: #ffffff;
+    background: var(--color-brand-primary);
+    box-shadow: 0 10px 24px rgba(73, 89, 184, 0.22);
+  }
+
+  .site-nav-link--primary:hover {
+    color: #ffffff;
+    background: var(--color-brand-dark);
+    border-color: var(--color-brand-dark);
+  }
+
+  @media (max-width: 680px) {
+    .site-nav {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .site-nav-links {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+</style>

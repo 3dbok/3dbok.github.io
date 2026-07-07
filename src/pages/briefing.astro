@@ -52,7 +52,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         <span><span data-progress-text>0</span>% completado</span>
       </div>
       <div style="height: 4px; background: var(--color-border-tertiary); border-radius: 2px; overflow: hidden;">
-        <div data-progress-fill style={`height: 100%; width: ${(1 / STEPS.length) * 100}%; background: #1D9E75; border-radius: 2px; transition: width 0.3s ease;`}></div>
+        <div data-progress-fill style={`height: 100%; width: ${(1 / STEPS.length) * 100}%; background: var(--color-brand-primary); border-radius: 2px; transition: width 0.3s ease;`}></div>
       </div>
     </div>
 
@@ -142,7 +142,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
           <div data-stl-preview style="margin-top: 12px;" hidden>
             <div
               data-stl-container
-              style="height: 280px; width: 100%; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: #F7FAF8;"
+              style="height: 280px; width: 100%; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-tertiary);"
             ></div>
             <p data-stl-message style="font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 0;">
               Arrastra para rotar, rueda para acercar.
@@ -161,7 +161,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
             multiple
             style="font-size: 13px; color: var(--color-text-secondary);"
           />
-          <p data-reference-count style="font-size: 12px; color: #1D9E75; margin-top: 6px;" hidden></p>
+          <p data-reference-count style="font-size: 12px; color: var(--color-brand-primary); margin-top: 6px;" hidden></p>
         </div>
       </div>
     </section>
@@ -184,7 +184,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
                 {s.label}
               </div>
               <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">{s.desc}</div>
-              <div style="font-size: 11px; color: #0F6E56; font-weight: 500;">{s.example}</div>
+              <div style="font-size: 11px; color: var(--color-brand-dark); font-weight: 700;">{s.example}</div>
             </button>
           ))}
         </div>
@@ -312,8 +312,8 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
 
   <style>
     .wizard-option.is-selected {
-      background: #E1F5EE !important;
-      border: 2px solid #1D9E75 !important;
+      background: var(--color-brand-soft) !important;
+      border: 2px solid var(--color-brand-primary) !important;
     }
   </style>
 
@@ -382,7 +382,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       nextButton.textContent = step < steps.length - 1
         ? "Continuar →"
         : (submitting ? "Enviando..." : "Enviar pedido →");
-      nextButton.style.background = enabled ? "#1D9E75" : "var(--color-background-secondary)";
+      nextButton.style.background = enabled ? "var(--color-brand-primary)" : "var(--color-background-secondary)";
       nextButton.style.color = enabled ? "white" : "var(--color-text-secondary)";
       nextButton.style.cursor = enabled ? "pointer" : "not-allowed";
     };
@@ -410,7 +410,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       form[key] = value;
       if (key === "description" && descriptionCount) {
         descriptionCount.textContent = `${form.description.length} caracteres ${form.description.length < 15 ? "(mínimo 15)" : ""}`;
-        descriptionCount.style.color = form.description.length < 15 ? "var(--color-text-secondary)" : "#1D9E75";
+        descriptionCount.style.color = form.description.length < 15 ? "var(--color-text-secondary)" : "var(--color-brand-primary)";
       }
       updateNextButton();
     };
@@ -483,7 +483,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       form.designFileObject = file;
       if (designUploadButton) {
         designUploadButton.textContent = form.designFile ? `✓ ${form.designFile}` : "Subir archivo de diseño →";
-        designUploadButton.style.color = form.designFile ? "#1D9E75" : "var(--color-text-secondary)";
+        designUploadButton.style.color = form.designFile ? "var(--color-brand-primary)" : "var(--color-text-secondary)";
       }
       if (file?.name?.toLowerCase().endsWith(".stl")) renderStlPreview(file);
       else disposeStlPreview();
@@ -565,7 +565,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         if (disposed) return;
 
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf7faf8);
+        scene.background = new THREE.Color(0xf8f8fa);
 
         camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
         camera.position.set(90, 70, 110);
@@ -573,7 +573,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         const keyLight = new THREE.DirectionalLight(0xffffff, 2.3);
         keyLight.position.set(80, 120, 90);
         scene.add(keyLight);
-        scene.add(new THREE.HemisphereLight(0xffffff, 0x9fb7ad, 1.6));
+        scene.add(new THREE.HemisphereLight(0xffffff, 0xdbd4a0, 1.6));
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -594,7 +594,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         geometry.computeBoundingBox();
 
         const material = new THREE.MeshStandardMaterial({
-          color: 0x2bb58a,
+          color: 0x4959b8,
           roughness: 0.45,
           metalness: 0.08,
         });

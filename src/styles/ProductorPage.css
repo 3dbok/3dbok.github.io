@@ -1,34 +1,38 @@
-/* ============================================================
-   Paleta: "ficha técnica de taller" — papel de plano + tinta
-   grafito + azul de plano (cobalto). El dorado se reserva SOLO
-   para las estrellas de valoración, nunca como color decorativo.
-   ============================================================ */
 :root {
-  --paper: #f1efe9;
-  --paper-raised: #ffffff;
-  --ink: #20242b;
-  --ink-soft: #565d68;
-  --line: #d8d4c8;
-  --blueprint: #2e4d78;
-  --blueprint-soft: #dde5ee;
+  --paper: var(--color-background-tertiary);
+  --paper-raised: var(--color-background-primary);
+  --ink: var(--color-text-primary);
+  --ink-soft: var(--color-text-secondary);
+  --line: var(--color-border-tertiary);
+  --blueprint: var(--color-brand-primary);
+  --blueprint-dark: var(--color-brand-dark);
+  --blueprint-soft: var(--color-brand-soft);
+  --warm: var(--color-brand-warm);
+  --sand: var(--color-brand-sand);
   --gold: #b8863b;
-  --radius: 3px;
+  --radius: var(--border-radius-lg);
+  --radius-sm: var(--border-radius-md);
 
-  /* Colores de materiales: leyenda consistente en toda la web
-     (ficha de productor, directorio, y cualquier otra página
-     que muestre materiales en el futuro). */
-  --mat-pla: #6f8faf;
-  --mat-petg: #3e6b5c;
-  --mat-abs: #45484d;
-  --mat-tpu: #c97b4a;
-  --mat-resina: #7c5cbf;
-  --mat-nylon: #b79c7d;
+  --mat-pla: #4959b8;
+  --mat-petg: #2f8f83;
+  --mat-abs: #464b57;
+  --mat-tpu: #d58a56;
+  --mat-resina: #7661d1;
+  --mat-nylon: #c2b86e;
 }
 
 .productor-page {
-  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-family: var(--font-body);
   color: var(--ink);
-  background: var(--paper);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(73, 89, 184, 0.035) 0,
+      rgba(73, 89, 184, 0.035) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    var(--paper);
   min-height: 100vh;
   padding-bottom: 4rem;
 }
@@ -36,15 +40,14 @@
 .productor-page * { box-sizing: border-box; }
 
 .pp-mono {
-  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
-  letter-spacing: 0.02em;
+  font-family: "SFMono-Regular", "IBM Plex Mono", "JetBrains Mono", monospace;
+  letter-spacing: 0;
 }
 
-/* ---------- Cabecera ---------- */
 .pp-header {
   border-bottom: 1px solid var(--line);
-  padding: 2.5rem 1.5rem 2rem;
-  max-width: 960px;
+  padding: 2.75rem 1.5rem 2.25rem;
+  max-width: 1000px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: auto 1fr;
@@ -53,33 +56,41 @@
 }
 
 .pp-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
   object-fit: cover;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(73, 89, 184, 0.2);
   background: var(--blueprint-soft);
+  box-shadow: 0 16px 34px rgba(17, 24, 39, 0.08);
 }
 
 .pp-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0 0 0.45rem;
+  padding: 0.26rem 0.62rem;
+  border-radius: 999px;
+  color: var(--blueprint-dark);
+  background: var(--blueprint-soft);
   font-size: 0.72rem;
+  font-weight: 750;
   text-transform: uppercase;
-  color: var(--blueprint);
-  margin: 0 0 0.35rem;
 }
 
 .pp-nombre {
-  font-size: 1.9rem;
-  font-weight: 600;
-  margin: 0 0 0.3rem;
-  line-height: 1.15;
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 4vw, 2.55rem);
+  font-weight: 780;
+  margin: 0 0 0.4rem;
+  line-height: 1.08;
 }
 
 .pp-meta-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
   align-items: center;
 }
@@ -87,28 +98,29 @@
 .pp-rating-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.32rem;
   color: var(--gold);
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* ---------- Tiras de materiales (leyenda consistente en todo el sitio) --- */
 .pp-materiales-strip {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.65rem;
+  margin-top: 0.75rem;
   flex-wrap: wrap;
 }
 
 .pp-material-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.72rem;
-  padding: 0.2rem 0.55rem 0.2rem 0.35rem;
+  gap: 0.38rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  padding: 0.28rem 0.65rem 0.28rem 0.42rem;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--paper-raised);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--ink);
 }
 
 .pp-material-swatch {
@@ -119,34 +131,34 @@
   flex-shrink: 0;
 }
 
-/* ---------- Layout principal ---------- */
 .pp-body {
-  max-width: 960px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 0;
+  padding: 2.25rem 1.5rem 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: 2.5rem;
 }
 
 @media (min-width: 760px) {
-  .pp-body { grid-template-columns: 260px 1fr; }
+  .pp-body { grid-template-columns: 280px 1fr; }
 }
 
 .pp-sidebar-block + .pp-sidebar-block { margin-top: 1.75rem; }
 
 .pp-sidebar-title {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
+  font-weight: 750;
   text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 0 0 0.6rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px dotted var(--line);
+  color: var(--blueprint-dark);
+  margin: 0 0 0.65rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .pp-bio {
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: 0.95rem;
+  line-height: 1.62;
   color: var(--ink-soft);
   margin: 0;
 }
@@ -157,32 +169,37 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.42rem;
 }
 
 .pp-specialidades li {
-  font-size: 0.85rem;
-  padding-left: 0.9rem;
+  font-size: 0.9rem;
+  padding-left: 1rem;
   position: relative;
 }
 
 .pp-specialidades li::before {
-  content: "—";
+  content: "";
   position: absolute;
   left: 0;
-  color: var(--blueprint);
+  top: 0.58em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sand);
+  box-shadow: 0 0 0 3px rgba(219, 212, 160, 0.28);
 }
 
 .pp-impresoras {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: var(--ink-soft);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
-/* ---------- Portfolio: tarjetas tipo ficha técnica ---------- */
 .pp-section-title {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 1.22rem;
+  font-weight: 760;
   margin: 0 0 1rem;
 }
 
@@ -198,12 +215,14 @@
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .pp-product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(32, 36, 43, 0.08);
+  border-color: rgba(73, 89, 184, 0.32);
+  box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
 }
 
 .pp-product-photo {
@@ -214,12 +233,12 @@
   display: block;
 }
 
-.pp-product-body { padding: 0.85rem 0.9rem 1rem; }
+.pp-product-body { padding: 0.95rem 1rem 1.08rem; }
 
 .pp-product-nombre {
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin: 0 0 0.55rem;
+  font-size: 0.96rem;
+  font-weight: 720;
+  margin: 0 0 0.6rem;
 }
 
 .pp-spec-sheet {
@@ -227,46 +246,49 @@
   color: var(--ink-soft);
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
+  gap: 0.34rem;
 }
 
 .pp-spec-row {
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
-  border-bottom: 1px dotted var(--line);
-  padding-bottom: 0.22rem;
+  border-bottom: 1px solid rgba(73, 89, 184, 0.12);
+  padding-bottom: 0.26rem;
 }
 
 .pp-spec-row span:first-child { color: var(--ink-soft); }
 .pp-spec-row span:last-child { color: var(--ink); text-align: right; }
 
 .pp-product-precio {
-  margin-top: 0.6rem;
-  font-size: 0.88rem;
-  font-weight: 600;
+  margin-top: 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 760;
   color: var(--blueprint);
 }
 
-/* ---------- Reseñas: estilo libro de registro ---------- */
 .pp-resenas-list {
   display: flex;
   flex-direction: column;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 1rem;
 }
 
 .pp-resena {
   padding: 1rem 0;
-  border-bottom: 1px dotted var(--line);
+  border-bottom: 1px solid var(--line);
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.3rem 1rem;
 }
 
-.pp-resena:first-child { padding-top: 0; }
+.pp-resena:last-child { border-bottom: 0; }
 
 .pp-resena-autor {
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: 720;
+  font-size: 0.9rem;
 }
 
 .pp-resena-fecha {
@@ -276,7 +298,7 @@
 
 .pp-resena-estrellas {
   color: var(--gold);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   grid-row: 1;
   grid-column: 2;
   align-self: start;
@@ -284,32 +306,33 @@
 
 .pp-resena-texto {
   grid-column: 1 / -1;
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.55;
   color: var(--ink-soft);
-  margin: 0.2rem 0 0;
+  margin: 0.25rem 0 0;
 }
 
-/* ---------- Formulario de reseña ---------- */
 .pp-review-form {
   margin-top: 1.5rem;
   padding: 1.25rem;
   background: var(--paper-raised);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
 }
 
 .pp-review-form-title {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 760;
   margin: 0 0 0.9rem;
 }
 
 .pp-review-form label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--ink-soft);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.34rem;
+  font-weight: 650;
 }
 
 .pp-review-form input,
@@ -317,61 +340,63 @@
 .pp-review-form select {
   width: 100%;
   font-family: inherit;
-  font-size: 0.88rem;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper);
+  font-size: 0.9rem;
+  padding: 0.58rem 0.7rem;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-sm);
+  background: var(--color-background-primary);
   margin-bottom: 0.9rem;
+  color: var(--ink);
 }
 
-.pp-review-form textarea { min-height: 80px; resize: vertical; }
+.pp-review-form textarea { min-height: 86px; resize: vertical; }
 
 .pp-review-submit {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--blueprint);
+  color: #ffffff;
   border: none;
-  border-radius: var(--radius);
-  padding: 0.6rem 1.1rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 0.68rem 1.15rem;
+  font-size: 0.88rem;
+  font-weight: 720;
   cursor: pointer;
+  box-shadow: 0 12px 26px rgba(73, 89, 184, 0.2);
 }
 
-.pp-review-submit:hover { background: var(--blueprint); }
+.pp-review-submit:hover { background: var(--blueprint-dark); }
 
 .pp-review-note {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   color: var(--ink-soft);
-  margin-top: 0.6rem;
+  margin-top: 0.65rem;
 }
 
-/* ---------- CTA ---------- */
 .pp-cta {
-  max-width: 960px;
+  max-width: 1000px;
   margin: 2.5rem auto 0;
   padding: 1.5rem;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: var(--radius);
+  background: var(--blueprint-dark);
+  color: #ffffff;
+  border-radius: 28px;
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 20px 44px rgba(47, 58, 140, 0.24);
 }
 
-.pp-cta-text { font-size: 0.92rem; }
-.pp-cta-text strong { display: block; font-size: 1.05rem; margin-bottom: 0.2rem; }
+.pp-cta-text { font-size: 0.95rem; color: rgba(255, 255, 255, 0.82); }
+.pp-cta-text strong { display: block; color: #ffffff; font-size: 1.08rem; margin-bottom: 0.25rem; }
 
 .pp-cta-button {
-  background: var(--paper);
-  color: var(--ink);
+  background: #ffffff;
+  color: var(--blueprint-dark);
   border: none;
-  border-radius: var(--radius);
-  padding: 0.65rem 1.25rem;
-  font-weight: 600;
-  font-size: 0.88rem;
+  border-radius: var(--radius-sm);
+  padding: 0.72rem 1.25rem;
+  font-weight: 760;
+  font-size: 0.9rem;
   cursor: pointer;
   text-decoration: none;
 }
@@ -380,16 +405,12 @@
   .pp-product-card { transition: none; }
 }
 
-/* ============================================================
-   Directorio de productores (listado/preview de todos los talleres)
-   ============================================================ */
-
 .pp-header--directorio {
   grid-template-columns: 1fr;
 }
 
 .dir-grid {
-  max-width: 960px;
+  max-width: 1000px;
   margin: 2rem auto 0;
   padding: 0 1.5rem 3rem;
   display: grid;
@@ -405,17 +426,19 @@
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .dir-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(32, 36, 43, 0.08);
+  border-color: rgba(73, 89, 184, 0.32);
+  box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
 }
 
 .dir-card:focus-visible {
   outline: 2px solid var(--blueprint);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 .dir-card-photo {
@@ -426,26 +449,46 @@
   display: block;
 }
 
-.dir-card-body { padding: 0.9rem 1rem 1.1rem; }
+.dir-card-body { padding: 1rem 1.05rem 1.15rem; }
 
 .dir-card-nombre {
-  font-size: 1.02rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 1.08rem;
+  font-weight: 760;
   margin: 0;
 }
 
 .dir-card-ubicacion {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: var(--ink-soft);
-  margin: 0.15rem 0 0;
+  margin: 0.18rem 0 0;
 }
 
 .dir-card-especialidad {
   font-size: 0.72rem;
-  color: var(--blueprint);
-  margin: 0.6rem 0 0;
-  padding-top: 0.45rem;
-  border-top: 1px dotted var(--line);
+  color: var(--blueprint-dark);
+  margin: 0.65rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line);
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .pp-header {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .pp-avatar {
+    width: 78px;
+    height: 78px;
+    border-radius: 20px;
+  }
+
+  .pp-cta {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
