@@ -1,0 +1,13 @@
+---
+import { MATERIALES } from "../lib/productorShared.js";
+
+const { codigo } = Astro.props;
+const mat = MATERIALES[codigo];
+---
+
+{mat && (
+  <span class="pp-material-chip">
+    <span class="pp-material-swatch" style={`background: ${mat.color};`}></span>
+    {mat.label}
+  </span>
+)}

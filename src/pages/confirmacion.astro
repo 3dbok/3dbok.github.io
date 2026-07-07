@@ -1,0 +1,146 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout>
+  <main data-no-order style="max-width: 520px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
+    <p style="color: var(--color-text-secondary);">No hay datos de pedido disponibles.</p>
+    <a
+      href="/"
+      style="background: #1D9E75; color: white; border: none; border-radius: var(--border-radius-md); padding: 10px 20px; font-size: 14px; cursor: pointer; margin-top: 1rem; text-decoration: none; display: inline-block;"
+    >
+      Volver al inicio
+    </a>
+  </main>
+
+  <main data-order-confirmation hidden style="max-width: 560px; margin: 0 auto; padding: 3rem 1.5rem 4rem;">
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+        <span style="font-size: 28px;">✓</span>
+      </div>
+      <h1 style="font-size: 24px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem;">
+        ¡Pedido recibido!
+      </h1>
+      <p style="font-size: 15px; color: var(--color-text-secondary);">
+        Hemos enviado un correo de confirmación a <span data-order-email>tu email</span>
+      </p>
+    </div>
+
+    <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--color-border-tertiary);">
+        <div>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px;">Número de pedido</p>
+          <p data-order-id style="font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0;"></p>
+        </div>
+        <span style="font-size: 12px; font-weight: 500; color: #854F0B; background: #FAEEDA; padding: 4px 10px; border-radius: var(--border-radius-md);">
+          Pendiente de boceto
+        </span>
+      </div>
+
+      <table style="width: 100%; font-size: 13px;">
+        <tbody>
+          <tr>
+            <td style="padding: 6px 0; color: var(--color-text-secondary);">Categoría</td>
+            <td data-order-category style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: var(--color-text-secondary);">Tamaño</td>
+            <td data-order-size style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: var(--color-text-secondary);">Material</td>
+            <td data-order-material style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
+          </tr>
+          <tr data-deadline-row hidden>
+            <td style="padding: 6px 0; color: var(--color-text-secondary);">Fecha deseada</td>
+            <td data-order-deadline style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+      <p style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem;">
+        ¿Qué pasa ahora?
+      </p>
+      <div data-next-steps style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <a
+        href="/seguimiento"
+        style="flex: 1; background: #1D9E75; color: white; border: none; border-radius: var(--border-radius-md); padding: 12px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none;"
+      >
+        Seguir mi pedido
+      </a>
+      <a
+        href="/"
+        style="flex: 1; background: none; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 12px; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none;"
+      >
+        Volver al inicio
+      </a>
+    </div>
+  </main>
+
+  <script>
+    const categoryLabels = {
+      miniature: "Miniatura / figura",
+      deco: "Decoración",
+      pet: "Mascota",
+      cosplay: "Cosplay / prop",
+      practical: "Pieza práctica",
+      gift: "Regalo personalizado",
+    };
+
+    const noOrder = document.querySelector("[data-no-order]");
+    const confirmation = document.querySelector("[data-order-confirmation]");
+    const orderRaw = sessionStorage.getItem("fabrica3d-order");
+    const order = orderRaw ? JSON.parse(orderRaw) : null;
+
+    if (order && noOrder && confirmation) {
+      noOrder.hidden = true;
+      confirmation.hidden = false;
+
+      const setText = (selector, text) => {
+        const element = document.querySelector(selector);
+        if (element) element.textContent = text || "";
+      };
+
+      setText("[data-order-email]", order.email || "tu email");
+      setText("[data-order-id]", order.orderId);
+      setText("[data-order-category]", categoryLabels[order.category] || order.category);
+      setText("[data-order-size]", order.size ? order.size.toUpperCase() : "");
+      setText("[data-order-material]", order.material === "any" ? "Sin preferencia" : order.material?.toUpperCase());
+
+      const deadlineRow = document.querySelector("[data-deadline-row]");
+      if (deadlineRow && order.deadline) {
+        deadlineRow.hidden = false;
+        setText("[data-order-deadline]", order.deadline);
+      }
+
+      const steps = [
+        order.hasDesign
+          ? "Buscamos un impresor cercano disponible (24h aprox.)"
+          : "Un diseñador revisa tu briefing y empieza el boceto",
+        order.hasDesign
+          ? "El impresor confirma el pedido y precio final"
+          : "Recibirás el boceto para aprobar en 24–48h",
+        "Verás fotos del proceso de impresión en tiempo real",
+        "Tu pieza llega a casa",
+      ];
+      const nextSteps = document.querySelector("[data-next-steps]");
+      if (nextSteps) {
+        nextSteps.innerHTML = steps.map((text, index) => `
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0; margin-top: 1px;">
+              ${index + 1}
+            </span>
+            <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">
+              ${text}
+            </p>
+          </div>
+        `).join("");
+      }
+    }
+  </script>
+</BaseLayout>

@@ -1,0 +1,453 @@
+/* ============================================================
+   Paleta: "ficha técnica de taller" — papel de plano + tinta
+   grafito + azul de plano (cobalto). El dorado se reserva SOLO
+   para las estrellas de valoración, nunca como color decorativo.
+   ============================================================ */
+:root {
+  --paper: #f1efe9;
+  --paper-raised: #ffffff;
+  --ink: #20242b;
+  --ink-soft: #565d68;
+  --line: #d8d4c8;
+  --blueprint: #2e4d78;
+  --blueprint-soft: #dde5ee;
+  --gold: #b8863b;
+  --radius: 3px;
+
+  /* Colores de materiales: leyenda consistente en toda la web
+     (ficha de productor, directorio, y cualquier otra página
+     que muestre materiales en el futuro). */
+  --mat-pla: #6f8faf;
+  --mat-petg: #3e6b5c;
+  --mat-abs: #45484d;
+  --mat-tpu: #c97b4a;
+  --mat-resina: #7c5cbf;
+  --mat-nylon: #b79c7d;
+}
+
+.productor-page {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+.productor-page * { box-sizing: border-box; }
+
+.pp-mono {
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Cabecera ---------- */
+.pp-header {
+  border-bottom: 1px solid var(--line);
+  padding: 2.5rem 1.5rem 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.pp-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: var(--blueprint-soft);
+}
+
+.pp-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--blueprint);
+  margin: 0 0 0.35rem;
+}
+
+.pp-nombre {
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  line-height: 1.15;
+}
+
+.pp-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  align-items: center;
+}
+
+.pp-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ---------- Tiras de materiales (leyenda consistente en todo el sitio) --- */
+.pp-materiales-strip {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.pp-material-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem 0.2rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+}
+
+.pp-material-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ---------- Layout principal ---------- */
+.pp-body {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 760px) {
+  .pp-body { grid-template-columns: 260px 1fr; }
+}
+
+.pp-sidebar-block + .pp-sidebar-block { margin-top: 1.75rem; }
+
+.pp-sidebar-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px dotted var(--line);
+}
+
+.pp-bio {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.pp-specialidades {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pp-specialidades li {
+  font-size: 0.85rem;
+  padding-left: 0.9rem;
+  position: relative;
+}
+
+.pp-specialidades li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--blueprint);
+}
+
+.pp-impresoras {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+/* ---------- Portfolio: tarjetas tipo ficha técnica ---------- */
+.pp-section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+}
+
+.pp-portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 2.5rem;
+}
+
+.pp-product-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pp-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(32, 36, 43, 0.08);
+}
+
+.pp-product-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--blueprint-soft);
+  display: block;
+}
+
+.pp-product-body { padding: 0.85rem 0.9rem 1rem; }
+
+.pp-product-nombre {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0 0 0.55rem;
+}
+
+.pp-spec-sheet {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.pp-spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px dotted var(--line);
+  padding-bottom: 0.22rem;
+}
+
+.pp-spec-row span:first-child { color: var(--ink-soft); }
+.pp-spec-row span:last-child { color: var(--ink); text-align: right; }
+
+.pp-product-precio {
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--blueprint);
+}
+
+/* ---------- Reseñas: estilo libro de registro ---------- */
+.pp-resenas-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-resena {
+  padding: 1rem 0;
+  border-bottom: 1px dotted var(--line);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem 1rem;
+}
+
+.pp-resena:first-child { padding-top: 0; }
+
+.pp-resena-autor {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.pp-resena-fecha {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.pp-resena-estrellas {
+  color: var(--gold);
+  font-size: 0.8rem;
+  grid-row: 1;
+  grid-column: 2;
+  align-self: start;
+}
+
+.pp-resena-texto {
+  grid-column: 1 / -1;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0.2rem 0 0;
+}
+
+/* ---------- Formulario de reseña ---------- */
+.pp-review-form {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.pp-review-form-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 0.9rem;
+}
+
+.pp-review-form label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.3rem;
+}
+
+.pp-review-form input,
+.pp-review-form textarea,
+.pp-review-form select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.88rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  margin-bottom: 0.9rem;
+}
+
+.pp-review-form textarea { min-height: 80px; resize: vertical; }
+
+.pp-review-submit {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pp-review-submit:hover { background: var(--blueprint); }
+
+.pp-review-note {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  margin-top: 0.6rem;
+}
+
+/* ---------- CTA ---------- */
+.pp-cta {
+  max-width: 960px;
+  margin: 2.5rem auto 0;
+  padding: 1.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pp-cta-text { font-size: 0.92rem; }
+.pp-cta-text strong { display: block; font-size: 1.05rem; margin-bottom: 0.2rem; }
+
+.pp-cta-button {
+  background: var(--paper);
+  color: var(--ink);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.65rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-product-card { transition: none; }
+}
+
+/* ============================================================
+   Directorio de productores (listado/preview de todos los talleres)
+   ============================================================ */
+
+.pp-header--directorio {
+  grid-template-columns: 1fr;
+}
+
+.dir-grid {
+  max-width: 960px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.dir-card {
+  display: block;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dir-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(32, 36, 43, 0.08);
+}
+
+.dir-card:focus-visible {
+  outline: 2px solid var(--blueprint);
+  outline-offset: 2px;
+}
+
+.dir-card-photo {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: var(--blueprint-soft);
+  display: block;
+}
+
+.dir-card-body { padding: 0.9rem 1rem 1.1rem; }
+
+.dir-card-nombre {
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dir-card-ubicacion {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin: 0.15rem 0 0;
+}
+
+.dir-card-especialidad {
+  font-size: 0.72rem;
+  color: var(--blueprint);
+  margin: 0.6rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px dotted var(--line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dir-card { transition: none; }
+}

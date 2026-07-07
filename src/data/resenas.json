@@ -1,0 +1,29 @@
+[
+  {
+    "id": "res-001",
+    "productorId": "p-001",
+    "autor": "Marta G.",
+    "valoracion": 5,
+    "comentario": "La lámpara llegó mejor de lo que esperaba, el acabado del Voronoi es precioso. Comunicación rápida durante todo el encargo.",
+    "fecha": "2026-05-12",
+    "aprobada": true
+  },
+  {
+    "id": "res-002",
+    "productorId": "p-001",
+    "autor": "Javier R.",
+    "valoracion": 4,
+    "comentario": "Buen trabajo con las macetas, un color ligeramente distinto al de la foto pero el taller me avisó antes de imprimir.",
+    "fecha": "2026-06-03",
+    "aprobada": true
+  },
+  {
+    "id": "res-003",
+    "productorId": "p-002",
+    "autor": "Laura M.",
+    "valoracion": 5,
+    "comentario": "Nivel de detalle altísimo en la figura, se nota que trabajan solo con resina. Repetiré seguro.",
+    "fecha": "2026-06-20",
+    "aprobada": true
+  }
+]

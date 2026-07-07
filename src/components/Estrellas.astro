@@ -1,0 +1,7 @@
+---
+import { estrellas } from "../lib/productorShared.js";
+
+const { valor } = Astro.props;
+---
+
+<span aria-label={`${valor} de 5 estrellas`}>{estrellas(valor)}</span>

@@ -1,0 +1,216 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import MaterialChip from "../../components/MaterialChip.astro";
+import Estrellas from "../../components/Estrellas.astro";
+import productores from "../../data/productores.json";
+import resenasData from "../../data/resenas.json";
+import { MATERIALES, calcularMediaValoracion } from "../../lib/productorShared.js";
+import "../../styles/ProductorPage.css";
+
+export function getStaticPaths() {
+  return productores.map((productor) => ({
+    params: { slug: productor.slug },
+    props: { productor },
+  }));
+}
+
+const { productor } = Astro.props;
+const resenasAprobadas = resenasData
+  .filter((r) => r.productorId === productor.id && r.aprobada)
+  .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+const { media: mediaValoracion } = calcularMediaValoracion(productor.id, resenasData);
+const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/TU_ID_DE_FORMULARIO";
+---
+
+<BaseLayout>
+  <div class="productor-page">
+    <header class="pp-header">
+      <img class="pp-avatar" src={productor.foto} alt={productor.nombre} />
+      <div>
+        <p class="pp-eyebrow pp-mono">Taller verificado</p>
+        <h1 class="pp-nombre">{productor.nombre}</h1>
+        <div class="pp-meta-row">
+          <span>{productor.ubicacion}</span>
+          <span>·</span>
+          <span>Responde en ~{productor.tiempoRespuestaHoras}h</span>
+          {mediaValoracion !== null && (
+            <>
+              <span>·</span>
+              <span class="pp-rating-pill">
+                <Estrellas valor={mediaValoracion} />
+                {mediaValoracion.toFixed(1)} ({resenasAprobadas.length})
+              </span>
+            </>
+          )}
+        </div>
+        <div class="pp-materiales-strip">
+          {productor.materiales.map((m) => (
+            <MaterialChip codigo={m} />
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <div class="pp-body">
+      <aside>
+        <div class="pp-sidebar-block">
+          <p class="pp-sidebar-title pp-mono">Sobre el taller</p>
+          <p class="pp-bio">{productor.bio}</p>
+        </div>
+
+        <div class="pp-sidebar-block">
+          <p class="pp-sidebar-title pp-mono">Especialidades</p>
+          <ul class="pp-specialidades">
+            {productor.especialidades.map((esp) => (
+              <li>{esp}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="pp-sidebar-block">
+          <p class="pp-sidebar-title pp-mono">Equipo</p>
+          <p class="pp-impresoras pp-mono">
+            {productor.impresoras.join(" · ")}
+          </p>
+        </div>
+      </aside>
+
+      <main>
+        <h2 class="pp-section-title">Trabajos publicados</h2>
+        <div class="pp-portfolio-grid">
+          {productor.productos.map((prod) => (
+            <article class="pp-product-card">
+              <img class="pp-product-photo" src={prod.foto} alt={prod.nombre} />
+              <div class="pp-product-body">
+                <h3 class="pp-product-nombre">{prod.nombre}</h3>
+                <div class="pp-spec-sheet pp-mono">
+                  <div class="pp-spec-row">
+                    <span>Material</span>
+                    <span>{MATERIALES[prod.material]?.label ?? prod.material}</span>
+                  </div>
+                  <div class="pp-spec-row">
+                    <span>Dimensiones</span>
+                    <span>{prod.dimensiones}</span>
+                  </div>
+                  <div class="pp-spec-row">
+                    <span>T. impresión</span>
+                    <span>{prod.tiempoImpresionHoras}h</span>
+                  </div>
+                </div>
+                <p class="pp-product-precio">
+                  Desde {prod.precioDesde.toFixed(2)} €
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <h2 class="pp-section-title">Opiniones de clientes</h2>
+        <div class="pp-resenas-list">
+          {resenasAprobadas.length === 0 && (
+            <p class="pp-bio">Todavía no hay opiniones publicadas.</p>
+          )}
+          {resenasAprobadas.map((r) => (
+            <div class="pp-resena">
+              <span class="pp-resena-autor">{r.autor}</span>
+              <span class="pp-resena-estrellas">
+                <Estrellas valor={r.valoracion} />
+              </span>
+              <span class="pp-resena-fecha pp-mono">{r.fecha}</span>
+              <p class="pp-resena-texto">{r.comentario}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="pp-review-form" data-review-success hidden>
+          <p class="pp-review-form-title">¡Gracias por tu opinión!</p>
+          <p class="pp-review-note">
+            La revisamos y la publicamos en el perfil en breve.
+          </p>
+        </div>
+
+        <form
+          class="pp-review-form"
+          data-review-form
+          data-productor-id={productor.id}
+          data-productor-nombre={productor.nombre}
+          data-endpoint={FORMSPREE_RESENAS_ENDPOINT}
+        >
+          <p class="pp-review-form-title">Deja tu opinión sobre este taller</p>
+
+          <label for="autor">Tu nombre</label>
+          <input id="autor" name="autor" type="text" required maxlength="60" />
+
+          <label for="valoracion">Valoración</label>
+          <select id="valoracion" name="valoracion" required value="5">
+            <option value="5">★★★★★ Excelente</option>
+            <option value="4">★★★★☆ Muy bueno</option>
+            <option value="3">★★★☆☆ Correcto</option>
+            <option value="2">★★☆☆☆ Regular</option>
+            <option value="1">★☆☆☆☆ Malo</option>
+          </select>
+
+          <label for="comentario">Comentario</label>
+          <textarea id="comentario" name="comentario" required maxlength="500"></textarea>
+
+          <button class="pp-review-submit" type="submit" data-review-submit>
+            Enviar opinión
+          </button>
+
+          <p class="pp-review-note" data-review-error hidden></p>
+          <p class="pp-review-note">
+            Se revisa antes de publicarse para evitar spam y opiniones falsas.
+          </p>
+        </form>
+      </main>
+    </div>
+
+    <div class="pp-cta">
+      <div class="pp-cta-text">
+        <strong>¿Quieres un encargo con {productor.nombre}?</strong>
+        Cuéntanos qué necesitas y te preparamos un brief a medida.
+      </div>
+      <a class="pp-cta-button" href="/briefing">
+        Empezar encargo
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.querySelector("[data-review-form]");
+    const success = document.querySelector("[data-review-success]");
+    const error = document.querySelector("[data-review-error]");
+    const submit = document.querySelector("[data-review-submit]");
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!submit || !error || !success) return;
+
+      submit.disabled = true;
+      submit.textContent = "Enviando…";
+      error.hidden = true;
+
+      const datos = new FormData(form);
+      datos.append("productorId", form.dataset.productorId || "");
+      datos.append("productorNombre", form.dataset.productorNombre || "");
+      datos.append("tipo", "resena");
+
+      try {
+        const res = await fetch(form.dataset.endpoint || "", {
+          method: "POST",
+          body: datos,
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok) throw new Error("Error al enviar");
+        form.hidden = true;
+        success.hidden = false;
+      } catch (err) {
+        error.textContent = "No se pudo enviar la reseña. Inténtalo de nuevo en un momento.";
+        error.hidden = false;
+      } finally {
+        submit.disabled = false;
+        submit.textContent = "Enviar opinión";
+      }
+    });
+  </script>
+</BaseLayout>

@@ -1,0 +1,632 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const STEPS = [
+  { id: "category", title: "¿Qué tipo de pieza quieres?" },
+  { id: "description", title: "Cuéntanos tu idea" },
+  { id: "references", title: "¿Tienes referencias visuales?" },
+  { id: "size", title: "¿Qué tamaño necesitas?" },
+  { id: "details", title: "Últimos detalles" },
+  { id: "contact", title: "¿Cómo te contactamos?" },
+];
+
+const CATEGORIES = [
+  { id: "miniature", label: "Miniatura / figura", icon: "🎲", desc: "Personajes, criaturas, escenas" },
+  { id: "deco", label: "Decoración", icon: "🏠", desc: "Hogar, regalo, arte" },
+  { id: "pet", label: "Mascota", icon: "🐾", desc: "Accesorios, juguetes, comederos" },
+  { id: "cosplay", label: "Cosplay / prop", icon: "🎭", desc: "Armas, cascos, accesorios" },
+  { id: "practical", label: "Pieza práctica", icon: "🔧", desc: "Soporte, adaptador, recambio" },
+  { id: "gift", label: "Regalo personalizado", icon: "🎁", desc: "Con nombre, fecha u otro detalle" },
+];
+
+const SIZES = [
+  { id: "xs", label: "Pequeño", desc: "Como una moneda", example: "< 5 cm" },
+  { id: "s", label: "Compacto", desc: "Como un móvil", example: "5–15 cm" },
+  { id: "m", label: "Mediano", desc: "Como un libro", example: "15–30 cm" },
+  { id: "l", label: "Grande", desc: "Como una mochila", example: "> 30 cm" },
+];
+
+const MATERIALS = [
+  { id: "any", label: "Sin preferencia", desc: "El impresor elige lo mejor" },
+  { id: "pla", label: "PLA", desc: "Ecológico, acabado suave" },
+  { id: "resin", label: "Resina", desc: "Máximo detalle, acabado liso" },
+  { id: "petg", label: "PETG", desc: "Más resistente, funcional" },
+];
+
+const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
+---
+
+<BaseLayout>
+  <main style="max-width: 620px; margin: 0 auto; padding: 2rem 1.5rem 4rem;">
+    <button
+      data-back
+      type="button"
+      style="background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 2rem;"
+    >
+      ← Volver al inicio
+    </button>
+
+    <div style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
+        <span>Paso <span data-step-current>1</span> de {STEPS.length}</span>
+        <span><span data-progress-text>0</span>% completado</span>
+      </div>
+      <div style="height: 4px; background: var(--color-border-tertiary); border-radius: 2px; overflow: hidden;">
+        <div data-progress-fill style={`height: 100%; width: ${(1 / STEPS.length) * 100}%; background: #1D9E75; border-radius: 2px; transition: width 0.3s ease;`}></div>
+      </div>
+    </div>
+
+    <h1 data-step-title style="font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.75rem;">
+      {STEPS[0].title}
+    </h1>
+
+    <section data-step="0">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        {CATEGORIES.map((c) => (
+          <button
+            data-choice="category"
+            data-value={c.id}
+            type="button"
+            class="wizard-option"
+            style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; text-align: left; transition: all 0.15s;"
+          >
+            <div style="font-size: 22px; margin-bottom: 6px;">{c.icon}</div>
+            <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
+              {c.label}
+            </div>
+            <div style="font-size: 12px; color: var(--color-text-secondary);">{c.desc}</div>
+          </button>
+        ))}
+      </div>
+    </section>
+
+    <section data-step="1" hidden>
+      <div>
+        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1rem;">
+          Escríbelo como se lo contarías a un amigo. Cuanto más detalle, mejor resultado.
+        </p>
+        <textarea
+          data-field="description"
+          placeholder="Ej: Quiero una miniatura de un dragón negro de unos 10cm, con alas desplegadas y postura amenazante. Es para mi campaña de D&D y quiero que parezca imponente..."
+          rows="6"
+          style="width: 100%; box-sizing: border-box; padding: 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); resize: vertical; line-height: 1.6; font-family: inherit;"
+        ></textarea>
+        <p data-description-count style="font-size: 12px; color: var(--color-text-secondary); margin-top: 6px;">
+          0 caracteres (mínimo 15)
+        </p>
+      </div>
+    </section>
+
+    <section data-step="2" hidden>
+      <div>
+        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
+          ¿Ya tienes un diseño 3D listo (.STL, .OBJ) o necesitas que un diseñador lo cree para ti?
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
+          {[
+            { val: false, label: "Necesito que un diseñador lo cree", sub: "Te enviamos un boceto en 24–48h para aprobar" },
+            { val: true, label: "Tengo mi propio archivo de diseño", sub: "Lo envías y buscamos un impresor directamente" },
+          ].map((opt) => (
+            <button
+              data-choice="hasDesign"
+              data-value={String(opt.val)}
+              type="button"
+              class="wizard-option"
+              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; cursor: pointer; text-align: left;"
+            >
+              <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px;">
+                {opt.label}
+              </div>
+              <div style="font-size: 13px; color: var(--color-text-secondary);">{opt.sub}</div>
+            </button>
+          ))}
+        </div>
+
+        <div data-design-upload hidden>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">
+            Formatos aceptados: .STL, .OBJ, .3MF, .STEP
+          </p>
+          <input
+            data-design-file
+            type="file"
+            accept=".stl,.obj,.3mf,.step,.stp"
+            style="display: none;"
+          />
+          <button
+            data-design-upload-button
+            type="button"
+            style="border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 1rem 1.5rem; background: var(--color-background-secondary); cursor: pointer; color: var(--color-text-secondary); font-size: 14px; width: 100%;"
+          >
+            Subir archivo de diseño →
+          </button>
+          <div data-stl-preview style="margin-top: 12px;" hidden>
+            <div
+              data-stl-container
+              style="height: 280px; width: 100%; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: #F7FAF8;"
+            ></div>
+            <p data-stl-message style="font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 0;">
+              Arrastra para rotar, rueda para acercar.
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px;">
+            ¿Tienes imágenes de referencia? (opcional)
+          </p>
+          <input
+            data-reference-files
+            type="file"
+            accept="image/*"
+            multiple
+            style="font-size: 13px; color: var(--color-text-secondary);"
+          />
+          <p data-reference-count style="font-size: 12px; color: #1D9E75; margin-top: 6px;" hidden></p>
+        </div>
+      </div>
+    </section>
+
+    <section data-step="3" hidden>
+      <div>
+        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
+          Una referencia aproximada es suficiente. El diseñador lo ajustará.
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
+          {SIZES.map((s) => (
+            <button
+              data-choice="size"
+              data-value={s.id}
+              type="button"
+              class="wizard-option"
+              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; text-align: left;"
+            >
+              <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
+                {s.label}
+              </div>
+              <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">{s.desc}</div>
+              <div style="font-size: 11px; color: #0F6E56; font-weight: 500;">{s.example}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+            Color preferido (opcional)
+          </label>
+          <input
+            data-field="color"
+            type="text"
+            placeholder="Ej: Negro mate, rojo sangre, madera natural..."
+            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section data-step="4" hidden>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+            Material preferido
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            {MATERIALS.map((m) => (
+              <button
+                data-choice="material"
+                data-value={m.id}
+                type="button"
+                class="wizard-option"
+                style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem; cursor: pointer; text-align: left;"
+              >
+                <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
+                  {m.label}
+                </div>
+                <div style="font-size: 11px; color: var(--color-text-secondary);">{m.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+            ¿Cuándo lo necesitas?
+          </label>
+          <input
+            data-field="deadline"
+            type="date"
+            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
+          />
+        </div>
+
+        <div>
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
+            Presupuesto aproximado (opcional)
+          </label>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
+            Solo para orientar al diseñador. Sin compromiso.
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {budgets.map((budget) => (
+              <button
+                data-choice="budget"
+                data-value={budget}
+                type="button"
+                class="wizard-option wizard-pill"
+                style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
+              >
+                {budget}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-step="5" hidden>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 0.5rem;">
+          Para enviarte el boceto del diseñador y las actualizaciones de tu pedido.
+        </p>
+
+        {[
+          { key: "name", label: "Nombre", placeholder: "Tu nombre", type: "text" },
+          { key: "email", label: "Email", placeholder: "tu@email.com", type: "email" },
+          { key: "phone", label: "Teléfono (opcional)", placeholder: "+34 600 000 000", type: "tel" },
+        ].map((f) => (
+          <div>
+            <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
+              {f.label}
+            </label>
+            <input
+              data-field={f.key}
+              type={f.type}
+              placeholder={f.placeholder}
+              style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
+            />
+          </div>
+        ))}
+
+        <div style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 0.5rem;">
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+            🔒 Tus datos se usan únicamente para gestionar tu pedido. No compartimos información con terceros.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);">
+      <div data-footer-note style="font-size: 13px; color: var(--color-text-secondary);">
+        Sin compromiso hasta el pago
+      </div>
+
+      <button
+        data-next
+        type="button"
+        disabled
+        style="background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 15px; font-weight: 500; cursor: not-allowed; transition: all 0.15s;"
+      >
+        Continuar →
+      </button>
+    </div>
+  </main>
+
+  <style>
+    .wizard-option.is-selected {
+      background: #E1F5EE !important;
+      border: 2px solid #1D9E75 !important;
+    }
+  </style>
+
+  <script>
+    const steps = [
+      { id: "category", title: "¿Qué tipo de pieza quieres?" },
+      { id: "description", title: "Cuéntanos tu idea" },
+      { id: "references", title: "¿Tienes referencias visuales?" },
+      { id: "size", title: "¿Qué tamaño necesitas?" },
+      { id: "details", title: "Últimos detalles" },
+      { id: "contact", title: "¿Cómo te contactamos?" },
+    ];
+
+    let step = 0;
+    let submitting = false;
+    let stlDispose = null;
+    const form = {
+      category: "",
+      description: "",
+      hasDesign: null,
+      designFile: null,
+      designFileObject: null,
+      references: [],
+      size: "",
+      color: "",
+      material: "any",
+      deadline: "",
+      budget: "",
+      name: "",
+      email: "",
+      phone: "",
+    };
+
+    const sections = Array.from(document.querySelectorAll("[data-step]"));
+    const backButton = document.querySelector("[data-back]");
+    const nextButton = document.querySelector("[data-next]");
+    const title = document.querySelector("[data-step-title]");
+    const currentStep = document.querySelector("[data-step-current]");
+    const progressText = document.querySelector("[data-progress-text]");
+    const progressFill = document.querySelector("[data-progress-fill]");
+    const footerNote = document.querySelector("[data-footer-note]");
+    const designUpload = document.querySelector("[data-design-upload]");
+    const designFileInput = document.querySelector("[data-design-file]");
+    const designUploadButton = document.querySelector("[data-design-upload-button]");
+    const referenceInput = document.querySelector("[data-reference-files]");
+    const referenceCount = document.querySelector("[data-reference-count]");
+    const descriptionCount = document.querySelector("[data-description-count]");
+    const stlPreview = document.querySelector("[data-stl-preview]");
+    const stlContainer = document.querySelector("[data-stl-container]");
+    const stlMessage = document.querySelector("[data-stl-message]");
+
+    const canProceed = () => {
+      if (step === 0) return Boolean(form.category);
+      if (step === 1) return form.description.length >= 15;
+      if (step === 2) return form.hasDesign !== null;
+      if (step === 3) return Boolean(form.size);
+      if (step === 4) return true;
+      if (step === 5) return form.name.length > 1 && form.email.includes("@");
+      return true;
+    };
+
+    const updateNextButton = () => {
+      if (!nextButton) return;
+      const enabled = canProceed() && !submitting;
+      nextButton.disabled = !enabled;
+      nextButton.textContent = step < steps.length - 1
+        ? "Continuar →"
+        : (submitting ? "Enviando..." : "Enviar pedido →");
+      nextButton.style.background = enabled ? "#1D9E75" : "var(--color-background-secondary)";
+      nextButton.style.color = enabled ? "white" : "var(--color-text-secondary)";
+      nextButton.style.cursor = enabled ? "pointer" : "not-allowed";
+    };
+
+    const updateStep = () => {
+      sections.forEach((section) => {
+        section.hidden = section.dataset.step !== String(step);
+      });
+      if (backButton) backButton.textContent = step === 0 ? "← Volver al inicio" : "← Paso anterior";
+      if (title) title.textContent = steps[step].title;
+      if (currentStep) currentStep.textContent = String(step + 1);
+      if (progressText) progressText.textContent = String(Math.round((step / (steps.length - 1)) * 100));
+      if (progressFill) progressFill.style.width = `${((step + 1) / steps.length) * 100}%`;
+      if (footerNote) footerNote.textContent = step < steps.length - 1 ? "Sin compromiso hasta el pago" : "";
+      updateNextButton();
+    };
+
+    const updateChoice = (group, value) => {
+      document.querySelectorAll(`[data-choice="${group}"]`).forEach((button) => {
+        button.classList.toggle("is-selected", button.dataset.value === String(value));
+      });
+    };
+
+    const updateField = (key, value) => {
+      form[key] = value;
+      if (key === "description" && descriptionCount) {
+        descriptionCount.textContent = `${form.description.length} caracteres ${form.description.length < 15 ? "(mínimo 15)" : ""}`;
+        descriptionCount.style.color = form.description.length < 15 ? "var(--color-text-secondary)" : "#1D9E75";
+      }
+      updateNextButton();
+    };
+
+    document.querySelectorAll("[data-choice]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const group = button.dataset.choice;
+        const rawValue = button.dataset.value || "";
+        const value = group === "hasDesign" ? rawValue === "true" : rawValue;
+        form[group] = value;
+        updateChoice(group, rawValue);
+
+        if (group === "hasDesign" && designUpload) {
+          designUpload.hidden = value !== true;
+          if (value !== true) {
+            form.designFile = null;
+            form.designFileObject = null;
+            disposeStlPreview();
+          }
+        }
+
+        updateNextButton();
+      });
+    });
+
+    document.querySelectorAll("[data-field]").forEach((field) => {
+      field.addEventListener("input", () => {
+        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+          updateField(field.dataset.field, field.value);
+        }
+      });
+    });
+
+    backButton?.addEventListener("click", () => {
+      if (step === 0) {
+        window.location.href = "/";
+        return;
+      }
+      step -= 1;
+      updateStep();
+      window.scrollTo(0, 0);
+    });
+
+    nextButton?.addEventListener("click", async () => {
+      if (!canProceed() || submitting) return;
+      if (step < steps.length - 1) {
+        step += 1;
+        updateStep();
+        window.scrollTo(0, 0);
+        return;
+      }
+
+      submitting = true;
+      updateNextButton();
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      const orderId = `F3D-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+      const { designFileObject, ...orderForm } = form;
+      sessionStorage.setItem("fabrica3d-order", JSON.stringify({ ...orderForm, orderId }));
+      window.location.href = "/confirmacion";
+    });
+
+    designUploadButton?.addEventListener("click", () => {
+      if (designFileInput instanceof HTMLInputElement) designFileInput.click();
+    });
+
+    designFileInput?.addEventListener("change", () => {
+      if (!(designFileInput instanceof HTMLInputElement)) return;
+      const file = designFileInput.files?.[0] || null;
+      form.designFile = file?.name || null;
+      form.designFileObject = file;
+      if (designUploadButton) {
+        designUploadButton.textContent = form.designFile ? `✓ ${form.designFile}` : "Subir archivo de diseño →";
+        designUploadButton.style.color = form.designFile ? "#1D9E75" : "var(--color-text-secondary)";
+      }
+      if (file?.name?.toLowerCase().endsWith(".stl")) renderStlPreview(file);
+      else disposeStlPreview();
+    });
+
+    referenceInput?.addEventListener("change", () => {
+      if (!(referenceInput instanceof HTMLInputElement)) return;
+      form.references = Array.from(referenceInput.files || []).map((file) => file.name);
+      if (!referenceCount) return;
+      if (form.references.length > 0) {
+        referenceCount.textContent = `✓ ${form.references.length} imagen(es) seleccionada(s)`;
+        referenceCount.hidden = false;
+      } else {
+        referenceCount.hidden = true;
+      }
+    });
+
+    const deadlineInput = document.querySelector('[data-field="deadline"]');
+    if (deadlineInput instanceof HTMLInputElement) {
+      deadlineInput.min = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+    }
+
+    updateChoice("material", "any");
+    updateStep();
+
+    function disposeStlPreview() {
+      if (stlDispose) stlDispose();
+      stlDispose = null;
+      if (stlContainer) stlContainer.innerHTML = "";
+      if (stlPreview) stlPreview.hidden = true;
+      if (stlMessage) {
+        stlMessage.textContent = "Arrastra para rotar, rueda para acercar.";
+        stlMessage.style.color = "var(--color-text-secondary)";
+      }
+    }
+
+    async function renderStlPreview(file) {
+      disposeStlPreview();
+      if (!stlPreview || !stlContainer || !stlMessage) return;
+      stlPreview.hidden = false;
+
+      let disposed = false;
+      let frameId = 0;
+      let renderer;
+      let controls;
+      let resizeObserver;
+      let geometry;
+      let scene;
+      let camera;
+
+      stlDispose = () => {
+        disposed = true;
+        cancelAnimationFrame(frameId);
+        resizeObserver?.disconnect();
+        controls?.dispose();
+        geometry?.dispose();
+        scene?.traverse((object) => {
+          if (object.material) object.material.dispose();
+        });
+        renderer?.dispose();
+        renderer?.domElement?.remove();
+      };
+
+      const resize = () => {
+        if (!renderer || !camera || !stlContainer.clientWidth || !stlContainer.clientHeight) return;
+        camera.aspect = stlContainer.clientWidth / stlContainer.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight, false);
+        renderer.render(scene, camera);
+      };
+
+      try {
+        const [THREE, { OrbitControls }, { STLLoader }, buffer] = await Promise.all([
+          import("three"),
+          import("three/examples/jsm/controls/OrbitControls.js"),
+          import("three/examples/jsm/loaders/STLLoader.js"),
+          file.arrayBuffer(),
+        ]);
+        if (disposed) return;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf7faf8);
+
+        camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+        camera.position.set(90, 70, 110);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 2.3);
+        keyLight.position.set(80, 120, 90);
+        scene.add(keyLight);
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x9fb7ad, 1.6));
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight, false);
+        stlContainer.appendChild(renderer.domElement);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+
+        resizeObserver = new ResizeObserver(resize);
+        resizeObserver.observe(stlContainer);
+
+        const loader = new STLLoader();
+        geometry = loader.parse(buffer);
+        geometry.computeVertexNormals();
+        geometry.computeBoundingBox();
+
+        const material = new THREE.MeshStandardMaterial({
+          color: 0x2bb58a,
+          roughness: 0.45,
+          metalness: 0.08,
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+
+        const box = new THREE.Box3().setFromObject(mesh);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        mesh.position.sub(center);
+
+        const maxAxis = Math.max(size.x, size.y, size.z) || 1;
+        const scale = 72 / maxAxis;
+        mesh.scale.setScalar(scale);
+        mesh.rotation.x = -Math.PI / 2;
+        scene.add(mesh);
+
+        controls.target.set(0, 0, 0);
+        controls.update();
+        stlMessage.textContent = "Arrastra para rotar, rueda para acercar.";
+        stlMessage.style.color = "var(--color-text-secondary)";
+
+        const animate = () => {
+          frameId = requestAnimationFrame(animate);
+          controls.update();
+          renderer.render(scene, camera);
+        };
+        resize();
+        animate();
+      } catch (err) {
+        stlMessage.textContent = "No se pudo previsualizar este STL.";
+        stlMessage.style.color = "#A23B3B";
+      }
+    }
+  </script>
+</BaseLayout>

@@ -1,0 +1,59 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import MaterialChip from "../../components/MaterialChip.astro";
+import Estrellas from "../../components/Estrellas.astro";
+import productores from "../../data/productores.json";
+import resenas from "../../data/resenas.json";
+import { calcularMediaValoracion } from "../../lib/productorShared.js";
+import "../../styles/ProductorPage.css";
+---
+
+<BaseLayout>
+  <div class="productor-page">
+    <header class="pp-header pp-header--directorio">
+      <div>
+        <p class="pp-eyebrow pp-mono">Directorio</p>
+        <h1 class="pp-nombre">Talleres de impresión 3D</h1>
+        <p class="pp-bio" style="margin-top: 0.5rem;">
+          Cada taller tiene su propio equipo, materiales y especialidad. Entra
+          en uno para ver su catálogo completo y las opiniones de otros clientes.
+        </p>
+      </div>
+    </header>
+
+    <div class="dir-grid">
+      {productores.map((productor) => {
+        const { media, total } = calcularMediaValoracion(productor.id, resenas);
+        return (
+          <a class="dir-card" href={`/productores/${productor.slug}`}>
+            <img
+              class="dir-card-photo"
+              src={productor.foto}
+              alt={productor.nombre}
+            />
+            <div class="dir-card-body">
+              <h2 class="dir-card-nombre">{productor.nombre}</h2>
+              <p class="dir-card-ubicacion pp-mono">{productor.ubicacion}</p>
+
+              {media !== null && (
+                <p class="pp-rating-pill" style="margin-top: 0.35rem;">
+                  <Estrellas valor={media} /> {media.toFixed(1)} ({total})
+                </p>
+              )}
+
+              <div class="pp-materiales-strip" style="margin-top: 0.55rem;">
+                {productor.materiales.map((m) => (
+                  <MaterialChip codigo={m} />
+                ))}
+              </div>
+
+              <p class="dir-card-especialidad pp-mono">
+                {productor.especialidades[0]}
+              </p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
