@@ -19,7 +19,7 @@ const resenasAprobadas = resenasData
   .filter((r) => r.productorId === productor.id && r.aprobada)
   .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 const { media: mediaValoracion } = calcularMediaValoracion(productor.id, resenasData);
-const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/TU_ID_DE_FORMULARIO";
+const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
 ---
 
 <BaseLayout>
