@@ -1,10 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { printerBenefitIcons } from "../lib/icons";
 
 const benefits = [
-  { icon: "💰", text: "Solo pagas comisión al completar pedidos" },
-  { icon: "📍", text: "Pedidos filtrados por tu zona" },
-  { icon: "🎯", text: "Tú eliges qué pedidos aceptar" },
+  { icon: printerBenefitIcons.commission, text: "Solo pagas comisión al completar pedidos" },
+  { icon: printerBenefitIcons.location, text: "Pedidos filtrados por tu zona" },
+  { icon: printerBenefitIcons.choice, text: "Tú eliges qué pedidos aceptar" },
 ];
 
 const materials = ["PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"];
@@ -15,10 +16,11 @@ const experiences = [
 ];
 
 const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;";
+const FORMSPREE_IMPRESORES_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 ---
 
 <BaseLayout>
-  <main data-signup-form style="max-width: 560px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;">
+  <form data-signup-form data-endpoint={FORMSPREE_IMPRESORES_ENDPOINT} style="max-width: 560px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;">
     <p style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-brand-primary); font-weight: 700; margin-bottom: 0.75rem;">
       Para impresores
     </p>
@@ -33,8 +35,21 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 2.5rem;">
       {benefits.map((b) => (
         <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.85rem; text-align: center;">
-          <div style="font-size: 20px; margin-bottom: 6px;">{b.icon}</div>
-          <p style="font-size: 11px; color: var(--color-text-secondary); margin: 0; line-height: 1.4;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--color-brand-soft); color: var(--color-brand-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="width: 16px; height: 16px;"
+            >
+              {b.icon.map((path) => <path d={path} />)}
+            </svg>
+          </div>
+          <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.4;">
             {b.text}
           </p>
         </div>
@@ -47,13 +62,13 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
           <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
             Nombre
           </label>
-          <input data-signup-input="name" type="text" placeholder="Tu nombre" style={inputStyle} />
+          <input data-signup-input="name" name="name" type="text" placeholder="Tu nombre" style={inputStyle} />
         </div>
         <div>
           <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
             Ciudad
           </label>
-          <input data-signup-input="city" type="text" placeholder="Málaga" style={inputStyle} />
+          <input data-signup-input="city" name="city" type="text" placeholder="Málaga" style={inputStyle} />
         </div>
       </div>
 
@@ -61,14 +76,14 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
         <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
           Email
         </label>
-        <input data-signup-input="email" type="email" placeholder="tu@email.com" style={inputStyle} />
+        <input data-signup-input="email" name="email" type="email" placeholder="tu@email.com" style={inputStyle} />
       </div>
 
       <div>
         <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
           Modelo de impresora
         </label>
-        <input data-signup-input="printerModel" type="text" placeholder="Ej: Bambu Lab P1S, Prusa MK4..." style={inputStyle} />
+        <input data-signup-input="printerModel" name="printerModel" type="text" placeholder="Ej: Bambu Lab P1S, Prusa MK4..." style={inputStyle} />
       </div>
 
       <div>
@@ -108,7 +123,7 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
 
     <button
       data-signup-submit
-      type="button"
+      type="submit"
       disabled
       style="width: 100%; margin-top: 2rem; background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 13px; font-size: 15px; font-weight: 500; cursor: not-allowed;"
     >
@@ -118,7 +133,7 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
     <p style="font-size: 12px; color: var(--color-text-secondary); text-align: center; margin-top: 1rem;">
       Tras el registro, te pediremos una pieza de prueba para verificar la calidad de impresión.
     </p>
-  </main>
+  </form>
 
   <main data-signup-success hidden style="max-width: 480px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
     <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-brand-soft); color: var(--color-brand-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
@@ -128,8 +143,12 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
       ¡Registro recibido!
     </h1>
     <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2rem;">
-      Te enviaremos un email con los siguientes pasos: una pieza de prueba para verificar
-      la calidad de tu impresora antes de recibir tus primeros pedidos.
+      <!-- Te enviaremos un email con los siguientes pasos: una pieza de prueba para verificar
+      la calidad de tu impresora antes de recibir tus primeros pedidos. -->
+      Te contactaremos próximamente por email explicando los siguientes pasos.
+
+      Si no recibes un email en los próximos días, 
+      por favor revisa tu carpeta de spam o contáctanos a <a href="mailto:contacto@3dbok.com" style="color: var(--color-brand-primary); text-decoration: underline;">
     </p>
     <a
       href="/"
@@ -203,11 +222,39 @@ const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; fon
       });
     });
 
-    submit?.addEventListener("click", () => {
-      if (submit.disabled || !form || !success) return;
-      form.hidden = true;
-      success.hidden = false;
-      window.scrollTo(0, 0);
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!submit || submit.disabled || !form || !success) return;
+
+      submit.disabled = true;
+      submit.textContent = "Enviando…";
+
+      const datos = new FormData(form);
+      datos.append("materials", materialButtons
+        .filter((button) => button.dataset.selected === "true")
+        .map((button) => button.dataset.material || "")
+        .filter(Boolean)
+        .join(", "));
+      datos.append("experience", experienceButtons.find((button) => button.dataset.selected === "true")?.dataset.experience || "");
+      datos.append("tipo", "impresor");
+
+      try {
+        const res = await fetch(form.dataset.endpoint || "", {
+          method: "POST",
+          body: datos,
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok) throw new Error("Error al enviar");
+        form.hidden = true;
+        success.hidden = false;
+        window.scrollTo(0, 0);
+      } catch (err) {
+        submit.disabled = false;
+        submit.textContent = "No se pudo enviar. Inténtalo de nuevo";
+        submit.style.background = "#A23B3B";
+        submit.style.color = "white";
+        submit.style.cursor = "pointer";
+      }
     });
   </script>
 </BaseLayout>
