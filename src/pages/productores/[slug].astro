@@ -50,6 +50,16 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
         </div>
       </div>
     </header>
+    <div class="pp-cta">
+      <div class="pp-cta-text">
+        <strong>¿Quieres un encargo con {productor.nombre}?</strong>
+        Cuéntanos qué necesitas y te preparamos un brief a medida.
+      </div>
+      <a class="pp-cta-button" href={`/briefing?maker=${encodeURIComponent(productor.id)}`}>
+        Empezar encargo
+      </a>
+    </div>
+
 
     <div class="pp-body">
       <aside>
@@ -79,7 +89,11 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
         <h2 class="pp-section-title">Trabajos publicados</h2>
         <div class="pp-portfolio-grid">
           {productor.productos.map((prod) => (
-            <article class="pp-product-card">
+            <a
+              class="pp-product-card"
+              href={`/briefing?maker=${encodeURIComponent(productor.id)}&product=${encodeURIComponent(prod.id)}`}
+              aria-label={`Pedir ${prod.nombre} a ${productor.nombre}`}
+            >
               <img class="pp-product-photo" src={prod.foto} alt={prod.nombre} />
               <div class="pp-product-body">
                 <h3 class="pp-product-nombre">{prod.nombre}</h3>
@@ -101,7 +115,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
                   Desde {prod.precioDesde.toFixed(2)} €
                 </p>
               </div>
-            </article>
+            </a>
           ))}
         </div>
 
@@ -165,15 +179,6 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
       </main>
     </div>
 
-    <div class="pp-cta">
-      <div class="pp-cta-text">
-        <strong>¿Quieres un encargo con {productor.nombre}?</strong>
-        Cuéntanos qué necesitas y te preparamos un brief a medida.
-      </div>
-      <a class="pp-cta-button" href="/briefing">
-        Empezar encargo
-      </a>
-    </div>
   </div>
 
   <script>

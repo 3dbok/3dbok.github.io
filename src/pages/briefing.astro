@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import productores from "../data/productores.json";
 
 const STEPS = [
   { id: "category", title: "¿Qué tipo de pieza quieres?" },
@@ -167,6 +168,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
     </section>
 
     <section data-step="3" hidden>
+      <p data-selected-product hidden style="font-size: 14px; color: var(--color-text-primary); background: var(--color-brand-soft); border: 0.5px solid var(--color-brand-primary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; margin-bottom: 1rem;"></p>
       <div>
         <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
           Una referencia aproximada es suficiente. El diseñador lo ajustará.
@@ -205,6 +207,31 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
 
     <section data-step="4" hidden>
       <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label for="briefing-maker" style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
+            Maker que realizar&aacute; el encargo
+          </label>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
+            Puedes elegir uno o dejar que te recomendemos el m&aacute;s adecuado.
+          </p>
+          <select
+            id="briefing-maker"
+            data-field="makerId"
+            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
+          >
+            <option value="recommended">Recomendado (sin maker concreto)</option>
+            {productores.map((productor) => (
+              <option
+                value={productor.id}
+                data-slug={productor.slug}
+                data-products={JSON.stringify(productor.productos.map(({ id, nombre }) => ({ id, nombre })))}
+              >
+                {productor.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div>
           <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
             Material preferido
@@ -328,6 +355,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
     ];
 
     let step = 0;
+    let entryStep = 0;
     let submitting = false;
     let stlDispose = null;
     const form = {
@@ -345,6 +373,8 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       name: "",
       email: "",
       phone: "",
+      makerId: "recommended",
+      productId: "",
     };
 
     const sections = Array.from(document.querySelectorAll("[data-step]"));
@@ -361,6 +391,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
     const referenceInput = document.querySelector("[data-reference-files]");
     const referenceCount = document.querySelector("[data-reference-count]");
     const descriptionCount = document.querySelector("[data-description-count]");
+    const selectedProduct = document.querySelector("[data-selected-product]");
     const stlPreview = document.querySelector("[data-stl-preview]");
     const stlContainer = document.querySelector("[data-stl-container]");
     const stlMessage = document.querySelector("[data-stl-message]");
@@ -391,7 +422,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       sections.forEach((section) => {
         section.hidden = section.dataset.step !== String(step);
       });
-      if (backButton) backButton.textContent = step === 0 ? "← Volver al inicio" : "← Paso anterior";
+      if (backButton) backButton.textContent = step === entryStep && entryStep === 3 ? "← Volver al trabajo" : (step === 0 ? "← Volver al inicio" : "← Paso anterior");
       if (title) title.textContent = steps[step].title;
       if (currentStep) currentStep.textContent = String(step + 1);
       if (progressText) progressText.textContent = String(Math.round((step / (steps.length - 1)) * 100));
@@ -438,14 +469,47 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
 
     document.querySelectorAll("[data-field]").forEach((field) => {
       field.addEventListener("input", () => {
-        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) {
           updateField(field.dataset.field, field.value);
         }
       });
     });
 
+
+    const makerSelect = document.querySelector('[data-field="makerId"]');
+    if (makerSelect instanceof HTMLSelectElement) {
+      const requestedMakerId = new URLSearchParams(window.location.search).get("maker");
+      const makerExists = Array.from(makerSelect.options).some(
+        (option) => option.value === requestedMakerId && option.value !== "recommended",
+      );
+      makerSelect.value = makerExists ? requestedMakerId : "recommended";
+      form.makerId = makerSelect.value;
+
+      const requestedProductId = new URLSearchParams(window.location.search).get("product");
+      const selectedMaker = makerSelect.selectedOptions[0];
+      let makerProducts = [];
+      try {
+        makerProducts = JSON.parse(selectedMaker?.dataset.products || "[]");
+      } catch {}
+      const requestedProduct = makerProducts.find((product) => product.id === requestedProductId);
+      if (requestedProduct) {
+        form.productId = requestedProduct.id;
+        step = 3;
+        entryStep = 3;
+        makerSelect.disabled = true;
+        if (selectedProduct) {
+          selectedProduct.textContent = `Trabajo seleccionado: ${requestedProduct.nombre}`;
+          selectedProduct.hidden = false;
+        }
+      }
+    }
     backButton?.addEventListener("click", () => {
-      if (step === 0) {
+      if (step === entryStep) {
+        if (entryStep === 3 && makerSelect instanceof HTMLSelectElement) {
+          const makerSlug = makerSelect.selectedOptions[0]?.dataset.slug;
+          window.location.href = makerSlug ? `/productores/${makerSlug}` : "/productores";
+          return;
+        }
         window.location.href = "/";
         return;
       }
