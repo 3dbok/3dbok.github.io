@@ -27,7 +27,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
     <header class="pp-header">
       <img class="pp-avatar" src={productor.foto} alt={productor.nombre} />
       <div>
-        <p class="pp-eyebrow pp-mono">Taller verificado</p>
+        <p class="pp-eyebrow pp-mono">Maker verificado</p>
         <h1 class="pp-nombre">{productor.nombre}</h1>
         <div class="pp-meta-row">
           <span>{productor.ubicacion}</span>
@@ -64,7 +64,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
     <div class="pp-body">
       <aside>
         <div class="pp-sidebar-block">
-          <p class="pp-sidebar-title pp-mono">Sobre el taller</p>
+          <p class="pp-sidebar-title pp-mono">Sobre el maker</p>
           <p class="pp-bio">{productor.bio}</p>
         </div>
 
@@ -150,7 +150,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
           data-productor-nombre={productor.nombre}
           data-endpoint={FORMSPREE_RESENAS_ENDPOINT}
         >
-          <p class="pp-review-form-title">Deja tu opinión sobre este taller</p>
+          <p class="pp-review-form-title">Deja tu opinión sobre este maker</p>
 
           <label for="autor">Tu nombre</label>
           <input id="autor" name="autor" type="text" required maxlength="60" />
