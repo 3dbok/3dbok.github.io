@@ -109,55 +109,6 @@ const testimonials = [
       </div>
     </section>
 
-    <section style="background: var(--color-background-primary); border-top: 0.5px solid var(--color-border-tertiary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 4rem 1.5rem;">
-      <div style="max-width: 860px; margin: 0 auto;">
-        <h2 style="font-size: 22px; font-weight: 760; text-align: center; margin-bottom: 0.5rem; color: var(--color-text-primary);">
-          ¿Qué puedes pedir?
-        </h2>
-        <p style="text-align: center; color: var(--color-text-secondary); font-size: 15px; margin-bottom: 2.5rem;">
-          Si lo puedes imaginar, se puede imprimir.
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          {niches.map((n) => (
-            <a
-              class="landing-choice-card"
-              href="/briefing"
-              style="border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: var(--color-background-secondary); text-decoration: none;"
-            >
-              <div style="font-size: 24px; margin-bottom: 8px;">{n.icon}</div>
-              <p style="font-weight: 720; font-size: 14px; margin-bottom: 4px; color: var(--color-text-primary);">
-                {n.label}
-              </p>
-              <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
-                {n.desc}
-              </p>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section style="padding: 4rem 1.5rem; max-width: 860px; margin: 0 auto;">
-      <h2 style="font-size: 22px; font-weight: 760; text-align: center; margin-bottom: 2.5rem; color: var(--color-text-primary);">
-        Lo que dicen nuestros clientes
-      </h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-        {testimonials.map((t) => (
-          <div style="background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; box-shadow: var(--shadow-card);">
-            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 1rem;">
-              "{t.text}"
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 720; font-size: 13px; color: var(--color-text-primary);">{t.name}</span>
-              <span style="font-size: 11px; color: var(--color-brand-dark); background: var(--color-brand-soft); padding: 3px 8px; border-radius: var(--border-radius-md);">
-                {t.item}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-
     <section style="background: var(--color-brand-dark); padding: 3.5rem 1.5rem; text-align: center;">
       <h2 style="font-size: 22px; font-weight: 760; color: white; margin-bottom: 0.75rem;">
         ¿Tienes una impresora 3D?
