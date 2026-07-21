@@ -15,7 +15,7 @@
         "id": "prod-003",
         "nombre": "Figura articulada 15cm",
         "foto": "/img/productos/lampara.jpg",
-        "material": "RESINA",
+        "material": "PLA",
         "colorHex": "#7C5CBF",
         "tiempoImpresionHoras": 4,
         "dimensiones": "15 cm alto",
