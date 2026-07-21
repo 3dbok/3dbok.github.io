@@ -9,6 +9,7 @@
     "especialidades": ["Figuras Industriales", "Repuestos", "Decoración"],
     "materiales": ["PLA"],
     "impresoras": ["Bambu Lab A1 Mini"],
+    "tamNozzle" : ["0.2mm, 0.4mm"],
     "tiempoRespuestaHoras": 48,
     "productos": [
       {
