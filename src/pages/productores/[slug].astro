@@ -84,7 +84,14 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
           </p>
         </div>
 
-         <div class="pp-sidebar-block">
+        <div class="pp-sidebar-block">
+          <p class="pp-sidebar-title pp-mono">Materiales Disponibless</p>
+          <p class="pp-impresoras pp-mono">
+            {productor.materiales.join(" · ")}
+          </p>
+        </div>
+
+        <div class="pp-sidebar-block">
           <p class="pp-sidebar-title pp-mono">Tamaño de Nozzle</p>
           <p class="pp-impresoras pp-mono">
             {productor.tamNozzle.join(" · ")}
