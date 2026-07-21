@@ -2,13 +2,13 @@
   {
     "id": "p-001",
     "slug": "ignacio",
-    "nombre": "Ignacio Printer",
-    "ubicacion": "Sevilla, España",
+    "nombre": "Ignacio",
+    "ubicacion": "Malaga, España",
     "foto": "/img/productores/bot.jpg",
-    "bio": "Miniaturas y piezas de coleccionismo impresas en resina de alta resolución. Post-procesado y pintado bajo encargo.",
-    "especialidades": ["Miniaturas", "Coleccionismo", "Pintado a mano"],
-    "materiales": ["RESINA", "NYLON"],
-    "impresoras": ["Elegoo Saturn 3 Ultra", "Anycubic Photon M5s"],
+    "bio": "Mi nombre es Ignacio, llevo desde 2024 en el mundo de la impresión 3d. Al principio me ceñia solo a imprimir pero desde el último año he empezado a diseñar productos originales",
+    "especialidades": ["Figuras Industriales", "Repuestos", "Decoración"],
+    "materiales": ["PLA"],
+    "impresoras": ["Bambu Lab A1 Mini"],
     "tiempoRespuestaHoras": 48,
     "productos": [
       {
