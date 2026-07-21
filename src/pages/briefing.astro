@@ -28,7 +28,7 @@ const SIZES = [
 ];
 
 const MATERIALS = [
-  { id: "any", label: "Sin preferencia", desc: "El impresor elige lo mejor" },
+  { id: "any", label: "Sin preferencia", desc: "El maker elige lo mejor" },
   { id: "pla", label: "PLA", desc: "Ecológico, acabado suave" },
   { id: "resin", label: "Resina", desc: "Máximo detalle, acabado liso" },
   { id: "petg", label: "PETG", desc: "Más resistente, funcional" },
@@ -106,7 +106,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
           {[
             { val: false, label: "Necesito que un diseñador lo cree", sub: "Te enviamos un boceto en 24–48h para aprobar" },
-            { val: true, label: "Tengo mi propio archivo de diseño", sub: "Lo envías y buscamos un impresor directamente" },
+            { val: true, label: "Tengo mi propio archivo de diseño", sub: "Lo envías y buscamos un maker directamente" },
           ].map((opt) => (
             <button
               data-choice="hasDesign"
