@@ -1,40 +1,6 @@
 [
   {
     "id": "p-001",
-    "slug": "taller-lomas-3d",
-    "nombre": "Taller Lomas 3D",
-    "ubicacion": "Málaga, España",
-    "foto": "/img/productores/lomas-avatar.jpg",
-    "bio": "Especializado en piezas decorativas de gran detalle: figuras, macetas geométricas y iluminación. Tres impresoras FDM y una de resina para acabados finos.",
-    "especialidades": ["Decoración de interior", "Figuras", "Iluminación"],
-    "materiales": ["PLA", "PETG", "RESINA"],
-    "impresoras": ["Bambu Lab P1S", "Prusa MK4", "Elegoo Saturn 3"],
-    "tiempoRespuestaHoras": 24,
-    "productos": [
-      {
-        "id": "prod-001",
-        "nombre": "Lámpara geométrica Voronoi",
-        "foto": "/img/productos/lampara.jpg",
-        "material": "PLA",
-        "colorHex": "#E8E4DC",
-        "tiempoImpresionHoras": 6,
-        "dimensiones": "18 x 18 x 24 cm",
-        "precioDesde": 32.5
-      },
-      {
-        "id": "prod-002",
-        "nombre": "Set de 3 macetas hexagonales",
-        "foto": "/img/productos/macetas-hex.jpg",
-        "material": "PETG",
-        "colorHex": "#3E6B5C",
-        "tiempoImpresionHoras": 9,
-        "dimensiones": "12 x 12 x 14 cm (c/u)",
-        "precioDesde": 24.0
-      }
-    ]
-  },
-  {
-    "id": "p-002",
     "slug": "ignacio",
     "nombre": "Ignacio Printer",
     "ubicacion": "Sevilla, España",
