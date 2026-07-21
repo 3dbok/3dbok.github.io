@@ -9,6 +9,7 @@ const benefits = [
 ];
 
 const materials = ["PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"];
+const nozzleSizes = ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"];
 const experiences = [
   "Menos de 6 meses",
   "Entre 6 meses y 2 años",
@@ -103,6 +104,23 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         </div>
       </div>
 
+      <div data-nozzle-container hidden>
+        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+          ¿Qué tamaños de boquilla tienes?
+        </label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          {nozzleSizes.map((n) => (
+            <button
+              data-nozzle={n}
+              type="button"
+              style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div>
         <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
           ¿Cuánta experiencia tienes imprimiendo en 3D?
@@ -143,8 +161,6 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       ¡Registro recibido!
     </h1>
     <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2rem;">
-      <!-- Te enviaremos un email con los siguientes pasos: una pieza de prueba para verificar
-      la calidad de tu impresora antes de recibir tus primeros pedidos. -->
       Te contactaremos próximamente por email explicando los siguientes pasos.
 
       Si no recibes un email en los próximos días, 
@@ -164,6 +180,8 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     const submit = document.querySelector("[data-signup-submit]");
     const inputs = Array.from(document.querySelectorAll("[data-signup-input]"));
     const materialButtons = Array.from(document.querySelectorAll("[data-material]"));
+    const nozzleContainer = document.querySelector("[data-nozzle-container]");
+    const nozzleButtons = Array.from(document.querySelectorAll("[data-nozzle]"));
     const experienceButtons = Array.from(document.querySelectorAll("[data-experience]"));
 
     const selectedStyle = (button) => {
@@ -171,7 +189,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       button.style.border = "2px solid var(--color-brand-primary)";
     };
 
-    const defaultMaterialStyle = (button) => {
+    const defaultButtonStyle = (button) => {
       button.style.background = "var(--color-background-secondary)";
       button.style.border = "0.5px solid var(--color-border-tertiary)";
     };
@@ -200,13 +218,35 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       submit.style.cursor = canSubmit ? "pointer" : "not-allowed";
     };
 
+    const checkNozzleVisibility = () => {
+      if (!nozzleContainer) return;
+      
+      const selectedMaterials = materialButtons
+        .filter((btn) => btn.dataset.selected === "true")
+        .map((btn) => btn.dataset.material);
+
+      const requiresNozzle = selectedMaterials.some((mat) => mat !== "Resina");
+      nozzleContainer.hidden = !requiresNozzle;
+    };
+
     inputs.forEach((input) => input.addEventListener("input", updateSubmit));
 
     materialButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const selected = button.dataset.selected === "true";
         button.dataset.selected = selected ? "false" : "true";
-        if (selected) defaultMaterialStyle(button);
+        if (selected) defaultButtonStyle(button);
+        else selectedStyle(button);
+        
+        checkNozzleVisibility();
+      });
+    });
+
+    nozzleButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const selected = button.dataset.selected === "true";
+        button.dataset.selected = selected ? "false" : "true";
+        if (selected) defaultButtonStyle(button);
         else selectedStyle(button);
       });
     });
@@ -230,11 +270,19 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       submit.textContent = "Enviando…";
 
       const datos = new FormData(form);
+      
       datos.append("materials", materialButtons
         .filter((button) => button.dataset.selected === "true")
         .map((button) => button.dataset.material || "")
         .filter(Boolean)
         .join(", "));
+        
+      datos.append("nozzleSizes", nozzleButtons
+        .filter((button) => button.dataset.selected === "true" && !nozzleContainer.hidden)
+        .map((button) => button.dataset.nozzle || "")
+        .filter(Boolean)
+        .join(", "));
+
       datos.append("experience", experienceButtons.find((button) => button.dataset.selected === "true")?.dataset.experience || "");
       datos.append("tipo", "maker");
 
