@@ -3,21 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import productores from "../data/productores.json";
 
 const STEPS = [
-  { id: "category", title: "¿Qué tipo de pieza quieres?" },
   { id: "description", title: "Cuéntanos tu idea" },
   { id: "references", title: "¿Tienes referencias visuales?" },
   { id: "size", title: "¿Qué tamaño necesitas?" },
   { id: "details", title: "Últimos detalles" },
   { id: "contact", title: "¿Cómo te contactamos?" },
-];
-
-const CATEGORIES = [
-  { id: "miniature", label: "Miniatura / figura", icon: "🎲", desc: "Personajes, criaturas, escenas" },
-  { id: "deco", label: "Decoración", icon: "🏠", desc: "Hogar, regalo, arte" },
-  { id: "pet", label: "Mascota", icon: "🐾", desc: "Accesorios, juguetes, comederos" },
-  { id: "cosplay", label: "Cosplay / prop", icon: "🎭", desc: "Armas, cascos, accesorios" },
-  { id: "practical", label: "Pieza práctica", icon: "🔧", desc: "Soporte, adaptador, recambio" },
-  { id: "gift", label: "Regalo personalizado", icon: "🎁", desc: "Con nombre, fecha u otro detalle" },
 ];
 
 const SIZES = [
@@ -62,26 +52,6 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
     </h1>
 
     <section data-step="0">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        {CATEGORIES.map((c) => (
-          <button
-            data-choice="category"
-            data-value={c.id}
-            type="button"
-            class="wizard-option"
-            style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; text-align: left; transition: all 0.15s;"
-          >
-            <div style="font-size: 22px; margin-bottom: 6px;">{c.icon}</div>
-            <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
-              {c.label}
-            </div>
-            <div style="font-size: 12px; color: var(--color-text-secondary);">{c.desc}</div>
-          </button>
-        ))}
-      </div>
-    </section>
-
-    <section data-step="1" hidden>
       <div>
         <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1rem;">
           Escríbelo como se lo contarías a un amigo. Cuanto más detalle, mejor resultado.
@@ -98,7 +68,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       </div>
     </section>
 
-    <section data-step="2" hidden>
+    <section data-step="1" hidden>
       <div>
         <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
           ¿Ya tienes un diseño 3D listo (.STL, .OBJ) o necesitas que un diseñador lo cree para ti?
@@ -167,7 +137,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       </div>
     </section>
 
-    <section data-step="3" hidden>
+    <section data-step="2" hidden>
       <p data-selected-product hidden style="font-size: 14px; color: var(--color-text-primary); background: var(--color-brand-soft); border: 0.5px solid var(--color-brand-primary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; margin-bottom: 1rem;"></p>
       <div>
         <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
@@ -205,7 +175,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       </div>
     </section>
 
-    <section data-step="4" hidden>
+    <section data-step="3" hidden>
       <div style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
           <label for="briefing-maker" style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
@@ -289,7 +259,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
       </div>
     </section>
 
-    <section data-step="5" hidden>
+    <section data-step="4" hidden>
       <div style="display: flex; flex-direction: column; gap: 1rem;">
         <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 0.5rem;">
           Para enviarte el boceto del diseñador y las actualizaciones de tu pedido.
@@ -346,7 +316,6 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
 
   <script>
     const steps = [
-      { id: "category", title: "¿Qué tipo de pieza quieres?" },
       { id: "description", title: "Cuéntanos tu idea" },
       { id: "references", title: "¿Tienes referencias visuales?" },
       { id: "size", title: "¿Qué tamaño necesitas?" },
@@ -359,7 +328,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
     let submitting = false;
     let stlDispose = null;
     const form = {
-      category: "",
+      category: "OLD, NOT ANYMORE",
       description: "",
       hasDesign: null,
       designFile: null,
@@ -397,12 +366,11 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
     const stlMessage = document.querySelector("[data-stl-message]");
 
     const canProceed = () => {
-      if (step === 0) return Boolean(form.category);
-      if (step === 1) return form.description.length >= 15;
-      if (step === 2) return form.hasDesign !== null;
-      if (step === 3) return Boolean(form.size);
-      if (step === 4) return true;
-      if (step === 5) return form.name.length > 1 && form.email.includes("@");
+      if (step === 0) return form.description.length >= 15;
+      if (step === 1) return form.hasDesign !== null;
+      if (step === 2) return Boolean(form.size);
+      if (step === 3) return true;
+      if (step === 4) return form.name.length > 1 && form.email.includes("@");
       return true;
     };
 
