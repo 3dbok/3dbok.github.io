@@ -1,15 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const niches = [
-  { icon: "🎲", label: "Miniaturas D&D / Warhammer", desc: "Figuras únicas para tus partidas" },
-  { icon: "🏠", label: "Decoración del hogar", desc: "Organizadores, jarrones, piezas únicas" },
-  { icon: "🐾", label: "Accesorios para mascotas", desc: "Comederos, juguetes personalizados" },
-  { icon: "🎭", label: "Cosplay y props", desc: "Accesorios para disfraces y eventos" },
-  { icon: "🎁", label: "Regalos personalizados", desc: "Con nombre, fecha, lo que imagines" },
-  { icon: "🔧", label: "Piezas y recambios", desc: "Soportes, adaptadores, accesorios" },
-];
-
 const steps = [
   {
     n: "1",
@@ -19,30 +10,12 @@ const steps = [
   {
     n: "2",
     title: "Se prepara el diseño",
-    desc: "En 24–48h recibes un boceto para aprobar antes de que empiece el trabajo de verdad.",
+    desc: "Recibes un boceto para aprobar antes de que empiece el trabajo de verdad.",
   },
   {
     n: "3",
-    title: "Un impresor cercano lo fabrica",
+    title: "Un maker cercano lo fabrica",
     desc: "Recibes fotos del proceso. Cuando está listo, te lo entregamos.",
-  },
-];
-
-const testimonials = [
-  {
-    name: "Laura M.",
-    text: "Encargué miniaturas para mi campaña de D&D y quedaron perfectas. El diseñador entendió exactamente lo que quería.",
-    item: "Miniaturas personalizadas",
-  },
-  {
-    name: "Carlos R.",
-    text: "Necesitaba un soporte específico para mi monitor y no existía en ningún sitio. En una semana lo tenía en casa.",
-    item: "Soporte de escritorio",
-  },
-  {
-    name: "Ana P.",
-    text: "El regalo más original que he dado. El proceso fue facilísimo, no tuve que entender nada técnico.",
-    item: "Regalo personalizado",
   },
 ];
 ---
@@ -57,7 +30,7 @@ const testimonials = [
         Lo que imaginas,<br />impreso en 3D y en tu puerta
       </h1>
       <p style="font-size: 18px; color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.6;">
-        Muéstranos qué quieres. Un diseñador la crea. Un impresor cercano la fabrica.
+        Muéstranos qué quieres. Un diseñador la crea. Un maker cercano la fabrica.
         Sin tecnicismos, sin complicaciones.
       </p>
       <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
@@ -67,19 +40,13 @@ const testimonials = [
         >
           Hacer mi pedido →
         </a>
-        <a
-          href="/seguimiento"
-          style="background: var(--color-brand-soft); color: var(--color-brand-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 14px 24px; font-size: 16px; font-weight: 650; cursor: pointer; text-decoration: none;"
-        >
-          Ver seguimiento
-        </a>
       </div>
 
       <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-top: 3rem;">
         {[
           ["✓", "Sin conocimientos técnicos"],
           ["✓", "Boceto previo siempre"],
-          ["✓", "Impresores verificados"],
+          ["✓", "Makers verificados"],
         ].map(([icon, text]) => (
           <span style="font-size: 13px; color: var(--color-text-secondary);">
             <span style="color: var(--color-brand-primary); margin-right: 6px;">{icon}</span>{text}
@@ -109,55 +76,6 @@ const testimonials = [
       </div>
     </section>
 
-    <section style="background: var(--color-background-primary); border-top: 0.5px solid var(--color-border-tertiary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 4rem 1.5rem;">
-      <div style="max-width: 860px; margin: 0 auto;">
-        <h2 style="font-size: 22px; font-weight: 760; text-align: center; margin-bottom: 0.5rem; color: var(--color-text-primary);">
-          ¿Qué puedes pedir?
-        </h2>
-        <p style="text-align: center; color: var(--color-text-secondary); font-size: 15px; margin-bottom: 2.5rem;">
-          Si lo puedes imaginar, se puede imprimir.
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          {niches.map((n) => (
-            <a
-              class="landing-choice-card"
-              href="/briefing"
-              style="border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: var(--color-background-secondary); text-decoration: none;"
-            >
-              <div style="font-size: 24px; margin-bottom: 8px;">{n.icon}</div>
-              <p style="font-weight: 720; font-size: 14px; margin-bottom: 4px; color: var(--color-text-primary);">
-                {n.label}
-              </p>
-              <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
-                {n.desc}
-              </p>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section style="padding: 4rem 1.5rem; max-width: 860px; margin: 0 auto;">
-      <h2 style="font-size: 22px; font-weight: 760; text-align: center; margin-bottom: 2.5rem; color: var(--color-text-primary);">
-        Lo que dicen nuestros clientes
-      </h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-        {testimonials.map((t) => (
-          <div style="background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; box-shadow: var(--shadow-card);">
-            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 1rem;">
-              "{t.text}"
-            </p>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 720; font-size: 13px; color: var(--color-text-primary);">{t.name}</span>
-              <span style="font-size: 11px; color: var(--color-brand-dark); background: var(--color-brand-soft); padding: 3px 8px; border-radius: var(--border-radius-md);">
-                {t.item}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-
     <section style="background: var(--color-brand-dark); padding: 3.5rem 1.5rem; text-align: center;">
       <h2 style="font-size: 22px; font-weight: 760; color: white; margin-bottom: 0.75rem;">
         ¿Tienes una impresora 3D?
@@ -166,10 +84,10 @@ const testimonials = [
         Forma parte de la comunidad de 3dbok. Sin inversión, sin compromiso.
       </p>
       <a
-        href="/impresor"
+        href="/maker"
         style="background: white; color: var(--color-brand-dark); border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none;"
       >
-        Registrarme como impresor →
+        Registrarme como maker →
       </a>
     </section>
 
