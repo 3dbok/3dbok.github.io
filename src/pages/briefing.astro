@@ -75,8 +75,8 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         </p>
         <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
           {[
-            { val: false, label: "Necesito que un diseñador lo cree", sub: "Te enviamos un boceto para aprobar" },
-            { val: true, label: "Tengo mi propio archivo de diseño", sub: "Lo envías y buscamos un maker directamente" },
+            { val: false, label: "No, solo tengo una idea", sub: "Nosotros te ayudamos a traerlo a la realidad" },
+            { val: true, label: "Sí, tengo un diseño", sub: "Necesitaremos que nos proporciones el link del archivo" },
           ].map((opt) => (
             <button
               data-choice="hasDesign"
@@ -119,20 +119,6 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
               Arrastra para rotar, rueda para acercar.
             </p>
           </div>
-        </div>
-
-        <div style="margin-top: 1.5rem;">
-          <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            ¿Tienes imágenes de referencia? (opcional)
-          </p>
-          <input
-            data-reference-files
-            type="file"
-            accept="image/*"
-            multiple
-            style="font-size: 13px; color: var(--color-text-secondary);"
-          />
-          <p data-reference-count style="font-size: 12px; color: var(--color-brand-primary); margin-top: 6px;" hidden></p>
         </div>
       </div>
     </section>
@@ -305,6 +291,7 @@ const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
         Continuar →
       </button>
     </div>
+
   </main>
 
   <style>
