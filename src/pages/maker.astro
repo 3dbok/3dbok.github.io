@@ -18,6 +18,9 @@ const experiences = [
 
 const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;";
 const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
+
+const nextButtonStyle = "flex: 1; background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 13px; font-size: 15px; font-weight: 500; cursor: not-allowed;";
+const backButtonStyle = "background: none; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 13px 20px; font-size: 15px; font-weight: 500; cursor: pointer;";
 ---
 
 <BaseLayout>
@@ -57,96 +60,145 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       ))}
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 1.1rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <!-- Paso 1: impresora, materiales y experiencia -->
+    <div data-step-panel="1">
+      <p style="font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 600; margin-bottom: 4px;">
+        Paso 1 de 3
+      </p>
+      <h2 style="font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 1.1rem;">
+        Tu impresora y experiencia
+      </h2>
+
+      <div style="display: flex; flex-direction: column; gap: 1.1rem;">
         <div>
           <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-            Nombre
+            Modelo de impresora
           </label>
-          <input data-signup-input="name" name="name" type="text" placeholder="Tu nombre" style={inputStyle} />
+          <input data-signup-input="printerModel" name="printerModel" type="text" placeholder="Ej: Bambu Lab P1S, Prusa MK4..." style={inputStyle} />
         </div>
+
         <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-            Ciudad
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+            ¿Con qué materiales trabajas?
           </label>
-          <input data-signup-input="city" name="city" type="text" placeholder="Málaga" style={inputStyle} />
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {materials.map((m) => (
+              <button
+                data-material={m}
+                type="button"
+                style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div data-nozzle-container hidden>
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+            ¿Qué tamaños de boquilla tienes?
+          </label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {nozzleSizes.map((n) => (
+              <button
+                data-nozzle={n}
+                type="button"
+                style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
+            ¿Cuánta experiencia tienes imprimiendo en 3D?
+          </label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {experiences.map((experience) => (
+              <button
+                data-experience={experience}
+                type="button"
+                style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; cursor: pointer; font-size: 13px; text-align: left; color: var(--color-text-primary);"
+              >
+                {experience}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-          Email
-        </label>
-        <input data-signup-input="email" name="email" type="email" placeholder="tu@email.com" style={inputStyle} />
-      </div>
+      <button data-next="1" type="button" disabled style={`margin-top: 2rem; width: 100%; ${nextButtonStyle}`}>
+        Siguiente →
+      </button>
+    </div>
 
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-          Modelo de impresora
-        </label>
-        <input data-signup-input="printerModel" name="printerModel" type="text" placeholder="Ej: Bambu Lab P1S, Prusa MK4..." style={inputStyle} />
-      </div>
+    <!-- Paso 2: colores disponibles por material -->
+    <div data-step-panel="2" hidden>
+      <p style="font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 600; margin-bottom: 4px;">
+        Paso 2 de 3
+      </p>
+      <h2 style="font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 0.4rem;">
+        Colores disponibles
+      </h2>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0 0 1.1rem; line-height: 1.5;">
+        Indica los colores que tienes de cada material. Si tienes alguno que no aparece, escríbelo en "otros colores".
+      </p>
 
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-          ¿Con qué materiales trabajas?
-        </label>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          {materials.map((m) => (
-            <button
-              data-material={m}
-              type="button"
-              style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-      </div>
+      <div data-colors-container></div>
 
-      <div data-nozzle-container hidden>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-          ¿Qué tamaños de boquilla tienes?
-        </label>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          {nozzleSizes.map((n) => (
-            <button
-              data-nozzle={n}
-              type="button"
-              style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-          ¿Cuánta experiencia tienes imprimiendo en 3D?
-        </label>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          {experiences.map((experience) => (
-            <button
-              data-experience={experience}
-              type="button"
-              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; cursor: pointer; font-size: 13px; text-align: left; color: var(--color-text-primary);"
-            >
-              {experience}
-            </button>
-          ))}
-        </div>
+      <div style="display: flex; gap: 10px; margin-top: 2rem;">
+        <button data-prev="2" type="button" style={backButtonStyle}>← Atrás</button>
+        <button data-next="2" type="button" disabled style={nextButtonStyle}>Siguiente →</button>
       </div>
     </div>
 
-    <button
-      data-signup-submit
-      type="submit"
-      disabled
-      style="width: 100%; margin-top: 2rem; background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 13px; font-size: 15px; font-weight: 500; cursor: not-allowed;"
-    >
-      Registrarme como maker →
-    </button>
+    <!-- Paso 3: datos personales -->
+    <div data-step-panel="3" hidden>
+      <p style="font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 600; margin-bottom: 4px;">
+        Paso 3 de 3
+      </p>
+      <h2 style="font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 1.1rem;">
+        Tus datos
+      </h2>
+
+      <div style="display: flex; flex-direction: column; gap: 1.1rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
+              Nombre
+            </label>
+            <input data-signup-input="name" name="name" type="text" placeholder="Tu nombre" style={inputStyle} />
+          </div>
+          <div>
+            <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
+              Ciudad
+            </label>
+            <input data-signup-input="city" name="city" type="text" placeholder="Málaga" style={inputStyle} />
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
+            Email
+          </label>
+          <input data-signup-input="email" name="email" type="email" placeholder="tu@email.com" style={inputStyle} />
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 2rem;">
+        <button data-prev="3" type="button" style={backButtonStyle}>← Atrás</button>
+        <button
+          data-signup-submit
+          type="submit"
+          disabled
+          style={nextButtonStyle}
+        >
+          Registrarme como maker →
+        </button>
+      </div>
+    </div>
 
   </form>
 
@@ -160,7 +212,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2rem;">
       Te contactaremos próximamente por email explicando los siguientes pasos.
 
-      Si no recibes un email en los próximos días, 
+      Si no recibes un email en los próximos días,
       por favor revisa tu carpeta de spam o contáctanos a <a href="mailto:contacto@3dbok.com" style="color: var(--color-brand-primary); text-decoration: underline;">contacto@3dbok.com</a>
     </p>
     <a
@@ -172,6 +224,23 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   </main>
 
   <script>
+    const colorPalette = [
+      { name: "Negro", hex: "#1c1c1c" },
+      { name: "Blanco", hex: "#f5f5f5" },
+      { name: "Gris", hex: "#9e9e9e" },
+      { name: "Rojo", hex: "#d32f2f" },
+      { name: "Naranja", hex: "#ef6c00" },
+      { name: "Amarillo", hex: "#fbc02d" },
+      { name: "Verde", hex: "#2e7d32" },
+      { name: "Azul", hex: "#1565c0" },
+      { name: "Morado", hex: "#7b1fa2" },
+      { name: "Rosa", hex: "#ec407a" },
+      { name: "Marrón", hex: "#6d4c41" },
+      { name: "Dorado", hex: "#c9a227" },
+      { name: "Plata", hex: "#bdbdbd" },
+      { name: "Transparente", transparent: true },
+    ];
+
     const form = document.querySelector("[data-signup-form]");
     const success = document.querySelector("[data-signup-success]");
     const submit = document.querySelector("[data-signup-submit]");
@@ -180,6 +249,13 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     const nozzleContainer = document.querySelector("[data-nozzle-container]");
     const nozzleButtons = Array.from(document.querySelectorAll("[data-nozzle]"));
     const experienceButtons = Array.from(document.querySelectorAll("[data-experience]"));
+    const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
+    const colorsContainer = document.querySelector("[data-colors-container]");
+    const nextButtons = Array.from(document.querySelectorAll("[data-next]"));
+    const prevButtons = Array.from(document.querySelectorAll("[data-prev]"));
+
+    // material -> { colors: Set<string>, other: string }
+    const colorState = new Map();
 
     const selectedStyle = (button) => {
       button.style.background = "var(--color-brand-soft)";
@@ -201,32 +277,161 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       return input instanceof HTMLInputElement ? input.value : "";
     };
 
-    const updateSubmit = () => {
-      if (!submit) return;
-      const canSubmit = Boolean(
-        getValue("name") &&
-        getValue("email").includes("@") &&
-        getValue("city") &&
-        getValue("printerModel")
-      );
-      submit.disabled = !canSubmit;
-      submit.style.background = canSubmit ? "var(--color-brand-primary)" : "var(--color-background-secondary)";
-      submit.style.color = canSubmit ? "white" : "var(--color-text-secondary)";
-      submit.style.cursor = canSubmit ? "pointer" : "not-allowed";
+    const setButtonEnabled = (button, enabled, label) => {
+      if (!(button instanceof HTMLButtonElement)) return;
+      button.disabled = !enabled;
+      button.textContent = label;
+      button.style.background = enabled ? "var(--color-brand-primary)" : "var(--color-background-secondary)";
+      button.style.color = enabled ? "white" : "var(--color-text-secondary)";
+      button.style.cursor = enabled ? "pointer" : "not-allowed";
     };
+
+    const getSelectedMaterials = () =>
+      materialButtons
+        .filter((btn) => btn.dataset.selected === "true")
+        .map((btn) => btn.dataset.material || "")
+        .filter(Boolean);
 
     const checkNozzleVisibility = () => {
       if (!nozzleContainer) return;
-      
-      const selectedMaterials = materialButtons
-        .filter((btn) => btn.dataset.selected === "true")
-        .map((btn) => btn.dataset.material);
-
+      const selectedMaterials = getSelectedMaterials();
       const requiresNozzle = selectedMaterials.some((mat) => mat !== "Resina");
       nozzleContainer.hidden = !requiresNozzle;
     };
 
-    inputs.forEach((input) => input.addEventListener("input", updateSubmit));
+    const step1Valid = () => {
+      const selectedMaterials = getSelectedMaterials();
+      const nozzleOk = nozzleContainer && !nozzleContainer.hidden
+        ? nozzleButtons.some((btn) => btn.dataset.selected === "true")
+        : true;
+      const experienceOk = experienceButtons.some((btn) => btn.dataset.selected === "true");
+      return Boolean(getValue("printerModel") && selectedMaterials.length > 0 && nozzleOk && experienceOk);
+    };
+
+    const step2Valid = () => {
+      const selectedMaterials = getSelectedMaterials();
+      if (selectedMaterials.length === 0) return false;
+      return selectedMaterials.every((material) => {
+        const data = colorState.get(material);
+        if (!data) return false;
+        return data.colors.size > 0 || data.other.trim().length > 0;
+      });
+    };
+
+    const step3Valid = () =>
+      Boolean(getValue("name") && getValue("email").includes("@") && getValue("city"));
+
+    const updateStepButtons = () => {
+      const next1 = document.querySelector('[data-next="1"]');
+      const next2 = document.querySelector('[data-next="2"]');
+      setButtonEnabled(next1, step1Valid(), "Siguiente →");
+      setButtonEnabled(next2, step2Valid(), "Siguiente →");
+      if (submit instanceof HTMLButtonElement) {
+        setButtonEnabled(submit, step3Valid(), "Registrarme como maker →");
+      }
+    };
+
+    const goToStep = (n) => {
+      if (n === 2) renderColorStep();
+      stepPanels.forEach((panel) => {
+        panel.hidden = panel.dataset.stepPanel !== String(n);
+      });
+      form?.scrollIntoView({ behavior: "smooth", block: "start" });
+      updateStepButtons();
+    };
+
+    const renderColorSwatch = (material, color) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.colorSwatch = "true";
+      button.title = color.name;
+      button.style.cssText = "display:inline-flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; cursor:pointer; padding:4px; width:56px;";
+
+      const circle = document.createElement("span");
+      circle.style.cssText = "display:inline-block; width:28px; height:28px; border-radius:50%; border:1px solid var(--color-border-tertiary);";
+      if (color.transparent) {
+        circle.style.backgroundImage = "conic-gradient(#cfcfcf 90deg, transparent 90deg 180deg, #cfcfcf 180deg 270deg, transparent 270deg)";
+        circle.style.backgroundSize = "8px 8px";
+      } else {
+        circle.style.backgroundColor = color.hex;
+      }
+
+      const label = document.createElement("span");
+      label.textContent = color.name;
+      label.style.cssText = "font-size:11px; color:var(--color-text-secondary); text-align:center; line-height:1.2;";
+
+      button.append(circle, label);
+
+      const data = colorState.get(material);
+      const isSelected = data?.colors.has(color.name);
+      if (isSelected) {
+        circle.style.boxShadow = "0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--color-brand-primary)";
+      }
+
+      button.addEventListener("click", () => {
+        const state = colorState.get(material);
+        if (!state) return;
+        if (state.colors.has(color.name)) {
+          state.colors.delete(color.name);
+          circle.style.boxShadow = "none";
+        } else {
+          state.colors.add(color.name);
+          circle.style.boxShadow = "0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--color-brand-primary)";
+        }
+        updateStepButtons();
+      });
+
+      return button;
+    };
+
+    const renderColorStep = () => {
+      if (!colorsContainer) return;
+      const selectedMaterials = getSelectedMaterials();
+
+      // Descarta el estado de materiales que ya no están seleccionados.
+      Array.from(colorState.keys()).forEach((material) => {
+        if (!selectedMaterials.includes(material)) colorState.delete(material);
+      });
+
+      colorsContainer.innerHTML = "";
+
+      selectedMaterials.forEach((material) => {
+        if (!colorState.has(material)) {
+          colorState.set(material, { colors: new Set(), other: "" });
+        }
+
+        const block = document.createElement("div");
+        block.style.cssText = "padding:1rem; border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin-bottom:14px;";
+
+        const heading = document.createElement("p");
+        heading.textContent = material;
+        heading.style.cssText = "font-size:14px; font-weight:600; color:var(--color-text-primary); margin:0 0 10px;";
+        block.appendChild(heading);
+
+        const swatchesRow = document.createElement("div");
+        swatchesRow.style.cssText = "display:flex; flex-wrap:wrap; gap:2px; margin-bottom:12px;";
+        colorPalette.forEach((color) => {
+          swatchesRow.appendChild(renderColorSwatch(material, color));
+        });
+        block.appendChild(swatchesRow);
+
+        const otherInput = document.createElement("input");
+        otherInput.type = "text";
+        otherInput.placeholder = "Otros colores (opcional)";
+        otherInput.value = colorState.get(material).other;
+        otherInput.style.cssText = "width:100%; box-sizing:border-box; padding:10px 12px; font-size:14px; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:var(--color-background-primary); color:var(--color-text-primary); font-family:inherit;";
+        otherInput.addEventListener("input", () => {
+          const state = colorState.get(material);
+          if (state) state.other = otherInput.value;
+          updateStepButtons();
+        });
+        block.appendChild(otherInput);
+
+        colorsContainer.appendChild(block);
+      });
+    };
+
+    inputs.forEach((input) => input.addEventListener("input", updateStepButtons));
 
     materialButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -234,8 +439,9 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         button.dataset.selected = selected ? "false" : "true";
         if (selected) defaultButtonStyle(button);
         else selectedStyle(button);
-        
+
         checkNozzleVisibility();
+        updateStepButtons();
       });
     });
 
@@ -245,6 +451,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         button.dataset.selected = selected ? "false" : "true";
         if (selected) defaultButtonStyle(button);
         else selectedStyle(button);
+        updateStepButtons();
       });
     });
 
@@ -256,24 +463,40 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         });
         button.dataset.selected = "true";
         selectedStyle(button);
+        updateStepButtons();
+      });
+    });
+
+    nextButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const step = Number(button.dataset.next);
+        if (step === 1 && step1Valid()) goToStep(2);
+        if (step === 2 && step2Valid()) goToStep(3);
+      });
+    });
+
+    prevButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const step = Number(button.dataset.prev);
+        goToStep(step - 1);
       });
     });
 
     form?.addEventListener("submit", async (event) => {
       event.preventDefault();
-      if (!submit || submit.disabled || !form || !success) return;
+      if (!submit || submit.disabled || !form || !success || !step3Valid()) return;
 
       submit.disabled = true;
       submit.textContent = "Enviando…";
 
       const datos = new FormData(form);
-      
+
       datos.append("materials", materialButtons
         .filter((button) => button.dataset.selected === "true")
         .map((button) => button.dataset.material || "")
         .filter(Boolean)
         .join(", "));
-        
+
       datos.append("nozzleSizes", nozzleButtons
         .filter((button) => button.dataset.selected === "true" && !nozzleContainer.hidden)
         .map((button) => button.dataset.nozzle || "")
@@ -281,6 +504,18 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         .join(", "));
 
       datos.append("experience", experienceButtons.find((button) => button.dataset.selected === "true")?.dataset.experience || "");
+
+      const colorsSummary = getSelectedMaterials()
+        .map((material) => {
+          const data = colorState.get(material);
+          if (!data) return `${material}: `;
+          const parts = Array.from(data.colors);
+          if (data.other.trim()) parts.push(data.other.trim());
+          return `${material}: ${parts.join(", ")}`;
+        })
+        .join(" | ");
+      datos.append("colors", colorsSummary);
+
       datos.append("tipo", "maker");
 
       try {
