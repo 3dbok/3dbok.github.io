@@ -2,12 +2,39 @@
 import { MATERIALES } from "../lib/productorShared.js";
 
 const { codigo } = Astro.props;
-const mat = MATERIALES[codigo];
+const material = MATERIALES[codigo];
 ---
 
-{mat && (
-  <span class="pp-material-chip">
-    <span class="pp-material-swatch" style={`background: ${mat.color};`}></span>
-    {mat.label}
-  </span>
-)}
+{
+  material && (
+    <span class="chip">
+      <span class="chip__punto" style={`background:${material.color}`} />
+      {material.label}
+    </span>
+  )
+}
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.22rem 0.6rem;
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    background: var(--pieza);
+    font-family: var(--fuente-dato);
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--tinta-media);
+    white-space: nowrap;
+  }
+
+  .chip__punto {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    flex: 0 0 auto;
+  }
+</style>

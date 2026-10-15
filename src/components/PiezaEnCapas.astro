@@ -1,0 +1,202 @@
+---
+/**
+ * La firma de la casa: un boquerón que se imprime de verdad al cargar la
+ * portada. Va tumbado sobre la bancada, que es como se imprimiría en un taller
+ * real: cara plana abajo y sin un solo soporte. Cada capa es la silueta del
+ * pez, un poco más estrecha que la de debajo, y sube desde el naranja del
+ * material recién extruido hasta el marfil del PLA natural.
+ *
+ * El boquerón no es un adorno: es el bicho de Málaga, de donde sale 3dbok.
+ */
+
+const CAPAS = 26;
+const ALTURA_CAPA = 3.2; // separación en pantalla entre capa y capa
+const ESTRECHAMIENTO = 0.2; // cuánto se cierra la última capa respecto a la primera
+const GIRO = -24; // grados de giro sobre la bancada
+const APLASTADO = 0.5; // coseno del ángulo de cámara: la vista isométrica
+
+// Silueta del boquerón, centrada en el origen. Morro afilado, aleta dorsal a
+// media espalda, anal atrasada y cola muy ahorquillada.
+const BOQUERON = `
+  M -150 0
+  C -138 -12 -124 -19 -108 -22
+  C -80 -26 -46 -28 -16 -28
+  L -6 -29
+  C -2 -41 4 -48 10 -49
+  C 14 -43 17 -33 18 -27
+  C 46 -25 74 -20 98 -12
+  C 106 -9 112 -6 116 -4
+  L 150 -36
+  C 136 -20 128 -8 126 0
+  C 128 8 136 20 150 36
+  L 116 4
+  C 112 6 106 9 98 13
+  C 78 20 62 24 48 26
+  L 42 27
+  C 40 37 35 44 30 45
+  C 27 40 25 32 24 26
+  C 0 29 -30 29 -58 26
+  C -88 22 -118 14 -138 5
+  C -144 3 -148 1 -150 0
+  Z
+`
+  .trim()
+  .replace(/\s+/g, " ");
+
+// Perfil del grosor: plano contra la bancada y redondeado arriba, como el lomo
+// del pez. Nada de escalones bruscos.
+const capas = Array.from({ length: CAPAS }, (_, i) => {
+  const t = i / (CAPAS - 1);
+  return {
+    i,
+    z: +(i * ALTURA_CAPA).toFixed(2),
+    escala: +(1 - ESTRECHAMIENTO * (1 - Math.sqrt(1 - t * t))).toFixed(4),
+  };
+});
+
+const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
+---
+
+<figure class="taller">
+  <svg
+    class="taller__vista"
+    viewBox="-228 -134 456 236"
+    role="img"
+    aria-label="Un boquerón imprimiéndose capa a capa sobre la bancada de una impresora 3D."
+  >
+    <defs>
+      <path id="boqueron" d={BOQUERON}></path>
+
+      <linearGradient id="pla" x1="0" y1="0" x2="0.4" y2="1">
+        <stop offset="0%" stop-color="#b3a687"></stop>
+        <stop offset="26%" stop-color="#ded3b9"></stop>
+        <stop offset="52%" stop-color="#f8f3e7"></stop>
+        <stop offset="76%" stop-color="#e3d9c2"></stop>
+        <stop offset="100%" stop-color="#a2967a"></stop>
+      </linearGradient>
+
+      <radialGradient id="apoyo">
+        <stop offset="0%" stop-color="rgb(21 24 27 / 0.34)"></stop>
+        <stop offset="55%" stop-color="rgb(21 24 27 / 0.13)"></stop>
+        <stop offset="100%" stop-color="rgb(21 24 27 / 0)"></stop>
+      </radialGradient>
+
+      <pattern id="reticula" width="22" height="22" patternUnits="userSpaceOnUse">
+        <path
+          d="M22 0V22M0 22H22"
+          fill="none"
+          stroke="rgb(21 24 27 / 0.1)"
+          stroke-width="1"></path>
+      </pattern>
+    </defs>
+
+    <g transform={proyeccion}>
+      <rect
+        class="taller__bancada"
+        x="-190"
+        y="-110"
+        width="380"
+        height="220"
+        rx="4"></rect>
+      <rect
+        x="-190"
+        y="-110"
+        width="380"
+        height="220"
+        rx="4"
+        fill="url(#reticula)"></rect>
+      <ellipse rx="162" ry="56" fill="url(#apoyo)"></ellipse>
+    </g>
+
+    {
+      capas.map((capa) => (
+        <g transform={`translate(0 ${-capa.z}) ${proyeccion} scale(${capa.escala})`}>
+          <use class="capa" href="#boqueron" style={`--i:${capa.i}`} />
+          <use class="capa__calor" href="#boqueron" style={`--i:${capa.i}`} />
+          {capa.i === CAPAS - 1 && (
+            <ellipse class="capa__ojo" cx="-116" cy="-5" rx="8" ry="8" style={`--i:${capa.i}`} />
+          )}
+        </g>
+      ))
+    }
+  </svg>
+
+  <figcaption class="taller__pie dato">
+    Boquerón · PLA natural · {CAPAS} capas
+  </figcaption>
+</figure>
+
+<style>
+  .taller {
+    margin: 0;
+  }
+
+  .taller__vista {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .taller__bancada {
+    fill: var(--bancada-honda);
+    stroke: var(--linea-fuerte);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .capa {
+    fill: url(#pla);
+    stroke: rgb(21 24 27 / 0.16);
+    stroke-width: 0.9;
+    vector-effect: non-scaling-stroke;
+    animation: depositar 320ms ease-out both;
+    animation-delay: calc(var(--i) * 34ms);
+  }
+
+  /* El material sale caliente por la boquilla y se enfría al subir la pieza. */
+  .capa__calor {
+    fill: var(--filamento);
+    animation: enfriar 950ms ease-out both;
+    animation-delay: calc(var(--i) * 34ms);
+  }
+
+  .capa__ojo {
+    fill: rgb(21 24 27 / 0.55);
+    animation: depositar 320ms ease-out both;
+    animation-delay: calc((var(--i) + 1) * 34ms);
+  }
+
+  @keyframes depositar {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes enfriar {
+    0% {
+      opacity: 1;
+    }
+    18% {
+      opacity: 0.88;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .taller__pie {
+    margin-top: 0.75rem;
+    color: var(--tinta-suave);
+    text-align: center;
+  }
+
+  @media (max-width: 940px) {
+    .taller__vista {
+      max-width: 34rem;
+      margin-inline: auto;
+    }
+  }
+</style>

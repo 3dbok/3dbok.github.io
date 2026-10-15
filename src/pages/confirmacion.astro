@@ -2,139 +2,307 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout>
-  <main data-no-order style="max-width: 520px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
-    <p style="color: var(--color-text-secondary);">No hay datos de pedido disponibles.</p>
-    <a
-      href="/"
-      style="background: var(--color-brand-primary); color: white; border: none; border-radius: var(--border-radius-md); padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 1rem; text-decoration: none; display: inline-block;"
-    >
-      Volver al inicio
-    </a>
-  </main>
+<BaseLayout
+  title="Pedido enviado"
+  descripcion="Resumen de tu pedido en 3dbok y qué pasa a partir de ahora."
+>
+  <main class="acuse">
+    <div class="envoltura--angosta">
+      <section class="acuse__vacio" data-no-order>
+        <h1 class="acuse__titulo">Aquí no hay ningún pedido</h1>
+        <p class="acuse__texto">
+          Este resumen solo aparece justo después de enviar un pedido. Si venías
+          a hacer uno, se empieza aquí.
+        </p>
+        <a href="/briefing" class="boton boton--principal acuse__accion">
+          Pedir una pieza <span class="boton__flecha" aria-hidden="true">→</span>
+        </a>
+      </section>
 
-  <main data-order-confirmation hidden style="max-width: 560px; margin: 0 auto; padding: 3rem 1.5rem 4rem;">
-    <div style="text-align: center; margin-bottom: 2.5rem;">
-      <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-brand-soft); color: var(--color-brand-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
-        <span style="font-size: 28px;">✓</span>
-      </div>
-      <h1 style="font-size: 24px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem;">
-        ¡Pedido recibido!
-      </h1>
-      <p style="font-size: 15px; color: var(--color-text-secondary);">
-        Hemos enviado un correo de confirmación a <span data-order-email>tu email</span>
-      </p>
-    </div>
+      <div data-order-confirmation hidden>
+        <p class="etiqueta etiqueta--marca">Pedido enviado</p>
+        <h1 class="acuse__titulo">Ya lo tenemos</h1>
+        <p class="acuse__texto">
+          Te hemos escrito a <strong data-order-email>tu email</strong> con esta
+          misma información.
+        </p>
 
-    <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 1.25rem; border-bottom: 0.5px solid var(--color-border-tertiary);">
-        <div>
-          <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px;">Número de pedido</p>
-          <p data-order-id style="font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0;"></p>
+        <div class="acuse__resguardo">
+          <div class="acuse__cabecera">
+            <div>
+              <p class="etiqueta">Referencia</p>
+              <p class="acuse__referencia dato" data-order-id></p>
+            </div>
+            <span class="acuse__estado dato">Pendiente de boceto</span>
+          </div>
+
+          <dl class="acuse__detalle dato">
+            <div data-row="maker">
+              <dt>Maker</dt>
+              <dd data-order-maker></dd>
+            </div>
+            <div data-row="size">
+              <dt>Tamaño</dt>
+              <dd data-order-size></dd>
+            </div>
+            <div data-row="material">
+              <dt>Material</dt>
+              <dd data-order-material></dd>
+            </div>
+            <div data-row="deadline" hidden>
+              <dt>Fecha deseada</dt>
+              <dd data-order-deadline></dd>
+            </div>
+            <div data-row="budget" hidden>
+              <dt>Presupuesto</dt>
+              <dd data-order-budget></dd>
+            </div>
+          </dl>
+
+          <div class="acuse__descripcion">
+            <p class="etiqueta">Lo que nos has contado</p>
+            <p class="acuse__cita" data-order-description></p>
+          </div>
         </div>
-        <span style="font-size: 12px; font-weight: 700; color: var(--color-text-primary); background: var(--color-brand-warm); padding: 4px 10px; border-radius: var(--border-radius-md);">
-          Pendiente de boceto
-        </span>
+
+        <section class="acuse__siguiente">
+          <h2 class="acuse__subtitulo">Qué pasa ahora</h2>
+          {/* Las dos secuencias van escritas: la de JS no heredaría los
+              estilos con ámbito de esta página. */}
+          <ol class="acuse__pasos" data-steps="idea">
+            <li>Un diseñador lee tu descripción y empieza el boceto</li>
+            <li>Te enviamos el boceto para que lo apruebes o pidas cambios</li>
+            <li>Ves fotos del proceso mientras se imprime</li>
+            <li>Recibes la pieza en la dirección que nos digas</li>
+          </ol>
+          <ol class="acuse__pasos" data-steps="diseno" hidden>
+            <li>Buscamos un maker disponible cerca de ti</li>
+            <li>El maker confirma el encargo y el precio final</li>
+            <li>Ves fotos del proceso mientras se imprime</li>
+            <li>Recibes la pieza en la dirección que nos digas</li>
+          </ol>
+        </section>
+
+        <div class="acuse__pie">
+          <a href="/" class="boton boton--secundario">Volver al inicio</a>
+          <p class="acuse__aviso dato">
+            ¿Algo no cuadra? Escríbenos a <a href="mailto:contacto@3dbok.com"
+              >contacto@3dbok.com</a
+            >
+          </p>
+        </div>
       </div>
-
-      <table style="width: 100%; font-size: 13px;">
-        <tbody>
-          <tr>
-            <td style="padding: 6px 0; color: var(--color-text-secondary);">Categoría</td>
-            <td data-order-category style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: var(--color-text-secondary);">Tamaño</td>
-            <td data-order-size style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: var(--color-text-secondary);">Material</td>
-            <td data-order-material style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
-          </tr>
-          <tr data-deadline-row hidden>
-            <td style="padding: 6px 0; color: var(--color-text-secondary);">Fecha deseada</td>
-            <td data-order-deadline style="padding: 6px 0; text-align: right; color: var(--color-text-primary);"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
-      <p style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem;">
-        ¿Qué pasa ahora?
-      </p>
-      <div data-next-steps style="display: flex; flex-direction: column; gap: 10px;"></div>
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-      <a
-        href="/"
-        style="flex: 1; background: none; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 12px; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none;"
-      >
-        Volver al inicio
-      </a>
     </div>
   </main>
+</BaseLayout>
 
-  <script>
-    const categoryLabels = {
-      miniature: "Miniatura / figura",
-      deco: "Decoración",
-      pet: "Mascota",
-      cosplay: "Cosplay / prop",
-      practical: "Pieza práctica",
-      gift: "Regalo personalizado",
+<style>
+  .acuse {
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .acuse__titulo {
+    margin-top: 0.75rem;
+    font-size: var(--paso-3);
+  }
+
+  .acuse__vacio .acuse__titulo {
+    margin-top: 0;
+  }
+
+  .acuse__texto {
+    margin-top: 0.9rem;
+    color: var(--tinta-media);
+    line-height: 1.6;
+  }
+
+  .acuse__accion {
+    margin-top: 1.75rem;
+  }
+
+  .acuse__resguardo {
+    margin-top: 2rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
+    background: var(--pieza);
+    overflow: hidden;
+  }
+
+  .acuse__cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.4rem;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .acuse__referencia {
+    margin-top: 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .acuse__estado {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: var(--cianotipo-lavado);
+    color: var(--cianotipo-hondo);
+    font-weight: 600;
+  }
+
+  .acuse__detalle {
+    padding: 0.5rem 1.4rem;
+  }
+
+  .acuse__detalle > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .acuse__detalle > div:last-child {
+    border-bottom: 0;
+  }
+
+  .acuse__detalle dt {
+    color: var(--tinta-suave);
+  }
+
+  .acuse__detalle dd {
+    margin: 0;
+    text-align: right;
+  }
+
+  .acuse__descripcion {
+    padding: 1.2rem 1.4rem 1.4rem;
+    border-top: 1px solid var(--linea);
+    background: var(--bancada);
+  }
+
+  .acuse__cita {
+    margin-top: 0.5rem;
+    font-size: 0.94rem;
+    line-height: 1.6;
+    color: var(--tinta-media);
+  }
+
+  .acuse__siguiente {
+    margin-top: 2.25rem;
+  }
+
+  .acuse__subtitulo {
+    font-size: var(--paso-1);
+  }
+
+  .acuse__pasos {
+    margin-top: 1rem;
+    counter-reset: fase;
+  }
+
+  .acuse__pasos li {
+    position: relative;
+    counter-increment: fase;
+    padding: 0.7rem 0 0.7rem 2.5rem;
+    border-bottom: 1px solid var(--linea);
+    font-size: 0.95rem;
+    color: var(--tinta-media);
+  }
+
+  .acuse__pasos li::before {
+    content: counter(fase, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.95rem;
+    font-family: var(--fuente-dato);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--filamento-tinta);
+  }
+
+  .acuse__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.25rem;
+  }
+
+  .acuse__aviso {
+    color: var(--tinta-suave);
+  }
+</style>
+
+<script>
+  const etiquetasTamano = {
+    xs: "Pequeño · menos de 5 cm",
+    s: "Compacto · 5 – 15 cm",
+    m: "Mediano · 15 – 30 cm",
+    l: "Grande · más de 30 cm",
+  };
+
+  const etiquetasMaterial = {
+    any: "Lo elige el maker",
+    pla: "PLA",
+    resin: "Resina",
+    petg: "PETG",
+  };
+
+  const sinPedido = document.querySelector("[data-no-order]");
+  const resumen = document.querySelector("[data-order-confirmation]");
+  const guardado = sessionStorage.getItem("3dbok-pedido");
+  const pedido = guardado ? JSON.parse(guardado) : null;
+
+  if (pedido && sinPedido && resumen) {
+    sinPedido.hidden = true;
+    resumen.hidden = false;
+
+    const escribir = (selector, texto) => {
+      const nodo = document.querySelector(selector);
+      if (nodo) nodo.textContent = texto || "";
     };
 
-    const noOrder = document.querySelector("[data-no-order]");
-    const confirmation = document.querySelector("[data-order-confirmation]");
-    const orderRaw = sessionStorage.getItem("fabrica3d-order");
-    const order = orderRaw ? JSON.parse(orderRaw) : null;
+    const mostrarFila = (nombre, texto) => {
+      const fila = document.querySelector(`[data-row="${nombre}"]`);
+      if (fila) fila.hidden = !texto;
+    };
 
-    if (order && noOrder && confirmation) {
-      noOrder.hidden = true;
-      confirmation.hidden = false;
+    escribir("[data-order-email]", pedido.email || "tu email");
+    escribir("[data-order-id]", pedido.orderId);
+    escribir("[data-order-maker]", pedido.makerNombre || "Lo elegimos nosotros");
+    escribir("[data-order-size]", etiquetasTamano[pedido.size] || pedido.size);
+    escribir(
+      "[data-order-material]",
+      etiquetasMaterial[pedido.material] || pedido.material,
+    );
+    escribir("[data-order-description]", pedido.description);
 
-      const setText = (selector, text) => {
-        const element = document.querySelector(selector);
-        if (element) element.textContent = text || "";
-      };
-
-      setText("[data-order-email]", order.email || "tu email");
-      setText("[data-order-id]", order.orderId);
-      setText("[data-order-category]", categoryLabels[order.category] || order.category);
-      setText("[data-order-size]", order.size ? order.size.toUpperCase() : "");
-      setText("[data-order-material]", order.material === "any" ? "Sin preferencia" : order.material?.toUpperCase());
-
-      const deadlineRow = document.querySelector("[data-deadline-row]");
-      if (deadlineRow && order.deadline) {
-        deadlineRow.hidden = false;
-        setText("[data-order-deadline]", order.deadline);
-      }
-
-      const steps = [
-        order.hasDesign
-          ? "Buscamos un maker cercano disponible (24h aprox.)"
-          : "Un diseñador revisa tu briefing y empieza el boceto",
-        order.hasDesign
-          ? "El maker confirma el pedido y precio final"
-          : "Recibirás el boceto para aprobar",
-        "Verás fotos del proceso de impresión en tiempo real",
-        "Tu pieza llega a casa",
-      ];
-      const nextSteps = document.querySelector("[data-next-steps]");
-      if (nextSteps) {
-        nextSteps.innerHTML = steps.map((text, index) => `
-          <div style="display: flex; gap: 10px; align-items: flex-start;">
-            <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0; margin-top: 1px;">
-              ${index + 1}
-            </span>
-            <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5;">
-              ${text}
-            </p>
-          </div>
-        `).join("");
-      }
+    if (pedido.deadline) {
+      const fecha = new Date(`${pedido.deadline}T00:00:00`);
+      escribir(
+        "[data-order-deadline]",
+        fecha.toLocaleDateString("es-ES", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+      );
+      mostrarFila("deadline", true);
     }
-  </script>
-</BaseLayout>
+
+    if (pedido.budget) {
+      escribir("[data-order-budget]", pedido.budget);
+      mostrarFila("budget", true);
+    }
+
+    const secuencia = pedido.hasDesign ? "diseno" : "idea";
+    document.querySelectorAll("[data-steps]").forEach((lista) => {
+      lista.hidden = lista.dataset.steps !== secuencia;
+    });
+  }
+</script>

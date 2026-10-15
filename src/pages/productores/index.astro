@@ -6,56 +6,128 @@ import productores from "../../data/productores.json";
 import resenas from "../../data/resenas.json";
 import { calcularMediaValoracion } from "../../lib/productorShared.js";
 import "../../styles/ProductorPage.css";
+
+const ciudades = [...new Set(productores.map((p) => p.ubicacion))];
+const recuento =
+  productores.length === 1
+    ? `1 maker dado de alta · ${ciudades.join(", ")}`
+    : `${productores.length} makers dados de alta · ${ciudades.join(" · ")}`;
 ---
 
-<BaseLayout>
-  <div class="productor-page">
-    <header class="pp-header pp-header--directorio">
-      <div>
-        <p class="pp-eyebrow pp-mono">Directorio</p>
-        <h1 class="pp-nombre">Makers que forman parte de 3dbok</h1>
-        <p class="pp-bio" style="margin-top: 0.5rem;">
-          Detrás de cada maker, hay una persona. Puedes ver su perfil,
-          productos, materiales y opiniones de otros clientes.
-          <!-- Cada maker tiene su propio equipo, materiales y especialidad. Entra
-          en uno para ver su catálogo completo y las opiniones de otros clientes. -->
+<BaseLayout
+  title="Makers"
+  descripcion="Los makers dados de alta en 3dbok: quiénes son, dónde están, con qué materiales trabajan y qué han impreso ya."
+>
+  <main>
+    <header class="directorio__cabecera">
+      <div class="envoltura">
+        <p class="etiqueta">Directorio</p>
+        <h1 class="directorio__titulo">Quién imprime en 3dbok</h1>
+        <p class="entradilla directorio__entrada">
+          Detrás de cada maker hay una persona con su máquina y sus manías.
+          Entra en su perfil para ver qué ha impreso, con qué materiales
+          trabaja y qué opinan quienes ya le han encargado algo.
         </p>
+        <p class="directorio__recuento dato">{recuento}</p>
       </div>
     </header>
 
-    <div class="dir-grid">
-      {productores.map((productor) => {
-        const { media, total } = calcularMediaValoracion(productor.id, resenas);
-        return (
-          <a class="dir-card" href={`/productores/${productor.slug}`}>
-            <img
-              class="dir-card-photo"
-              src={productor.foto}
-              alt={productor.nombre}
-            />
-            <div class="dir-card-body">
-              <h2 class="dir-card-nombre">{productor.nombre}</h2>
-              <p class="dir-card-ubicacion pp-mono">{productor.ubicacion}</p>
+    <div class="envoltura directorio__lista">
+      {
+        productores.map((productor) => {
+          const { media, total } = calcularMediaValoracion(productor.id, resenas);
+          return (
+            <a class="fila-maker" href={`/productores/${productor.slug}`}>
+              <img
+                class="fila-maker__foto"
+                src={productor.foto}
+                alt=""
+                width="96"
+                height="96"
+                loading="lazy"
+              />
 
-              {media !== null && (
-                <p class="pp-rating-pill" style="margin-top: 0.35rem;">
-                  <Estrellas valor={media} /> {media.toFixed(1)} ({total})
-                </p>
-              )}
-
-              <div class="pp-materiales-strip" style="margin-top: 0.55rem;">
-                {productor.materiales.map((m) => (
-                  <MaterialChip codigo={m} />
-                ))}
+              <div>
+                <h2 class="fila-maker__nombre">{productor.nombre}</h2>
+                <p class="fila-maker__sitio dato">{productor.ubicacion}</p>
+                {media !== null && (
+                  <p class="fila-maker__nota dato">
+                    <Estrellas valor={media} />
+                    {media.toFixed(1)} ({total})
+                  </p>
+                )}
               </div>
 
-              <p class="dir-card-especialidad pp-mono">
-                {productor.especialidades[0]}
-              </p>
-            </div>
-          </a>
-        );
-      })}
+              <div class="fila-maker__equipo">
+                <div class="fila-maker__materiales">
+                  {productor.materiales.map((codigo) => (
+                    <MaterialChip codigo={codigo} />
+                  ))}
+                </div>
+                <p class="fila-maker__especialidad dato">
+                  {productor.especialidades.join(" · ")}
+                </p>
+              </div>
+
+              <span class="fila-maker__ir">
+                Ver el taller <span class="boton__flecha" aria-hidden="true">→</span>
+              </span>
+            </a>
+          );
+        })
+      }
     </div>
-  </div>
+
+    <section class="en-cianotipo directorio__aviso">
+      <div class="envoltura directorio__aviso-interior">
+        <div>
+          <h2 class="directorio__aviso-titulo">
+            ¿No encuentras a nadie en tu zona?
+          </h2>
+          <p class="directorio__aviso-texto">
+            Haz el pedido igualmente. Buscamos al maker adecuado entre los que
+            se van dando de alta y te lo asignamos antes de empezar.
+          </p>
+        </div>
+        <a href="/briefing" class="boton boton--claro">
+          Pedir una pieza
+          <span class="boton__flecha" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </main>
 </BaseLayout>
+
+<style>
+  .fila-maker:hover .boton__flecha {
+    transform: translateX(3px);
+  }
+
+  .directorio__aviso {
+    padding-block: clamp(2.5rem, 1.6rem + 3.5vw, 4rem);
+  }
+
+  .directorio__aviso-interior {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem 3rem;
+  }
+
+  .directorio__aviso-titulo {
+    max-width: 20ch;
+  }
+
+  .directorio__aviso-texto {
+    margin-top: 0.85rem;
+    max-width: 50ch;
+    color: rgba(252, 251, 247, 0.78);
+  }
+
+  @media (max-width: 720px) {
+    .directorio__aviso-interior {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: start;
+    }
+  }
+</style>

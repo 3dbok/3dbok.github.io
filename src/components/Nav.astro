@@ -1,110 +1,179 @@
-<nav class="site-nav">
-  <a href="/" class="site-logo" aria-label="3dbok inicio">
-    <span class="site-logo-mark" aria-hidden="true">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="9" fill="var(--color-brand-primary)"></rect>
-        <path d="M8 21.5L16 8.5L24 21.5H8Z" fill="white"></path>
-        <path d="M11 21.5H24L21.5 17.5H13.5L11 21.5Z" fill="var(--color-brand-sand)"></path>
-      </svg>
-    </span>
-    <span class="site-logo-text">3dbok</span>
-  </a>
+---
+import Logo from "./Logo.astro";
 
-  <div class="site-nav-links">
-    <a href="/productores" class="site-nav-link">Makers</a>
-    <a href="/maker" class="site-nav-link">Soy maker</a>
-    <a href="/briefing" class="site-nav-link site-nav-link--primary">Hacer pedido</a>
+const ruta = Astro.url.pathname.replace(/\/$/, "") || "/";
+const enlaces = [
+  { href: "/productores", texto: "Makers" },
+  { href: "/maker", texto: "Soy maker" },
+];
+const activo = (href) => ruta === href || ruta.startsWith(`${href}/`);
+---
+
+<header class="cabecera">
+  <div class="cabecera__interior envoltura">
+    <a href="/" class="cabecera__marca" aria-label="3dbok, ir al inicio">
+      <Logo />
+    </a>
+
+    <button
+      class="cabecera__interruptor"
+      type="button"
+      data-menu-boton
+      aria-expanded="false"
+      aria-controls="menu-principal"
+    >
+      <span class="solo-lectores">Menú</span>
+      <svg viewBox="0 0 20 14" width="20" height="14" aria-hidden="true">
+        <path d="M0 1h20M0 7h20M0 13h20" stroke="currentColor" stroke-width="1.6" />
+      </svg>
+    </button>
+
+    <nav class="cabecera__menu" id="menu-principal" data-menu aria-label="Principal">
+      {
+        enlaces.map((enlace) => (
+          <a
+            href={enlace.href}
+            class="cabecera__enlace"
+            aria-current={activo(enlace.href) ? "page" : undefined}
+          >
+            {enlace.texto}
+          </a>
+        ))
+      }
+      <a href="/briefing" class="boton boton--principal cabecera__accion">
+        Pedir una pieza
+      </a>
+    </nav>
   </div>
-</nav>
+</header>
 
 <style>
-  .site-nav {
-    min-height: 64px;
-    padding: 0.7rem 1.5rem;
-    background: rgba(255, 255, 255, 0.94);
-    border-bottom: 1px solid var(--color-border-tertiary);
+  .cabecera {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--bancada) 88%, transparent);
+    border-bottom: 1px solid var(--linea);
+    backdrop-filter: blur(12px);
+  }
+
+  .cabecera__interior {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(14px);
+    min-height: 66px;
   }
 
-  .site-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
+  .cabecera__marca {
     text-decoration: none;
   }
 
-  .site-logo-mark {
-    display: inline-flex;
-    width: 32px;
-    height: 32px;
-    flex: 0 0 auto;
-  }
-
-  .site-logo-text {
-    color: var(--color-brand-primary);
-    font-family: var(--font-logo);
-    font-size: 1.55rem;
-    line-height: 1;
-    letter-spacing: 0.02em;
-  }
-
-  .site-nav-links {
+  .cabecera__menu {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 0.45rem;
-    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 
-  .site-nav-link {
-    border: 1px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-md);
-    padding: 0.45rem 0.85rem;
-    color: var(--color-text-secondary);
-    font-size: 0.82rem;
-    font-weight: 650;
-    line-height: 1;
+  .cabecera__enlace {
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--r-2);
+    color: var(--tinta-media);
+    font-size: 0.93rem;
+    font-weight: 550;
     text-decoration: none;
-    background: var(--color-background-primary);
-    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-    white-space: nowrap;
+    transition: color 0.16s ease, background-color 0.16s ease;
   }
 
-  .site-nav-link:hover {
-    color: var(--color-brand-primary);
-    border-color: var(--color-brand-primary);
-    background: var(--color-brand-soft);
+  .cabecera__enlace:hover {
+    color: var(--tinta);
+    background: rgba(21, 24, 27, 0.05);
   }
 
-  .site-nav-link--primary {
-    border-color: var(--color-brand-primary);
-    color: #ffffff;
-    background: var(--color-brand-primary);
-    box-shadow: 0 10px 24px rgba(73, 89, 184, 0.22);
+  .cabecera__enlace[aria-current="page"] {
+    color: var(--tinta);
+    box-shadow: inset 0 -2px 0 var(--filamento);
+    border-radius: 0;
   }
 
-  .site-nav-link--primary:hover {
-    color: #ffffff;
-    background: var(--color-brand-dark);
-    border-color: var(--color-brand-dark);
+  .cabecera__accion {
+    margin-left: 0.35rem;
+    padding: 0.6rem 1.05rem;
+    font-size: 0.92rem;
   }
 
-  @media (max-width: 680px) {
-    .site-nav {
-      align-items: flex-start;
-      flex-direction: column;
+  .cabecera__interruptor {
+    display: none;
+    padding: 0.6rem;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: var(--r-2);
+    background: none;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+
+  @media (max-width: 720px) {
+    .cabecera__interruptor {
+      display: inline-flex;
     }
 
-    .site-nav-links {
-      width: 100%;
-      justify-content: flex-start;
+    .cabecera__menu {
+      position: absolute;
+      inset-inline: 0;
+      top: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 0.5rem var(--canal) 1.1rem;
+      background: var(--bancada);
+      border-bottom: 1px solid var(--linea);
+    }
+
+    .cabecera__menu[hidden] {
+      display: none;
+    }
+
+    .cabecera__enlace {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--linea);
+      border-radius: 0;
+      font-size: 1rem;
+    }
+
+    .cabecera__enlace[aria-current="page"] {
+      box-shadow: none;
+      color: var(--filamento-tinta);
+    }
+
+    .cabecera__accion {
+      margin: 0.9rem 0 0;
+      justify-content: center;
     }
   }
 </style>
+
+<script>
+  const boton = document.querySelector("[data-menu-boton]");
+  const menu = document.querySelector("[data-menu]");
+  const compacto = window.matchMedia("(max-width: 720px)");
+
+  const cerrar = () => {
+    if (!menu || !boton) return;
+    menu.hidden = compacto.matches;
+    boton.setAttribute("aria-expanded", "false");
+  };
+
+  boton?.addEventListener("click", () => {
+    if (!menu) return;
+    const abierto = boton.getAttribute("aria-expanded") === "true";
+    menu.hidden = abierto;
+    boton.setAttribute("aria-expanded", String(!abierto));
+  });
+
+  document.addEventListener("keydown", (evento) => {
+    if (evento.key === "Escape") cerrar();
+  });
+
+  compacto.addEventListener("change", cerrar);
+  cerrar();
+</script>

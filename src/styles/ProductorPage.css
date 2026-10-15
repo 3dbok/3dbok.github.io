@@ -1,503 +1,458 @@
-:root {
-  --paper: var(--color-background-tertiary);
-  --paper-raised: var(--color-background-primary);
-  --ink: var(--color-text-primary);
-  --ink-soft: var(--color-text-secondary);
-  --line: var(--color-border-tertiary);
-  --blueprint: var(--color-brand-primary);
-  --blueprint-dark: var(--color-brand-dark);
-  --blueprint-soft: var(--color-brand-soft);
-  --warm: var(--color-brand-warm);
-  --sand: var(--color-brand-sand);
-  --gold: #b8863b;
-  --radius: var(--border-radius-lg);
-  --radius-sm: var(--border-radius-md);
+/* =====================================================================
+   Ficha de maker y directorio.
+   El perfil se lee como la hoja de características de un taller: datos
+   a la izquierda en monoespaciada, trabajo publicado a la derecha.
+   Los tokens salen de global.css; aquí solo hay composición.
+   ===================================================================== */
 
-  --mat-pla: #4959b8;
-  --mat-petg: #2f8f83;
-  --mat-abs: #464b57;
-  --mat-tpu: #d58a56;
-  --mat-resina: #7661d1;
-  --mat-nylon: #c2b86e;
+.ficha {
+  padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
 }
 
-.productor-page {
-  font-family: var(--font-body);
-  color: var(--ink);
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(73, 89, 184, 0.035) 0,
-      rgba(73, 89, 184, 0.035) 1px,
-      transparent 1px,
-      transparent 18px
-    ),
-    var(--paper);
-  min-height: 100vh;
-  padding-bottom: 4rem;
+/* --- Cabecera del perfil ---------------------------------------------- */
+
+.ficha__cabecera {
+  padding-block: clamp(2rem, 1.2rem + 2.6vw, 3.25rem);
+  border-bottom: 1px solid var(--linea);
 }
 
-.productor-page * { box-sizing: border-box; }
-
-.pp-mono {
-  font-family: "SFMono-Regular", "IBM Plex Mono", "JetBrains Mono", monospace;
-  letter-spacing: 0;
-}
-
-.pp-header {
-  border-bottom: 1px solid var(--line);
-  padding: 2.75rem 1.5rem 2.25rem;
-  max-width: 1000px;
-  margin: 0 auto;
+.ficha__identidad {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 1.75rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
   align-items: center;
 }
 
-.pp-avatar {
-  width: 92px;
-  height: 92px;
-  border-radius: 24px;
+.ficha__retrato {
+  width: 104px;
+  height: 104px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-3);
+  background: var(--pieza);
   object-fit: cover;
-  border: 1px solid rgba(73, 89, 184, 0.2);
-  background: var(--blueprint-soft);
-  box-shadow: 0 16px 34px rgba(17, 24, 39, 0.08);
 }
 
-.pp-eyebrow {
-  display: inline-flex;
-  width: fit-content;
-  margin: 0 0 0.45rem;
-  padding: 0.26rem 0.62rem;
-  border-radius: 999px;
-  color: var(--blueprint-dark);
-  background: var(--blueprint-soft);
-  font-size: 0.72rem;
-  font-weight: 750;
-  text-transform: uppercase;
-}
-
-.pp-nombre {
-  font-family: var(--font-heading);
-  font-size: clamp(1.8rem, 4vw, 2.55rem);
-  font-weight: 780;
-  margin: 0 0 0.4rem;
-  line-height: 1.08;
-}
-
-.pp-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  font-size: 0.9rem;
-  color: var(--ink-soft);
-  align-items: center;
-}
-
-.pp-rating-pill {
+/* Selector doblado a propósito: gana a `.etiqueta`, que trae display y color
+   propios desde global.css. */
+.etiqueta.ficha__sello {
   display: inline-flex;
   align-items: center;
-  gap: 0.32rem;
-  color: var(--gold);
-  font-weight: 700;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  color: var(--verde);
 }
 
-.pp-materiales-strip {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.pp-material-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.38rem;
-  font-size: 0.75rem;
-  font-weight: 650;
-  padding: 0.28rem 0.65rem 0.28rem 0.42rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.86);
-  color: var(--ink);
-}
-
-.pp-material-swatch {
-  width: 10px;
-  height: 10px;
+.etiqueta.ficha__sello::before {
+  content: "";
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
+  background: currentColor;
 }
 
-.pp-body {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2.25rem 1.5rem 0;
+.ficha__nombre {
+  font-size: var(--paso-3);
+}
+
+.ficha__datos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1.25rem;
+  margin-top: 0.6rem;
+  color: var(--tinta-suave);
+}
+
+.ficha__nota {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--laton);
+  font-weight: 600;
+}
+
+.ficha__materiales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+/* --- Aviso de encargo -------------------------------------------------- */
+
+.ficha__encargo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: var(--r-3);
+}
+
+.ficha__encargo-texto {
+  max-width: 44ch;
+  color: rgba(252, 251, 247, 0.78);
+  font-size: 0.95rem;
+}
+
+.ficha__encargo-texto strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--pieza);
+  font-family: var(--fuente-titulo);
+  font-size: var(--paso-1);
+  font-stretch: 108%;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* --- Cuerpo: barra de datos + trabajo ---------------------------------- */
+
+.ficha__cuerpo {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
+  margin-top: clamp(2rem, 1.2rem + 2.6vw, 3rem);
 }
 
-@media (min-width: 760px) {
-  .pp-body { grid-template-columns: 280px 1fr; }
+@media (min-width: 860px) {
+  .ficha__cuerpo {
+    grid-template-columns: 17rem minmax(0, 1fr);
+    gap: 3.5rem;
+  }
+
+  .ficha__barra {
+    position: sticky;
+    top: 5.5rem;
+    align-self: start;
+  }
 }
 
-.pp-sidebar-block + .pp-sidebar-block { margin-top: 1.75rem; }
+.ficha__bloque + .ficha__bloque {
+  margin-top: 1.5rem;
+}
 
-.pp-sidebar-title {
-  font-size: 0.74rem;
-  font-weight: 750;
-  text-transform: uppercase;
-  color: var(--blueprint-dark);
-  margin: 0 0 0.65rem;
+.ficha__bloque-titulo {
   padding-bottom: 0.45rem;
-  border-bottom: 1px solid var(--line);
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--linea);
 }
 
-.pp-bio {
+.ficha__bio {
   font-size: 0.95rem;
   line-height: 1.62;
-  color: var(--ink-soft);
-  margin: 0;
+  color: var(--tinta-media);
 }
 
-.pp-specialidades {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.42rem;
-}
-
-.pp-specialidades li {
-  font-size: 0.9rem;
-  padding-left: 1rem;
+.ficha__lista li {
+  padding: 0.35rem 0 0.35rem 1rem;
   position: relative;
+  font-size: 0.93rem;
+  color: var(--tinta-media);
 }
 
-.pp-specialidades li::before {
+.ficha__lista li::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.58em;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sand);
-  box-shadow: 0 0 0 3px rgba(219, 212, 160, 0.28);
+  top: 0.95em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--filamento);
 }
 
-.pp-impresoras {
-  font-size: 0.8rem;
-  color: var(--ink-soft);
-  line-height: 1.65;
-}
-
-.pp-section-title {
-  font-family: var(--font-heading);
-  font-size: 1.22rem;
-  font-weight: 760;
-  margin: 0 0 1rem;
-}
-
-.pp-portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.1rem;
-  margin-bottom: 2.5rem;
-}
-
-.pp-product-card {
-  display: block;
-  background: var(--paper-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.pp-product-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(73, 89, 184, 0.32);
-  box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
-}
-
-.pp-product-photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  background: var(--blueprint-soft);
-  display: block;
-}
-
-.pp-product-body { padding: 0.95rem 1rem 1.08rem; }
-
-.pp-product-nombre {
-  font-size: 0.96rem;
-  font-weight: 720;
-  margin: 0 0 0.6rem;
-}
-
-.pp-spec-sheet {
-  font-size: 0.72rem;
-  color: var(--ink-soft);
-  display: flex;
-  flex-direction: column;
-  gap: 0.34rem;
-}
-
-.pp-spec-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  border-bottom: 1px solid rgba(73, 89, 184, 0.12);
-  padding-bottom: 0.26rem;
-}
-
-.pp-spec-row span:first-child { color: var(--ink-soft); }
-.pp-spec-row span:last-child { color: var(--ink); text-align: right; }
-
-.pp-product-precio {
-  margin-top: 0.7rem;
-  font-size: 0.9rem;
-  font-weight: 760;
-  color: var(--blueprint);
-}
-
-.pp-resenas-list {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 0 1rem;
-}
-
-.pp-resena {
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.3rem 1rem;
-}
-
-.pp-resena:last-child { border-bottom: 0; }
-
-.pp-resena-autor {
-  font-weight: 720;
-  font-size: 0.9rem;
-}
-
-.pp-resena-fecha {
-  font-size: 0.72rem;
-  color: var(--ink-soft);
-}
-
-.pp-resena-estrellas {
-  color: var(--gold);
+.ficha__equipo {
   font-size: 0.82rem;
-  grid-row: 1;
-  grid-column: 2;
-  align-self: start;
+  line-height: 1.7;
+  color: var(--tinta-media);
 }
 
-.pp-resena-texto {
-  grid-column: 1 / -1;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: var(--ink-soft);
-  margin: 0.25rem 0 0;
+/* --- Trabajos publicados ------------------------------------------------ */
+
+.ficha__seccion-titulo {
+  font-size: var(--paso-2);
+  margin-bottom: 1.25rem;
 }
 
-.pp-review-form {
-  margin-top: 1.5rem;
-  padding: 1.25rem;
-  background: var(--paper-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+.ficha__seccion-titulo:not(:first-child) {
+  margin-top: 3rem;
 }
 
-.pp-review-form-title {
-  font-size: 0.95rem;
-  font-weight: 760;
-  margin: 0 0 0.9rem;
-}
-
-.pp-review-form label {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--ink-soft);
-  margin-bottom: 0.34rem;
-  font-weight: 650;
-}
-
-.pp-review-form input,
-.pp-review-form textarea,
-.pp-review-form select {
-  width: 100%;
-  font-family: inherit;
-  font-size: 0.9rem;
-  padding: 0.58rem 0.7rem;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--radius-sm);
-  background: var(--color-background-primary);
-  margin-bottom: 0.9rem;
-  color: var(--ink);
-}
-
-.pp-review-form textarea { min-height: 86px; resize: vertical; }
-
-.pp-review-submit {
-  background: var(--blueprint);
-  color: #ffffff;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.68rem 1.15rem;
-  font-size: 0.88rem;
-  font-weight: 720;
-  cursor: pointer;
-  box-shadow: 0 12px 26px rgba(73, 89, 184, 0.2);
-}
-
-.pp-review-submit:hover { background: var(--blueprint-dark); }
-
-.pp-review-note {
-  font-size: 0.74rem;
-  color: var(--ink-soft);
-  margin-top: 0.65rem;
-}
-
-.pp-cta {
-  max-width: 1000px;
-  margin: 2.5rem auto 0;
-  padding: 1.5rem;
-  background: var(--blueprint-dark);
-  color: #ffffff;
-  border-radius: 28px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 20px 44px rgba(47, 58, 140, 0.24);
-}
-
-.pp-cta-text { font-size: 0.95rem; color: rgba(255, 255, 255, 0.82); }
-.pp-cta-text strong { display: block; color: #ffffff; font-size: 1.08rem; margin-bottom: 0.25rem; }
-
-.pp-cta-button {
-  background: #ffffff;
-  color: var(--blueprint-dark);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0.72rem 1.25rem;
-  font-weight: 760;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pp-product-card { transition: none; }
-}
-
-.pp-header--directorio {
-  grid-template-columns: 1fr;
-}
-
-.dir-grid {
-  max-width: 1000px;
-  margin: 2rem auto 0;
-  padding: 0 1.5rem 3rem;
+.trabajos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
   gap: 1.25rem;
 }
 
-.dir-card {
-  display: block;
-  background: var(--paper-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+.trabajo {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-3);
+  background: var(--pieza);
   overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   color: inherit;
   text-decoration: none;
-  cursor: pointer;
+  transition: border-color 0.16s ease, transform 0.16s ease;
 }
 
-.dir-card:hover {
+.trabajo:hover {
+  border-color: var(--tinta-media);
   transform: translateY(-2px);
-  border-color: rgba(73, 89, 184, 0.32);
-  box-shadow: 0 18px 38px rgba(17, 24, 39, 0.1);
 }
 
-.dir-card:focus-visible {
-  outline: 2px solid var(--blueprint);
-  outline-offset: 3px;
-}
-
-.dir-card-photo {
+.trabajo__foto {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: var(--blueprint-soft);
-  display: block;
+  background: var(--bancada-honda);
 }
 
-.dir-card-body { padding: 1rem 1.05rem 1.15rem; }
-
-.dir-card-nombre {
-  font-family: var(--font-heading);
-  font-size: 1.08rem;
-  font-weight: 760;
-  margin: 0;
+.trabajo__cuerpo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem 1.1rem 1.15rem;
 }
 
-.dir-card-ubicacion {
-  font-size: 0.76rem;
-  color: var(--ink-soft);
-  margin: 0.18rem 0 0;
+.trabajo__nombre {
+  font-size: 1rem;
+  font-stretch: 104%;
 }
 
-.dir-card-especialidad {
+.trabajo__ficha {
+  margin-top: 0.75rem;
+  font-family: var(--fuente-dato);
+  font-size: 0.73rem;
+}
+
+.trabajo__ficha div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--linea);
+  color: var(--tinta-suave);
+}
+
+.trabajo__ficha div span:last-child {
+  color: var(--tinta);
+  text-align: right;
+}
+
+.trabajo__precio {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  font-family: var(--fuente-dato);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--cianotipo);
+}
+
+.ficha__vacio {
+  padding: 1.25rem 0;
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+
+/* --- Opiniones ---------------------------------------------------------- */
+
+.opiniones {
+  border-top: 1px solid var(--linea);
+}
+
+.opinion {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.opinion__autor {
+  font-weight: 650;
+  font-size: 0.95rem;
+}
+
+.opinion__estrellas {
+  grid-row: 1;
+  grid-column: 2;
+  color: var(--laton);
+  font-size: 0.85rem;
+}
+
+.dato.opinion__fecha {
+  grid-column: 1 / -1;
+  color: var(--tinta-suave);
   font-size: 0.72rem;
-  color: var(--blueprint-dark);
-  margin: 0.65rem 0 0;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--line);
-  font-weight: 700;
+}
+
+.opinion__texto {
+  grid-column: 1 / -1;
+  margin-top: 0.4rem;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--tinta-media);
+}
+
+/* --- Formulario de opinión ---------------------------------------------- */
+
+.opinar {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-3);
+  background: var(--pieza);
+}
+
+.opinar__titulo {
+  font-size: var(--paso-1);
+  font-stretch: 108%;
+  margin-bottom: 1.1rem;
+}
+
+.opinar__campo + .opinar__campo {
+  margin-top: 1rem;
+}
+
+.opinar__nota {
+  margin-top: 0.9rem;
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
+
+.opinar__nota--error {
+  color: var(--alerta);
+}
+
+/* --- Directorio ---------------------------------------------------------- */
+
+.directorio__cabecera {
+  padding-block: clamp(2.25rem, 1.4rem + 3vw, 3.75rem);
+  border-bottom: 1px solid var(--linea);
+}
+
+.directorio__titulo {
+  margin-top: 0.7rem;
+  max-width: 18ch;
+}
+
+.directorio__entrada {
+  margin-top: 1.1rem;
+  max-width: 52ch;
+}
+
+.directorio__recuento {
+  margin-top: 1.5rem;
+  color: var(--tinta-suave);
+}
+
+/* Un listado a todo lo ancho, no una cuadrícula de tarjetas: con un maker
+   dado de alta se lee igual de bien que con cincuenta. */
+.directorio__lista {
+  padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem)
+    clamp(2.5rem, 1.6rem + 3vw, 4rem);
+  border-top: 2px solid var(--tinta);
+  margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+
+.fila-maker {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1.5fr) minmax(0, 1fr) auto;
+  gap: 1.5rem 2rem;
+  align-items: center;
+  padding: 1.5rem 1rem 1.5rem 0;
+  border-bottom: 1px solid var(--linea);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.16s ease;
+}
+
+.fila-maker:hover {
+  background: var(--pieza);
+}
+
+.fila-maker__foto {
+  width: 96px;
+  height: 96px;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-2);
+  background: var(--pieza);
+  object-fit: cover;
+}
+
+.fila-maker__nombre {
+  font-size: var(--paso-2);
+}
+
+.fila-maker:hover .fila-maker__nombre {
+  text-decoration: underline;
+  text-decoration-color: var(--filamento);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+}
+
+.fila-maker__sitio {
+  margin-top: 0.25rem;
+  color: var(--tinta-suave);
+}
+
+.fila-maker__nota {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  color: var(--laton);
+  font-weight: 600;
+}
+
+.fila-maker__materiales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.fila-maker__especialidad {
+  margin-top: 0.6rem;
+  color: var(--tinta-suave);
+  line-height: 1.6;
+}
+
+.fila-maker__ir {
+  color: var(--cianotipo);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .fila-maker {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 1rem 1.25rem;
+    align-items: start;
+  }
+
+  .fila-maker__foto {
+    width: 72px;
+    height: 72px;
+  }
+
+  .fila-maker__equipo,
+  .fila-maker__ir {
+    grid-column: 2;
+  }
 }
 
 @media (max-width: 620px) {
-  .pp-header {
-    grid-template-columns: 1fr;
+  .ficha__identidad {
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
   }
 
-  .pp-avatar {
-    width: 78px;
-    height: 78px;
-    border-radius: 20px;
+  .ficha__retrato {
+    width: 84px;
+    height: 84px;
   }
-
-  .pp-cta {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dir-card { transition: none; }
 }

@@ -1,107 +1,800 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import PiezaEnCapas from "../components/PiezaEnCapas.astro";
+import MaterialChip from "../components/MaterialChip.astro";
+import productores from "../data/productores.json";
 
-const steps = [
+// Los makers que ya están dados de alta. Somos pocos y se dice: es más
+// honesto que una cuadrícula de caras de archivo.
+const makers = productores.slice(0, 3);
+
+const pasos = [
   {
-    n: "1",
-    title: "Cuéntanos qué quieres",
-    desc: "Describe tu idea. Sube fotos o diseño de referencia si tienes. No necesitas saber nada de impresión 3D.",
+    titulo: "Cuéntanos la pieza",
+    texto:
+      "Descríbela como se la contarías a un amigo. Si tienes fotos, un boceto o un archivo STL, súbelo; si solo tienes la idea, también vale.",
+    nota: "5 minutos",
   },
   {
-    n: "2",
-    title: "Se prepara el diseño",
-    desc: "Recibes un boceto para aprobar antes de que empiece el trabajo de verdad.",
+    titulo: "Apruebas el boceto",
+    texto:
+      "Un diseñador convierte tu descripción en un modelo y te lo enseña antes de gastar un gramo de filamento. Se cambia hasta que encaje.",
+    nota: "Nada se imprime sin tu visto bueno",
   },
   {
-    n: "3",
-    title: "Un maker cercano lo fabrica",
-    desc: "Recibes fotos del proceso. Cuando está listo, te lo entregamos.",
+    titulo: "Un maker cercano la imprime",
+    texto:
+      "El encargo va a alguien de tu zona con la máquina adecuada. Ves fotos del proceso y recibes la pieza terminada.",
+    nota: "Seguimiento con fotos",
+  },
+];
+
+const encargos = [
+  {
+    titulo: "Un repuesto que ya no se fabrica",
+    texto:
+      "La rueda del carro de la compra, el enganche del toldo, la tapa del mando que se rompió.",
+    material: "PETG",
+  },
+  {
+    titulo: "Una figura o una miniatura",
+    texto:
+      "Personajes de rol, maquetas, trofeos, regalos con el nombre de alguien encima.",
+    material: "Resina",
+  },
+  {
+    titulo: "Algo a medida para casa",
+    texto:
+      "Soportes, organizadores y adaptadores que no existen en ninguna tienda porque tu hueco mide lo que mide.",
+    material: "PLA",
+  },
+  {
+    titulo: "Un prototipo de tu proyecto",
+    texto:
+      "Tener la idea en la mano antes de encargar un molde o una serie. Se corrige y se vuelve a imprimir.",
+    material: "PLA",
+  },
+];
+
+const materiales = [
+  {
+    codigo: "PLA",
+    color: "var(--mat-pla)",
+    que: "Rígido, económico y el más habitual.",
+    para: "Decoración, figuras, prototipos",
+  },
+  {
+    codigo: "PETG",
+    color: "var(--mat-petg)",
+    que: "Aguanta golpes, calor y humedad.",
+    para: "Repuestos y piezas de exterior",
+  },
+  {
+    codigo: "Resina",
+    color: "var(--mat-resina)",
+    que: "Detalle finísimo y superficie lisa.",
+    para: "Miniaturas, joyería, maquetas",
+  },
+  {
+    codigo: "TPU",
+    color: "var(--mat-tpu)",
+    que: "Flexible, como una goma dura.",
+    para: "Fundas, juntas y topes",
   },
 ];
 ---
 
 <BaseLayout>
   <main>
-    <section style="background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); padding: 5rem 1.5rem 4rem; text-align: center;">
-      <p style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-brand-primary); font-weight: 700; margin-bottom: 1rem;">
-        Impresión 3D para todos
-      </p>
-      <h1 style="font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 780; line-height: 1.15; color: var(--color-text-primary); max-width: 700px; margin: 0 auto 1.25rem;">
-        Lo que imaginas,<br />impreso en 3D y en tu puerta
-      </h1>
-      <p style="font-size: 18px; color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.6;">
-        Muéstranos qué quieres. Un diseñador la crea. Un maker cercano la fabrica.
-        Sin tecnicismos, sin complicaciones.
-      </p>
-      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <a
-          href="/briefing"
-          style="background: var(--color-brand-primary); color: white; border: none; border-radius: var(--border-radius-md); padding: 14px 32px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 14px 30px rgba(73, 89, 184, 0.22);"
-        >
-          Hacer mi pedido →
+    <section class="portada">
+      <div class="envoltura portada__interior">
+        <div class="portada__texto">
+          <p class="etiqueta etiqueta--marca">Impresión 3D por encargo</p>
+          <h1 class="portada__titular">
+            Cuéntalo con tus palabras. Sale impreso en tu ciudad.
+          </h1>
+          <p class="entradilla portada__entrada">
+            No hace falta que sepas qué es un STL ni que tengas impresora.
+            Describes la pieza, un diseñador te manda un boceto y, cuando lo
+            apruebas, un maker cercano la fabrica.
+          </p>
+          <div class="portada__acciones">
+            <a href="/briefing" class="boton boton--principal">
+              Pedir una pieza <span class="boton__flecha" aria-hidden="true">→</span>
+            </a>
+            <a href="/productores" class="boton boton--secundario">Ver makers</a>
+          </div>
+          <ul class="portada__garantias dato">
+            <li>Boceto antes de imprimir</li>
+            <li>Makers verificados</li>
+            <li>Sin compromiso hasta aprobarlo</li>
+          </ul>
+        </div>
+
+        <div class="portada__pieza">
+          <PiezaEnCapas />
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion proceso" id="como-funciona">
+      <div class="envoltura">
+        <div class="rotulo">
+          <p class="etiqueta">Cómo funciona</p>
+          <h2>Del recado a la pieza, en tres pasos</h2>
+        </div>
+
+        <ol class="proceso__lista">
+          {
+            pasos.map((paso, indice) => (
+              <li class="paso">
+                <span class="paso__indice dato" aria-hidden="true">
+                  {String(indice + 1).padStart(2, "0")}
+                </span>
+                <div class="paso__cuerpo">
+                  <h3 class="paso__titulo">{paso.titulo}</h3>
+                  <p class="paso__texto">{paso.texto}</p>
+                  <p class="paso__nota dato">{paso.nota}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="seccion encargos">
+      <div class="envoltura">
+        <div class="rotulo rotulo--partido">
+          <div>
+            <p class="etiqueta">Qué se pide aquí</p>
+            <h2>Casi siempre es una de estas cuatro cosas</h2>
+          </div>
+          <p class="entradilla rotulo__apunte">
+            Si lo tuyo no aparece en la lista, cuéntalo igual. Lo raro se
+            imprime igual de bien.
+          </p>
+        </div>
+
+        <ul class="encargos__lista">
+          {
+            encargos.map((encargo) => (
+              <li class="encargo">
+                <h3 class="encargo__titulo">{encargo.titulo}</h3>
+                <p class="encargo__texto">{encargo.texto}</p>
+                <p class="encargo__material dato">
+                  Suele hacerse en {encargo.material}
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="seccion materiales">
+      <div class="envoltura materiales__interior">
+        <div class="rotulo">
+          <p class="etiqueta">Materiales</p>
+          <h2>En qué se puede imprimir</h2>
+          <p class="entradilla materiales__apunte">
+            Elegir material es cosa del maker. Esto es solo para que sepas de
+            qué te habla cuando lo mencione.
+          </p>
+        </div>
+
+        <table class="tabla-materiales">
+          <thead>
+            <tr>
+              <th scope="col">Material</th>
+              <th scope="col">Qué es</th>
+              <th scope="col">Va bien para</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              materiales.map((material) => (
+                <tr>
+                  <th scope="row">
+                    <span
+                      class="tabla-materiales__punto"
+                      style={`background:${material.color}`}
+                    />
+                    {material.codigo}
+                  </th>
+                  <td>{material.que}</td>
+                  <td class="tabla-materiales__uso">{material.para}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="seccion quienes">
+      <div class="envoltura">
+        <div class="rotulo rotulo--partido">
+          <div>
+            <p class="etiqueta">Quién imprime</p>
+            <h2>Detrás de cada pieza hay alguien con su máquina</h2>
+          </div>
+          <p class="entradilla rotulo__apunte">
+            Acabamos de empezar, así que de momento somos pocos y salimos con
+            nombre y apellidos. Puedes ver el taller de cada uno antes de
+            encargar nada.
+          </p>
+        </div>
+
+        <ul class="quienes__lista">
+          {
+            makers.map((maker) => (
+              <li class="taller-maker">
+                <img
+                  class="taller-maker__foto"
+                  src={maker.foto}
+                  alt=""
+                  width="88"
+                  height="88"
+                  loading="lazy"
+                />
+                <div>
+                  <h3 class="taller-maker__nombre">
+                    <a href={`/productores/${maker.slug}`}>{maker.nombre}</a>
+                  </h3>
+                  <p class="taller-maker__sitio dato">{maker.ubicacion}</p>
+                  <p class="taller-maker__bio">{maker.bio}</p>
+                  <div class="taller-maker__chips">
+                    {maker.materiales.map((codigo) => (
+                      <MaterialChip codigo={codigo} />
+                    ))}
+                  </div>
+                  <p class="taller-maker__equipo dato">
+                    {maker.impresoras.join(" · ")}
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a href="/productores" class="quienes__enlace">
+          Ver el directorio de makers
+          <span class="boton__flecha" aria-hidden="true">→</span>
         </a>
       </div>
+    </section>
 
-      <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-top: 3rem;">
-        {[
-          ["✓", "Sin conocimientos técnicos"],
-          ["✓", "Boceto previo siempre"],
-          ["✓", "Makers verificados"],
-        ].map(([icon, text]) => (
-          <span style="font-size: 13px; color: var(--color-text-secondary);">
-            <span style="color: var(--color-brand-primary); margin-right: 6px;">{icon}</span>{text}
-          </span>
-        ))}
+    <section class="en-cianotipo llamada-maker">
+      <div class="envoltura llamada-maker__interior">
+        <div>
+          <p class="etiqueta">Para makers</p>
+          <h2 class="llamada-maker__titulo">
+            ¿Tienes una impresora parada media semana?
+          </h2>
+          <p class="llamada-maker__texto">
+            Te llegan encargos de tu provincia y decides cuáles coges. Sin cuota
+            mensual: solo una comisión cuando entregas la pieza.
+          </p>
+          <ul class="llamada-maker__puntos dato">
+            <li>Sin cuota mensual</li>
+            <li>Tú eliges los pedidos</li>
+            <li>Encargos de tu zona</li>
+          </ul>
+        </div>
+        <a href="/maker" class="boton boton--claro llamada-maker__accion">
+          Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>
+        </a>
       </div>
     </section>
-
-    <section style="padding: 4rem 1.5rem; max-width: 860px; margin: 0 auto;">
-      <h2 style="font-size: 22px; font-weight: 760; text-align: center; margin-bottom: 3rem; color: var(--color-text-primary);">
-        Cómo funciona
-      </h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem;">
-        {steps.map((step) => (
-          <div style="background: var(--color-background-primary); border: 1px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; box-shadow: var(--shadow-card);">
-            <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--color-brand-soft); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-              <span style="font-size: 13px; font-weight: 760; color: var(--color-brand-dark);">{step.n}</span>
-            </div>
-            <h3 style="font-size: 15px; font-weight: 720; margin-bottom: 8px; color: var(--color-text-primary);">
-              {step.title}
-            </h3>
-            <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
-              {step.desc}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <section style="background: var(--color-brand-dark); padding: 3.5rem 1.5rem; text-align: center;">
-      <h2 style="font-size: 22px; font-weight: 760; color: white; margin-bottom: 0.75rem;">
-        ¿Tienes una impresora 3D?
-      </h2>
-      <p style="color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 1.75rem;">
-        Forma parte de la comunidad de 3dbok. Sin inversión, sin compromiso.
-      </p>
-      <a
-        href="/maker"
-        style="background: white; color: var(--color-brand-dark); border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none;"
-      >
-        Registrarme como maker →
-      </a>
-    </section>
-
-    <footer style="background: var(--color-background-primary); border-top: 0.5px solid var(--color-border-tertiary); padding: 2rem 1.5rem; text-align: center;">
-      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
-        © 2026 3dbok · Hecho en España 🇪🇸
-      </p>
-    </footer>
   </main>
-
-  <style>
-    .landing-choice-card:hover {
-      border-color: var(--color-brand-primary) !important;
-      background: var(--color-brand-soft) !important;
-    }
-  </style>
 </BaseLayout>
+
+<style>
+  /* --- Portada -------------------------------------------------------- */
+
+  .portada {
+    padding-block: clamp(2.5rem, 1rem + 5vw, 5rem) clamp(2rem, 1rem + 4vw, 4rem);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .portada__interior {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+  }
+
+  .portada__titular {
+    margin-top: 1.1rem;
+    max-width: 15ch;
+  }
+
+  .portada__entrada {
+    margin-top: 1.35rem;
+    max-width: 46ch;
+  }
+
+  .portada__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 2rem;
+  }
+
+  .portada__garantias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.4rem;
+    margin-top: 2.25rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--linea);
+    color: var(--tinta-suave);
+  }
+
+  .portada__garantias li {
+    position: relative;
+    padding-left: 0.95rem;
+  }
+
+  .portada__garantias li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 5px;
+    height: 5px;
+    border-radius: 1px;
+    background: var(--filamento);
+  }
+
+  .portada__pieza {
+    justify-self: center;
+  }
+
+  @media (max-width: 940px) {
+    .portada__interior {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+
+    .portada__texto {
+      order: 2;
+    }
+
+    .portada__pieza {
+      order: 1;
+    }
+
+    .portada__titular {
+      max-width: 18ch;
+    }
+  }
+
+  /* --- Rótulos de sección --------------------------------------------- */
+
+  .rotulo {
+    margin-bottom: clamp(2rem, 1.2rem + 2.4vw, 3.25rem);
+  }
+
+  .rotulo h2 {
+    margin-top: 0.75rem;
+    max-width: 20ch;
+  }
+
+  .rotulo--partido {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    align-items: end;
+    gap: 1.5rem 3rem;
+  }
+
+  .rotulo__apunte {
+    font-size: var(--paso-0);
+  }
+
+  @media (max-width: 780px) {
+    .rotulo--partido {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* --- Proceso: la línea es el recorrido del filamento ---------------- */
+
+  .proceso {
+    background: var(--pieza);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .proceso__lista {
+    display: grid;
+    gap: 0;
+  }
+
+  .paso {
+    --pad: 1.75rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: 0 1.75rem;
+    padding-block: var(--pad);
+    border-top: 1px solid var(--linea);
+  }
+
+  .paso:last-child {
+    border-bottom: 1px solid var(--linea);
+  }
+
+  /* El hilo continuo que enhebra los tres pasos: el recorrido que hace el
+     encargo desde que lo cuentas hasta que lo tienes en la mano. */
+  .paso::before {
+    content: "";
+    position: absolute;
+    left: 0.42rem;
+    top: calc(var(--pad) + 1.8rem);
+    bottom: calc((var(--pad) + 0.1rem) * -1);
+    width: 2px;
+    background: var(--filamento);
+    opacity: 0.42;
+  }
+
+  .paso:last-child::before {
+    display: none;
+  }
+
+  .paso__indice {
+    padding-top: 0.28rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--filamento-tinta);
+  }
+
+  .paso__texto {
+    margin-top: 0.5rem;
+    max-width: 58ch;
+    color: var(--tinta-media);
+  }
+
+  .paso__nota {
+    margin-top: 0.85rem;
+    color: var(--tinta-suave);
+  }
+
+  @media (min-width: 900px) {
+    .paso {
+      --pad: 2.25rem;
+      grid-template-columns: 3.5rem minmax(0, 21rem) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .paso__cuerpo {
+      display: contents;
+    }
+
+    .paso__titulo {
+      grid-column: 2;
+    }
+
+    .paso__texto {
+      grid-column: 3;
+      grid-row: 1;
+      margin-top: 0;
+    }
+
+    .paso__nota {
+      grid-column: 3;
+      margin-top: 0.75rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .paso {
+      grid-template-columns: 2.4rem minmax(0, 1fr);
+      gap: 0 1rem;
+    }
+  }
+
+  /* --- Qué se pide ----------------------------------------------------- */
+
+  .encargos {
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .encargos__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+    gap: 0;
+  }
+
+  .encargo {
+    padding: 1.6rem 1.75rem 1.75rem 0;
+    border-top: 2px solid var(--tinta);
+  }
+
+  .encargo + .encargo {
+    padding-left: 1.75rem;
+  }
+
+  .encargo__titulo {
+    font-size: var(--paso-0);
+    font-stretch: 104%;
+    font-weight: 700;
+    max-width: 18ch;
+  }
+
+  .encargo__texto {
+    margin-top: 0.6rem;
+    font-size: 0.94rem;
+    line-height: 1.58;
+    color: var(--tinta-media);
+  }
+
+  .encargo__material {
+    margin-top: 1.1rem;
+    color: var(--tinta-suave);
+  }
+
+  @media (min-width: 700px) {
+    .encargo + .encargo {
+      border-left: 1px solid var(--linea);
+    }
+  }
+
+  @media (max-width: 699px) {
+    .encargo {
+      padding-right: 0;
+    }
+
+    .encargo + .encargo {
+      padding-left: 0;
+      border-top-width: 1px;
+      border-top-color: var(--linea);
+    }
+  }
+
+  /* --- Materiales ------------------------------------------------------ */
+
+  .materiales {
+    background: var(--pieza);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .materiales__interior {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 3vw, 4rem);
+    align-items: start;
+  }
+
+  .materiales .rotulo {
+    margin-bottom: 0;
+  }
+
+  .materiales__apunte {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .tabla-materiales {
+    width: 100%;
+    text-align: left;
+  }
+
+  .tabla-materiales th,
+  .tabla-materiales td {
+    padding: 0.9rem 1rem 0.9rem 0;
+    border-bottom: 1px solid var(--linea);
+    vertical-align: baseline;
+  }
+
+  .tabla-materiales thead th {
+    padding-top: 0;
+    border-bottom-color: var(--tinta);
+    border-bottom-width: 2px;
+    font-family: var(--fuente-dato);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+
+  .tabla-materiales tbody th {
+    font-family: var(--fuente-dato);
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .tabla-materiales__punto {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 0.5rem;
+    border-radius: 2px;
+    vertical-align: baseline;
+  }
+
+  .tabla-materiales td {
+    font-size: 0.94rem;
+    color: var(--tinta-media);
+  }
+
+  .tabla-materiales__uso {
+    color: var(--tinta-suave);
+  }
+
+  @media (max-width: 880px) {
+    .materiales__interior {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 620px) {
+    .tabla-materiales thead {
+      display: none;
+    }
+
+    .tabla-materiales tr {
+      display: block;
+      padding-block: 1rem;
+      border-bottom: 1px solid var(--linea);
+    }
+
+    .tabla-materiales th,
+    .tabla-materiales td {
+      display: block;
+      padding: 0;
+      border: 0;
+    }
+
+    .tabla-materiales td {
+      margin-top: 0.3rem;
+    }
+  }
+
+  /* --- Quién imprime --------------------------------------------------- */
+
+  /* Columnas de ancho tope, no elásticas: con un solo maker dado de alta la
+     fila no se estira a lo ancho de la página. */
+  .quienes__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 25rem));
+    gap: 2rem 3rem;
+    padding-top: 1.75rem;
+    border-top: 2px solid var(--tinta);
+  }
+
+  .taller-maker {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .taller-maker__foto {
+    width: 88px;
+    height: 88px;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-2);
+    background: var(--pieza);
+    object-fit: cover;
+  }
+
+  .taller-maker__nombre {
+    font-size: var(--paso-1);
+  }
+
+  .taller-maker__nombre a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .taller-maker__nombre a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--filamento);
+    text-decoration-thickness: 2px;
+  }
+
+  .taller-maker__sitio {
+    margin-top: 0.2rem;
+    color: var(--tinta-suave);
+  }
+
+  .taller-maker__bio {
+    margin-top: 0.75rem;
+    font-size: 0.93rem;
+    line-height: 1.58;
+    color: var(--tinta-media);
+  }
+
+  .taller-maker__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+
+  .taller-maker__equipo {
+    margin-top: 0.6rem;
+    color: var(--tinta-suave);
+  }
+
+  .quienes__enlace {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2.25rem;
+    font-weight: 600;
+    text-decoration-color: var(--linea-fuerte);
+  }
+
+  .quienes__enlace:hover .boton__flecha {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 420px) {
+    .taller-maker {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.9rem;
+    }
+  }
+
+  /* --- Llamada a makers ------------------------------------------------ */
+
+  .llamada-maker {
+    padding-block: clamp(3rem, 1.8rem + 4.5vw, 5rem);
+  }
+
+  .llamada-maker__interior {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem 3rem;
+  }
+
+  .llamada-maker__titulo {
+    margin-top: 0.75rem;
+    max-width: 17ch;
+  }
+
+  .llamada-maker__texto {
+    margin-top: 1rem;
+    max-width: 46ch;
+    color: rgba(252, 251, 247, 0.78);
+  }
+
+  .llamada-maker__puntos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.4rem;
+    margin-top: 1.6rem;
+    color: rgba(252, 251, 247, 0.66);
+  }
+
+  .llamada-maker__puntos li {
+    position: relative;
+    padding-left: 0.95rem;
+  }
+
+  .llamada-maker__puntos li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 5px;
+    height: 5px;
+    border-radius: 1px;
+    background: var(--filamento);
+  }
+
+  @media (max-width: 780px) {
+    .llamada-maker__interior {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .llamada-maker__accion {
+      justify-self: start;
+    }
+  }
+</style>

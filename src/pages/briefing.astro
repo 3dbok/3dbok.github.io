@@ -2,649 +2,830 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import productores from "../data/productores.json";
 
-const STEPS = [
-  { id: "description", title: "Cuéntanos tu idea" },
-  { id: "references", title: "¿Tienes referencias visuales?" },
-  { id: "size", title: "¿Qué tamaño necesitas?" },
-  { id: "details", title: "Últimos detalles" },
-  { id: "contact", title: "¿Cómo te contactamos?" },
+const PASOS = [
+  { id: "descripcion", titulo: "Cuéntanos tu idea" },
+  { id: "diseno", titulo: "¿Ya tienes el diseño?" },
+  { id: "tamano", titulo: "¿De qué tamaño?" },
+  { id: "detalles", titulo: "Últimos detalles" },
+  { id: "contacto", titulo: "¿Cómo te avisamos?" },
 ];
 
-const SIZES = [
-  { id: "xs", label: "Pequeño", desc: "Como una moneda", example: "< 5 cm" },
-  { id: "s", label: "Compacto", desc: "Como un móvil", example: "5–15 cm" },
-  { id: "m", label: "Mediano", desc: "Como un libro", example: "15–30 cm" },
-  { id: "l", label: "Grande", desc: "Como una mochila", example: "> 30 cm" },
+const TAMANOS = [
+  { id: "xs", etiqueta: "Pequeño", nota: "Como una moneda", medida: "menos de 5 cm" },
+  { id: "s", etiqueta: "Compacto", nota: "Como un móvil", medida: "5 – 15 cm" },
+  { id: "m", etiqueta: "Mediano", nota: "Como un libro", medida: "15 – 30 cm" },
+  { id: "l", etiqueta: "Grande", nota: "Como una mochila", medida: "más de 30 cm" },
 ];
 
-const MATERIALS = [
-  { id: "any", label: "Sin preferencia", desc: "El maker elige lo mejor" },
-  { id: "pla", label: "PLA", desc: "Ecológico, acabado suave" },
-  { id: "resin", label: "Resina", desc: "Máximo detalle, acabado liso" },
-  { id: "petg", label: "PETG", desc: "Más resistente, funcional" },
+const MATERIALES = [
+  { id: "any", etiqueta: "Que elija el maker", nota: "Lo normal si no lo tienes claro" },
+  { id: "pla", etiqueta: "PLA", nota: "Rígido y económico" },
+  { id: "resin", etiqueta: "Resina", nota: "Máximo detalle, superficie lisa" },
+  { id: "petg", etiqueta: "PETG", nota: "Aguanta golpes, calor y humedad" },
 ];
 
-const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
+const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aún no lo sé"];
 ---
 
-<BaseLayout>
-  <main style="max-width: 620px; margin: 0 auto; padding: 2rem 1.5rem 4rem;">
-    <button
-      data-back
-      type="button"
-      style="background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 2rem;"
-    >
-      ← Volver al inicio
-    </button>
+<BaseLayout
+  title="Pedir una pieza"
+  descripcion="Describe la pieza que necesitas en cinco pasos. Recibirás un boceto antes de que nadie empiece a imprimir."
+>
+  <main class="brief">
+    <div class="envoltura--angosta">
+      <button class="brief__volver dato" data-back type="button">
+        ← Volver al inicio
+      </button>
 
-    <div style="margin-bottom: 2rem;">
-      <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
-        <span>Paso <span data-step-current>1</span> de {STEPS.length}</span>
-        <span><span data-progress-text>0</span>% completado</span>
+      <div class="brief__avance">
+        <div class="brief__avance-datos dato">
+          <span>Paso <span data-step-current>1</span> de {PASOS.length}</span>
+          <span><span data-progress-text>0</span> % completado</span>
+        </div>
+        <div
+          class="brief__barra"
+          role="progressbar"
+          aria-label="Progreso del pedido"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          data-progress-bar
+        >
+          <div class="brief__barra-relleno" data-progress-fill></div>
+        </div>
       </div>
-      <div style="height: 4px; background: var(--color-border-tertiary); border-radius: 2px; overflow: hidden;">
-        <div data-progress-fill style={`height: 100%; width: ${(1 / STEPS.length) * 100}%; background: var(--color-brand-primary); border-radius: 2px; transition: width 0.3s ease;`}></div>
-      </div>
-    </div>
 
-    <h1 data-step-title style="font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.75rem;">
-      {STEPS[0].title}
-    </h1>
+      <h1 class="brief__titulo" data-step-title>{PASOS[0].titulo}</h1>
 
-    <section data-step="0">
-      <div>
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1rem;">
-          Escríbelo como se lo contarías a un amigo. Cuanto más detalle, mejor resultado.
+      <section data-step="0">
+        <p class="brief__ayuda">
+          Escríbelo como se lo contarías a un amigo. Cuanto más detalle nos des,
+          menos vueltas dará el boceto.
         </p>
+        <label class="solo-lectores" for="brief-descripcion">Describe la pieza</label>
         <textarea
+          class="entrada"
+          id="brief-descripcion"
           data-field="description"
-          placeholder="Ej: Quiero una miniatura de un dragón negro de unos 10cm, con alas desplegadas y postura amenazante. Es para mi campaña de D&D y quiero que parezca imponente..."
-          rows="6"
-          style="width: 100%; box-sizing: border-box; padding: 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); resize: vertical; line-height: 1.6; font-family: inherit;"
+          rows="7"
+          placeholder="Por ejemplo: quiero una miniatura de un dragón negro de unos 10 cm, con las alas desplegadas y postura amenazante. Es para mi partida de rol y quiero que imponga…"
         ></textarea>
-        <p data-description-count style="font-size: 12px; color: var(--color-text-secondary); margin-top: 6px;">
-          0 caracteres (mínimo 15)
+        <p class="brief__contador dato" data-description-count>
+          0 caracteres · mínimo 15
         </p>
-      </div>
-    </section>
+      </section>
 
-    <section data-step="1" hidden>
-      <div>
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-          ¿Ya tienes un diseño 3D listo (.STL, .OBJ) o necesitas que un diseñador lo cree para ti?
+      <section data-step="1" hidden>
+        <p class="brief__ayuda">
+          Si ya tienes un archivo 3D (.STL) lo usamos tal cual. Si no, un
+          diseñador lo crea a partir de lo que nos acabas de contar.
         </p>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
-          {[
-            { val: false, label: "No, solo tengo una idea", sub: "Nosotros te ayudamos a traerlo a la realidad" },
-            { val: true, label: "Sí, tengo un diseño", sub: "Necesitaremos que nos proporciones el link del archivo" },
-          ].map((opt) => (
-            <button
-              data-choice="hasDesign"
-              data-value={String(opt.val)}
-              type="button"
-              class="wizard-option"
-              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; cursor: pointer; text-align: left;"
-            >
-              <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px;">
-                {opt.label}
-              </div>
-              <div style="font-size: 13px; color: var(--color-text-secondary);">{opt.sub}</div>
-            </button>
-          ))}
+        <div class="brief__opciones">
+          {
+            [
+              {
+                valor: false,
+                etiqueta: "Solo tengo la idea",
+                nota: "Un diseñador la convierte en un modelo y te lo enseña",
+              },
+              {
+                valor: true,
+                etiqueta: "Ya tengo el diseño",
+                nota: "Súbelo y pasamos directamente a imprimir",
+              },
+            ].map((opcion) => (
+              <button
+                class="opcion"
+                type="button"
+                data-choice="hasDesign"
+                data-value={String(opcion.valor)}
+                aria-pressed="false"
+              >
+                <span class="opcion__titulo">{opcion.etiqueta}</span>
+                <span class="opcion__nota">{opcion.nota}</span>
+              </button>
+            ))
+          }
         </div>
 
-        <div data-design-upload hidden>
-          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            Formatos aceptados: .STL
-          </p>
+        <div class="brief__subida" data-design-upload hidden>
           <input
             data-design-file
             type="file"
-            accept=".stl,.obj,.3mf,.step,.stp"
-            style="display: none;"
+            accept=".stl"
+            hidden
           />
-          <button
-            data-design-upload-button
-            type="button"
-            style="border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 1rem 1.5rem; background: var(--color-background-secondary); cursor: pointer; color: var(--color-text-secondary); font-size: 14px; width: 100%;"
-          >
-            Subir archivo de diseño →
+          <button class="brief__soltar" type="button" data-design-upload-button>
+            <span class="brief__soltar-titulo">Subir archivo .STL</span>
+            <span class="brief__soltar-nota dato">Lo verás aquí mismo antes de enviarlo</span>
           </button>
-          <div data-stl-preview style="margin-top: 12px;" hidden>
-            <div
-              data-stl-container
-              style="height: 280px; width: 100%; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-tertiary);"
-            ></div>
-            <p data-stl-message style="font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 0;">
-              Arrastra para rotar, rueda para acercar.
+          <div class="brief__vista" data-stl-preview hidden>
+            <div class="brief__lienzo" data-stl-container></div>
+            <p class="brief__ayuda-corta dato" data-stl-message>
+              Arrastra para girar la pieza, rueda para acercar.
             </p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section data-step="2" hidden>
-      <p data-selected-product hidden style="font-size: 14px; color: var(--color-text-primary); background: var(--color-brand-soft); border: 0.5px solid var(--color-brand-primary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; margin-bottom: 1rem;"></p>
-      <div>
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
-          Una referencia aproximada es suficiente. El diseñador lo ajustará.
+      <section data-step="2" hidden>
+        <p class="brief__elegido" data-selected-product hidden></p>
+        <p class="brief__ayuda">
+          Con una referencia aproximada basta. El diseñador ajusta las medidas
+          exactas contigo.
         </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
-          {SIZES.map((s) => (
-            <button
-              data-choice="size"
-              data-value={s.id}
-              type="button"
-              class="wizard-option"
-              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; text-align: left;"
-            >
-              <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
-                {s.label}
-              </div>
-              <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">{s.desc}</div>
-              <div style="font-size: 11px; color: var(--color-brand-dark); font-weight: 700;">{s.example}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section data-step="3" hidden>
-      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        <div>
-          <label for="briefing-maker" style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
-            Maker que realizar&aacute; el encargo
-          </label>
-          <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            Puedes elegir uno o dejar que te recomendemos el m&aacute;s adecuado.
-          </p>
-          <select
-            id="briefing-maker"
-            data-field="makerId"
-            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
-          >
-            <option value="recommended">Recomendado (sin maker concreto)</option>
-            {productores.map((productor) => (
-              <option
-                value={productor.id}
-                data-slug={productor.slug}
-                data-products={JSON.stringify(productor.productos.map(({ id, nombre }) => ({ id, nombre })))}
-              >
-                {productor.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-            Material preferido
-          </label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            {MATERIALS.map((m) => (
+        <div class="brief__rejilla">
+          {
+            TAMANOS.map((tamano) => (
               <button
-                data-choice="material"
-                data-value={m.id}
+                class="opcion"
                 type="button"
-                class="wizard-option"
-                style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem; cursor: pointer; text-align: left;"
+                data-choice="size"
+                data-value={tamano.id}
+                aria-pressed="false"
               >
-                <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
-                  {m.label}
-                </div>
-                <div style="font-size: 11px; color: var(--color-text-secondary);">{m.desc}</div>
+                <span class="opcion__titulo">{tamano.etiqueta}</span>
+                <span class="opcion__nota">{tamano.nota}</span>
+                <span class="opcion__medida">{tamano.medida}</span>
               </button>
-            ))}
+            ))
+          }
+        </div>
+      </section>
+
+      <section data-step="3" hidden>
+        <div class="brief__campos">
+          <div class="campo">
+            <label class="campo__nombre" for="brief-maker">Quién lo imprime</label>
+            <p class="campo__ayuda">
+              Puedes elegir un maker concreto o dejar que te propongamos el más
+              adecuado para tu pieza.
+            </p>
+            <select class="entrada" id="brief-maker" data-field="makerId">
+              <option value="recommended">Que 3dbok elija por mí</option>
+              {
+                productores.map((productor) => (
+                  <option
+                    value={productor.id}
+                    data-slug={productor.slug}
+                    data-products={JSON.stringify(
+                      productor.productos.map(({ id, nombre }) => ({ id, nombre })),
+                    )}
+                  >
+                    {productor.nombre} — {productor.ubicacion}
+                  </option>
+                ))
+              }
+            </select>
           </div>
-        </div>
 
-        <div style="margin-bottom: 1rem;">
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-            Color preferido
-          </label>
-          <input
-            data-field="color"
-            type="text"
-            placeholder="Ej: Negro mate, rojo sangre, madera natural..."
-            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
-          />
-        </div>
-
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-            ¿Cuándo lo necesitas?
-          </label>
-          <input
-            data-field="deadline"
-            type="date"
-            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
-          />
-        </div>
-
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
-            Presupuesto aproximado (opcional)
-          </label>
-          <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            Solo para orientar al diseñador. Sin compromiso.
-          </p>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            {budgets.map((budget) => (
-              <button
-                data-choice="budget"
-                data-value={budget}
-                type="button"
-                class="wizard-option wizard-pill"
-                style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
-              >
-                {budget}
-              </button>
-            ))}
+          <div class="campo">
+            <span class="campo__nombre">Material</span>
+            <div class="brief__rejilla">
+              {
+                MATERIALES.map((material) => (
+                  <button
+                    class="opcion"
+                    type="button"
+                    data-choice="material"
+                    data-value={material.id}
+                    aria-pressed="false"
+                  >
+                    <span class="opcion__titulo">{material.etiqueta}</span>
+                    <span class="opcion__nota">{material.nota}</span>
+                  </button>
+                ))
+              }
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <section data-step="4" hidden>
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 0.5rem;">
-          Para enviarte el boceto del diseñador y las actualizaciones de tu pedido.
-        </p>
-
-        {[
-          { key: "name", label: "Nombre", placeholder: "Tu nombre", type: "text" },
-          { key: "email", label: "Email", placeholder: "tu@email.com", type: "email" },
-          { key: "phone", label: "Teléfono (opcional)", placeholder: "+34 600 000 000", type: "tel" },
-        ].map((f) => (
-          <div>
-            <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-              {f.label}
-            </label>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-color">Color</label>
+            <p class="campo__ayuda">
+              Descríbelo con tus palabras. Si te da igual, déjalo en blanco.
+            </p>
             <input
-              data-field={f.key}
-              type={f.type}
-              placeholder={f.placeholder}
-              style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
+              class="entrada"
+              id="brief-color"
+              data-field="color"
+              type="text"
+              placeholder="Negro mate, rojo sangre, madera natural…"
             />
           </div>
-        ))}
 
-        <div style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 0.5rem;">
-          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
-            🔒 Tus datos se usan únicamente para gestionar tu pedido. No compartimos información con terceros.
-          </p>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-fecha">Para cuándo lo necesitas</label>
+            <input class="entrada" id="brief-fecha" data-field="deadline" type="date" />
+          </div>
+
+          <div class="campo">
+            <span class="campo__nombre">Presupuesto aproximado</span>
+            <p class="campo__ayuda">
+              Solo orienta al diseñador. No es un compromiso ni un precio final.
+            </p>
+            <div class="fila-opciones">
+              {
+                PRESUPUESTOS.map((presupuesto) => (
+                  <button
+                    class="opcion opcion--pastilla"
+                    type="button"
+                    data-choice="budget"
+                    data-value={presupuesto}
+                    aria-pressed="false"
+                  >
+                    {presupuesto}
+                  </button>
+                ))
+              }
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);">
-      <div data-footer-note style="font-size: 13px; color: var(--color-text-secondary);">
-        Sin compromiso hasta el pago
-      </div>
+      <section data-step="4" hidden>
+        <p class="brief__ayuda">
+          Es para mandarte el boceto y avisarte de cómo va el pedido. Nada más.
+        </p>
+        <div class="brief__campos">
+          <div class="campo">
+            <label class="campo__nombre" for="brief-nombre">Nombre</label>
+            <input class="entrada" id="brief-nombre" data-field="name" type="text" autocomplete="name" placeholder="Tu nombre" />
+          </div>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-email">Email</label>
+            <input class="entrada" id="brief-email" data-field="email" type="email" autocomplete="email" placeholder="tu@email.com" />
+          </div>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-tel">Teléfono <span class="campo__opcional">(opcional)</span></label>
+            <input class="entrada" id="brief-tel" data-field="phone" type="tel" autocomplete="tel" placeholder="+34 600 000 000" />
+          </div>
+        </div>
 
-      <button
-        data-next
-        type="button"
-        disabled
-        style="background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 15px; font-weight: 500; cursor: not-allowed; transition: all 0.15s;"
-      >
-        Continuar →
-      </button>
+        <p class="brief__privacidad">
+          Usamos tus datos únicamente para gestionar este pedido. No los
+          compartimos con nadie más.
+        </p>
+      </section>
+
+      <div class="brief__pie">
+        <p class="brief__nota dato" data-footer-note>
+          Sin compromiso hasta que apruebes el boceto
+        </p>
+        <button class="boton boton--principal" data-next type="button" disabled>
+          Continuar <span class="boton__flecha" aria-hidden="true">→</span>
+        </button>
+      </div>
     </div>
-
   </main>
-
-  <style>
-    .wizard-option.is-selected {
-      background: var(--color-brand-soft) !important;
-      border: 2px solid var(--color-brand-primary) !important;
-    }
-  </style>
-
-  <script>
-    const steps = [
-      { id: "description", title: "Cuéntanos tu idea" },
-      { id: "references", title: "¿Tienes referencias visuales?" },
-      { id: "size", title: "¿Qué tamaño necesitas?" },
-      { id: "details", title: "Últimos detalles" },
-      { id: "contact", title: "¿Cómo te contactamos?" },
-    ];
-
-    let step = 0;
-    let entryStep = 0;
-    let submitting = false;
-    let stlDispose = null;
-    const form = {
-      description: "",
-      hasDesign: null,
-      designFile: null,
-      designFileObject: null,
-      references: [],
-      size: "",
-      color: "",
-      material: "any",
-      deadline: "",
-      budget: "",
-      name: "",
-      email: "",
-      phone: "",
-      makerId: "recommended",
-      productId: "",
-    };
-
-    const sections = Array.from(document.querySelectorAll("[data-step]"));
-    const backButton = document.querySelector("[data-back]");
-    const nextButton = document.querySelector("[data-next]");
-    const title = document.querySelector("[data-step-title]");
-    const currentStep = document.querySelector("[data-step-current]");
-    const progressText = document.querySelector("[data-progress-text]");
-    const progressFill = document.querySelector("[data-progress-fill]");
-    const footerNote = document.querySelector("[data-footer-note]");
-    const designUpload = document.querySelector("[data-design-upload]");
-    const designFileInput = document.querySelector("[data-design-file]");
-    const designUploadButton = document.querySelector("[data-design-upload-button]");
-    const referenceInput = document.querySelector("[data-reference-files]");
-    const referenceCount = document.querySelector("[data-reference-count]");
-    const descriptionCount = document.querySelector("[data-description-count]");
-    const selectedProduct = document.querySelector("[data-selected-product]");
-    const stlPreview = document.querySelector("[data-stl-preview]");
-    const stlContainer = document.querySelector("[data-stl-container]");
-    const stlMessage = document.querySelector("[data-stl-message]");
-
-    const canProceed = () => {
-      if (step === 0) return form.description.length >= 15;
-      if (step === 1) return form.hasDesign !== null;
-      if (step === 2) return Boolean(form.size);
-      if (step === 3) return true;
-      if (step === 4) return form.name.length > 1 && form.email.includes("@");
-      return true;
-    };
-
-    const updateNextButton = () => {
-      if (!nextButton) return;
-      const enabled = canProceed() && !submitting;
-      nextButton.disabled = !enabled;
-      nextButton.textContent = step < steps.length - 1
-        ? "Continuar →"
-        : (submitting ? "Enviando..." : "Enviar pedido →");
-      nextButton.style.background = enabled ? "var(--color-brand-primary)" : "var(--color-background-secondary)";
-      nextButton.style.color = enabled ? "white" : "var(--color-text-secondary)";
-      nextButton.style.cursor = enabled ? "pointer" : "not-allowed";
-    };
-
-    const updateStep = () => {
-      sections.forEach((section) => {
-        section.hidden = section.dataset.step !== String(step);
-      });
-      if (backButton) backButton.textContent = step === entryStep && entryStep === 3 ? "← Volver al trabajo" : (step === 0 ? "← Volver al inicio" : "← Paso anterior");
-      if (title) title.textContent = steps[step].title;
-      if (currentStep) currentStep.textContent = String(step + 1);
-      if (progressText) progressText.textContent = String(Math.round((step / (steps.length - 1)) * 100));
-      if (progressFill) progressFill.style.width = `${((step + 1) / steps.length) * 100}%`;
-      if (footerNote) footerNote.textContent = step < steps.length - 1 ? "Sin compromiso hasta el pago" : "";
-      updateNextButton();
-    };
-
-    const updateChoice = (group, value) => {
-      document.querySelectorAll(`[data-choice="${group}"]`).forEach((button) => {
-        button.classList.toggle("is-selected", button.dataset.value === String(value));
-      });
-    };
-
-    const updateField = (key, value) => {
-      form[key] = value;
-      if (key === "description" && descriptionCount) {
-        descriptionCount.textContent = `${form.description.length} caracteres ${form.description.length < 15 ? "(mínimo 15)" : ""}`;
-        descriptionCount.style.color = form.description.length < 15 ? "var(--color-text-secondary)" : "var(--color-brand-primary)";
-      }
-      updateNextButton();
-    };
-
-    document.querySelectorAll("[data-choice]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const group = button.dataset.choice;
-        const rawValue = button.dataset.value || "";
-        const value = group === "hasDesign" ? rawValue === "true" : rawValue;
-        form[group] = value;
-        updateChoice(group, rawValue);
-
-        if (group === "hasDesign" && designUpload) {
-          designUpload.hidden = value !== true;
-          if (value !== true) {
-            form.designFile = null;
-            form.designFileObject = null;
-            disposeStlPreview();
-          }
-        }
-
-        updateNextButton();
-      });
-    });
-
-    document.querySelectorAll("[data-field]").forEach((field) => {
-      field.addEventListener("input", () => {
-        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) {
-          updateField(field.dataset.field, field.value);
-        }
-      });
-    });
-
-
-    const makerSelect = document.querySelector('[data-field="makerId"]');
-    if (makerSelect instanceof HTMLSelectElement) {
-      const requestedMakerId = new URLSearchParams(window.location.search).get("maker");
-      const makerExists = Array.from(makerSelect.options).some(
-        (option) => option.value === requestedMakerId && option.value !== "recommended",
-      );
-      makerSelect.value = makerExists ? requestedMakerId : "recommended";
-      form.makerId = makerSelect.value;
-
-      const requestedProductId = new URLSearchParams(window.location.search).get("product");
-      const selectedMaker = makerSelect.selectedOptions[0];
-      let makerProducts = [];
-      try {
-        makerProducts = JSON.parse(selectedMaker?.dataset.products || "[]");
-      } catch {}
-      const requestedProduct = makerProducts.find((product) => product.id === requestedProductId);
-      if (requestedProduct) {
-        form.productId = requestedProduct.id;
-        step = 3;
-        entryStep = 3;
-        makerSelect.disabled = true;
-        if (selectedProduct) {
-          selectedProduct.textContent = `Trabajo seleccionado: ${requestedProduct.nombre}`;
-          selectedProduct.hidden = false;
-        }
-      }
-    }
-    backButton?.addEventListener("click", () => {
-      if (step === entryStep) {
-        if (entryStep === 3 && makerSelect instanceof HTMLSelectElement) {
-          const makerSlug = makerSelect.selectedOptions[0]?.dataset.slug;
-          window.location.href = makerSlug ? `/productores/${makerSlug}` : "/productores";
-          return;
-        }
-        window.location.href = "/";
-        return;
-      }
-      step -= 1;
-      updateStep();
-      window.scrollTo(0, 0);
-    });
-
-    nextButton?.addEventListener("click", async () => {
-      if (!canProceed() || submitting) return;
-      if (step < steps.length - 1) {
-        step += 1;
-        updateStep();
-        window.scrollTo(0, 0);
-        return;
-      }
-
-      submitting = true;
-      updateNextButton();
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      const orderId = `F3D-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-      const { designFileObject, ...orderForm } = form;
-      sessionStorage.setItem("fabrica3d-order", JSON.stringify({ ...orderForm, orderId }));
-      window.location.href = "/confirmacion";
-    });
-
-    designUploadButton?.addEventListener("click", () => {
-      if (designFileInput instanceof HTMLInputElement) designFileInput.click();
-    });
-
-    designFileInput?.addEventListener("change", () => {
-      if (!(designFileInput instanceof HTMLInputElement)) return;
-      const file = designFileInput.files?.[0] || null;
-      form.designFile = file?.name || null;
-      form.designFileObject = file;
-      if (designUploadButton) {
-        designUploadButton.textContent = form.designFile ? `✓ ${form.designFile}` : "Subir archivo de diseño →";
-        designUploadButton.style.color = form.designFile ? "var(--color-brand-primary)" : "var(--color-text-secondary)";
-      }
-      if (file?.name?.toLowerCase().endsWith(".stl")) renderStlPreview(file);
-      else disposeStlPreview();
-    });
-
-    referenceInput?.addEventListener("change", () => {
-      if (!(referenceInput instanceof HTMLInputElement)) return;
-      form.references = Array.from(referenceInput.files || []).map((file) => file.name);
-      if (!referenceCount) return;
-      if (form.references.length > 0) {
-        referenceCount.textContent = `✓ ${form.references.length} imagen(es) seleccionada(s)`;
-        referenceCount.hidden = false;
-      } else {
-        referenceCount.hidden = true;
-      }
-    });
-
-    const deadlineInput = document.querySelector('[data-field="deadline"]');
-    if (deadlineInput instanceof HTMLInputElement) {
-      deadlineInput.min = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
-    }
-
-    updateChoice("material", "any");
-    updateStep();
-
-    function disposeStlPreview() {
-      if (stlDispose) stlDispose();
-      stlDispose = null;
-      if (stlContainer) stlContainer.innerHTML = "";
-      if (stlPreview) stlPreview.hidden = true;
-      if (stlMessage) {
-        stlMessage.textContent = "Arrastra para rotar, rueda para acercar.";
-        stlMessage.style.color = "var(--color-text-secondary)";
-      }
-    }
-
-    async function renderStlPreview(file) {
-      disposeStlPreview();
-      if (!stlPreview || !stlContainer || !stlMessage) return;
-      stlPreview.hidden = false;
-
-      let disposed = false;
-      let frameId = 0;
-      let renderer;
-      let controls;
-      let resizeObserver;
-      let geometry;
-      let scene;
-      let camera;
-
-      stlDispose = () => {
-        disposed = true;
-        cancelAnimationFrame(frameId);
-        resizeObserver?.disconnect();
-        controls?.dispose();
-        geometry?.dispose();
-        scene?.traverse((object) => {
-          if (object.material) object.material.dispose();
-        });
-        renderer?.dispose();
-        renderer?.domElement?.remove();
-      };
-
-      const resize = () => {
-        if (!renderer || !camera || !stlContainer.clientWidth || !stlContainer.clientHeight) return;
-        camera.aspect = stlContainer.clientWidth / stlContainer.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight, false);
-        renderer.render(scene, camera);
-      };
-
-      try {
-        const [THREE, { OrbitControls }, { STLLoader }, buffer] = await Promise.all([
-          import("three"),
-          import("three/examples/jsm/controls/OrbitControls.js"),
-          import("three/examples/jsm/loaders/STLLoader.js"),
-          file.arrayBuffer(),
-        ]);
-        if (disposed) return;
-
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf8f8fa);
-
-        camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-        camera.position.set(90, 70, 110);
-
-        const keyLight = new THREE.DirectionalLight(0xffffff, 2.3);
-        keyLight.position.set(80, 120, 90);
-        scene.add(keyLight);
-        scene.add(new THREE.HemisphereLight(0xffffff, 0xdbd4a0, 1.6));
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight, false);
-        stlContainer.appendChild(renderer.domElement);
-
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
-
-        resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(stlContainer);
-
-        const loader = new STLLoader();
-        geometry = loader.parse(buffer);
-        geometry.computeVertexNormals();
-        geometry.computeBoundingBox();
-
-        const material = new THREE.MeshStandardMaterial({
-          color: 0x4959b8,
-          roughness: 0.45,
-          metalness: 0.08,
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-
-        const box = new THREE.Box3().setFromObject(mesh);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        mesh.position.sub(center);
-
-        const maxAxis = Math.max(size.x, size.y, size.z) || 1;
-        const scale = 72 / maxAxis;
-        mesh.scale.setScalar(scale);
-        mesh.rotation.x = -Math.PI / 2;
-        scene.add(mesh);
-
-        controls.target.set(0, 0, 0);
-        controls.update();
-        stlMessage.textContent = "Arrastra para rotar, rueda para acercar.";
-        stlMessage.style.color = "var(--color-text-secondary)";
-
-        const animate = () => {
-          frameId = requestAnimationFrame(animate);
-          controls.update();
-          renderer.render(scene, camera);
-        };
-        resize();
-        animate();
-      } catch (err) {
-        stlMessage.textContent = "No se pudo previsualizar este STL.";
-        stlMessage.style.color = "#A23B3B";
-      }
-    }
-  </script>
 </BaseLayout>
+
+<style>
+  .brief {
+    padding-block: clamp(1.75rem, 1rem + 2.5vw, 3rem) clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .brief__volver {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--tinta-suave);
+    cursor: pointer;
+  }
+
+  .brief__volver:hover {
+    color: var(--tinta);
+    text-decoration: underline;
+  }
+
+  .brief__avance {
+    margin-top: 2rem;
+  }
+
+  .brief__avance-datos {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--tinta-suave);
+  }
+
+  .brief__barra {
+    height: 3px;
+    background: var(--bancada-honda);
+    overflow: hidden;
+  }
+
+  .brief__barra-relleno {
+    height: 100%;
+    width: 20%;
+    background: var(--filamento);
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .brief__titulo {
+    margin-top: 1.75rem;
+    margin-bottom: 1.5rem;
+    font-size: var(--paso-3);
+  }
+
+  .brief__ayuda {
+    margin-bottom: 1.25rem;
+    color: var(--tinta-media);
+    line-height: 1.6;
+  }
+
+  .brief__contador {
+    margin-top: 0.55rem;
+    color: var(--tinta-suave);
+  }
+
+  .brief__contador[data-completo] {
+    color: var(--verde);
+  }
+
+  .brief__opciones {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .brief__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+    gap: 0.65rem;
+  }
+
+  .brief__campos {
+    display: grid;
+    gap: 1.6rem;
+  }
+
+  .campo__opcional {
+    color: var(--tinta-suave);
+    font-weight: 400;
+  }
+
+  .brief__elegido {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    border-left: 3px solid var(--filamento);
+    background: var(--pieza);
+    font-size: 0.93rem;
+  }
+
+  /* --- Subida y vista del STL ------------------------------------------ */
+
+  .brief__subida {
+    margin-top: 1.25rem;
+  }
+
+  .brief__soltar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 1.4rem 1.25rem;
+    border: 1px dashed var(--linea-fuerte);
+    border-radius: var(--r-2);
+    background: var(--pieza);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .brief__soltar:hover {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .brief__soltar-titulo {
+    font-weight: 600;
+  }
+
+  .brief__soltar-nota {
+    color: var(--tinta-suave);
+  }
+
+  .brief__soltar[data-cargado] {
+    border-style: solid;
+    border-color: var(--verde);
+  }
+
+  .brief__vista {
+    margin-top: 0.9rem;
+  }
+
+  .brief__lienzo {
+    height: 300px;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-2);
+    background: var(--bancada-honda);
+    overflow: hidden;
+  }
+
+  .brief__ayuda-corta {
+    margin-top: 0.5rem;
+    color: var(--tinta-suave);
+  }
+
+  .brief__ayuda-corta[data-error] {
+    color: var(--alerta);
+  }
+
+  .brief__privacidad {
+    margin-top: 1.5rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-2);
+    background: var(--pieza);
+    font-size: 0.88rem;
+    color: var(--tinta-suave);
+    line-height: 1.55;
+  }
+
+  /* --- Pie de navegación ------------------------------------------------ */
+
+  .brief__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--linea);
+  }
+
+  .brief__nota {
+    color: var(--tinta-suave);
+  }
+
+  @media (max-width: 480px) {
+    .brief__pie {
+      flex-direction: column-reverse;
+      align-items: stretch;
+    }
+
+    .brief__pie .boton {
+      justify-content: center;
+    }
+
+    .brief__nota {
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  const pasos = [
+    "Cuéntanos tu idea",
+    "¿Ya tienes el diseño?",
+    "¿De qué tamaño?",
+    "Últimos detalles",
+    "¿Cómo te avisamos?",
+  ];
+
+  let paso = 0;
+  let pasoDeEntrada = 0;
+  let enviando = false;
+  let descartarVista = null;
+
+  const pedido = {
+    description: "",
+    hasDesign: null,
+    designFile: null,
+    designFileObject: null,
+    size: "",
+    color: "",
+    material: "any",
+    deadline: "",
+    budget: "",
+    name: "",
+    email: "",
+    phone: "",
+    makerId: "recommended",
+    productId: "",
+  };
+
+  const secciones = Array.from(document.querySelectorAll("[data-step]"));
+  const botonAtras = document.querySelector("[data-back]");
+  const botonSiguiente = document.querySelector("[data-next]");
+  const titulo = document.querySelector("[data-step-title]");
+  const pasoActual = document.querySelector("[data-step-current]");
+  const textoAvance = document.querySelector("[data-progress-text]");
+  const barraAvance = document.querySelector("[data-progress-bar]");
+  const rellenoAvance = document.querySelector("[data-progress-fill]");
+  const notaPie = document.querySelector("[data-footer-note]");
+  const zonaSubida = document.querySelector("[data-design-upload]");
+  const entradaArchivo = document.querySelector("[data-design-file]");
+  const botonSubir = document.querySelector("[data-design-upload-button]");
+  const contador = document.querySelector("[data-description-count]");
+  const trabajoElegido = document.querySelector("[data-selected-product]");
+  const vistaStl = document.querySelector("[data-stl-preview]");
+  const lienzoStl = document.querySelector("[data-stl-container]");
+  const mensajeStl = document.querySelector("[data-stl-message]");
+
+  const puedeSeguir = () => {
+    if (paso === 0) return pedido.description.trim().length >= 15;
+    if (paso === 1) return pedido.hasDesign !== null;
+    if (paso === 2) return Boolean(pedido.size);
+    if (paso === 4) return pedido.name.trim().length > 1 && pedido.email.includes("@");
+    return true;
+  };
+
+  const actualizarBoton = () => {
+    if (!(botonSiguiente instanceof HTMLButtonElement)) return;
+    const ultimo = paso === pasos.length - 1;
+    botonSiguiente.disabled = !puedeSeguir() || enviando;
+    botonSiguiente.innerHTML = enviando
+      ? "Enviando…"
+      : `${ultimo ? "Enviar el pedido" : "Continuar"} <span class="boton__flecha" aria-hidden="true">→</span>`;
+  };
+
+  const actualizarPaso = () => {
+    secciones.forEach((seccion) => {
+      seccion.hidden = seccion.dataset.step !== String(paso);
+    });
+
+    if (botonAtras) {
+      botonAtras.textContent =
+        paso === pasoDeEntrada
+          ? pasoDeEntrada === 3
+            ? "← Volver al taller"
+            : "← Volver al inicio"
+          : "← Paso anterior";
+    }
+
+    if (titulo) titulo.textContent = pasos[paso];
+    if (pasoActual) pasoActual.textContent = String(paso + 1);
+
+    const porcentaje = Math.round(((paso + 1) / pasos.length) * 100);
+    if (textoAvance) textoAvance.textContent = String(porcentaje);
+    if (rellenoAvance) rellenoAvance.style.width = `${porcentaje}%`;
+    if (barraAvance) barraAvance.setAttribute("aria-valuenow", String(porcentaje));
+
+    if (notaPie) {
+      notaPie.textContent =
+        paso === pasos.length - 1
+          ? "Te llega un email de confirmación al enviarlo"
+          : "Sin compromiso hasta que apruebes el boceto";
+    }
+
+    actualizarBoton();
+  };
+
+  const marcarElegido = (grupo, valor) => {
+    document.querySelectorAll(`[data-choice="${grupo}"]`).forEach((boton) => {
+      boton.setAttribute("aria-pressed", String(boton.dataset.value === String(valor)));
+    });
+  };
+
+  document.querySelectorAll("[data-choice]").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const grupo = boton.dataset.choice;
+      const bruto = boton.dataset.value || "";
+      pedido[grupo] = grupo === "hasDesign" ? bruto === "true" : bruto;
+      marcarElegido(grupo, bruto);
+
+      if (grupo === "hasDesign" && zonaSubida) {
+        const tieneDiseno = bruto === "true";
+        zonaSubida.hidden = !tieneDiseno;
+        if (!tieneDiseno) {
+          pedido.designFile = null;
+          pedido.designFileObject = null;
+          descartarVistaStl();
+        }
+      }
+
+      actualizarBoton();
+    });
+  });
+
+  document.querySelectorAll("[data-field]").forEach((campo) => {
+    campo.addEventListener("input", () => {
+      pedido[campo.dataset.field] = campo.value;
+
+      if (campo.dataset.field === "description" && contador) {
+        const total = pedido.description.trim().length;
+        contador.textContent =
+          total >= 15 ? `${total} caracteres` : `${total} caracteres · mínimo 15`;
+        contador.toggleAttribute("data-completo", total >= 15);
+      }
+
+      actualizarBoton();
+    });
+  });
+
+  // Si se llega desde la ficha de un maker, se salta a "Últimos detalles"
+  // con ese maker y ese trabajo ya seleccionados.
+  const selectorMaker = document.querySelector('[data-field="makerId"]');
+  if (selectorMaker instanceof HTMLSelectElement) {
+    const parametros = new URLSearchParams(window.location.search);
+    const makerPedido = parametros.get("maker");
+    const existe = Array.from(selectorMaker.options).some(
+      (opcion) => opcion.value === makerPedido && opcion.value !== "recommended",
+    );
+    selectorMaker.value = existe ? makerPedido : "recommended";
+    pedido.makerId = selectorMaker.value;
+
+    let trabajos = [];
+    try {
+      trabajos = JSON.parse(selectorMaker.selectedOptions[0]?.dataset.products || "[]");
+    } catch {}
+
+    const trabajo = trabajos.find((item) => item.id === parametros.get("product"));
+    if (trabajo) {
+      pedido.productId = trabajo.id;
+      paso = 3;
+      pasoDeEntrada = 3;
+      selectorMaker.disabled = true;
+      if (trabajoElegido) {
+        trabajoElegido.textContent = `Trabajo elegido: ${trabajo.nombre}`;
+        trabajoElegido.hidden = false;
+      }
+    }
+  }
+
+  botonAtras?.addEventListener("click", () => {
+    if (paso === pasoDeEntrada) {
+      const slug =
+        selectorMaker instanceof HTMLSelectElement
+          ? selectorMaker.selectedOptions[0]?.dataset.slug
+          : null;
+      window.location.href =
+        pasoDeEntrada === 3 ? (slug ? `/productores/${slug}` : "/productores") : "/";
+      return;
+    }
+    paso -= 1;
+    actualizarPaso();
+    window.scrollTo({ top: 0 });
+  });
+
+  botonSiguiente?.addEventListener("click", async () => {
+    if (!puedeSeguir() || enviando) return;
+
+    if (paso < pasos.length - 1) {
+      paso += 1;
+      actualizarPaso();
+      window.scrollTo({ top: 0 });
+      return;
+    }
+
+    enviando = true;
+    actualizarBoton();
+    await new Promise((resolver) => setTimeout(resolver, 900));
+    const referencia = `3DB-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    const { designFileObject, ...datos } = pedido;
+    const maker =
+      selectorMaker instanceof HTMLSelectElement
+        ? selectorMaker.selectedOptions[0]?.textContent?.trim()
+        : "";
+    sessionStorage.setItem(
+      "3dbok-pedido",
+      JSON.stringify({ ...datos, makerNombre: maker, orderId: referencia }),
+    );
+    window.location.href = "/confirmacion";
+  });
+
+  botonSubir?.addEventListener("click", () => {
+    if (entradaArchivo instanceof HTMLInputElement) entradaArchivo.click();
+  });
+
+  entradaArchivo?.addEventListener("change", () => {
+    if (!(entradaArchivo instanceof HTMLInputElement)) return;
+    const archivo = entradaArchivo.files?.[0] || null;
+    pedido.designFile = archivo?.name || null;
+    pedido.designFileObject = archivo;
+
+    if (botonSubir) {
+      const titulo = botonSubir.querySelector(".brief__soltar-titulo");
+      const nota = botonSubir.querySelector(".brief__soltar-nota");
+      if (titulo) titulo.textContent = archivo ? archivo.name : "Subir archivo .STL";
+      if (nota) {
+        nota.textContent = archivo
+          ? "Pulsa aquí si quieres cambiarlo"
+          : "Lo verás aquí mismo antes de enviarlo";
+      }
+      botonSubir.toggleAttribute("data-cargado", Boolean(archivo));
+    }
+
+    if (archivo?.name?.toLowerCase().endsWith(".stl")) dibujarStl(archivo);
+    else descartarVistaStl();
+  });
+
+  const campoFecha = document.querySelector('[data-field="deadline"]');
+  if (campoFecha instanceof HTMLInputElement) {
+    campoFecha.min = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  }
+
+  marcarElegido("material", "any");
+  actualizarPaso();
+
+  function descartarVistaStl() {
+    if (descartarVista) descartarVista();
+    descartarVista = null;
+    if (lienzoStl) lienzoStl.innerHTML = "";
+    if (vistaStl) vistaStl.hidden = true;
+    if (mensajeStl) {
+      mensajeStl.textContent = "Arrastra para girar la pieza, rueda para acercar.";
+      mensajeStl.removeAttribute("data-error");
+    }
+  }
+
+  async function dibujarStl(archivo) {
+    descartarVistaStl();
+    if (!vistaStl || !lienzoStl || !mensajeStl) return;
+    vistaStl.hidden = false;
+
+    let descartado = false;
+    let fotograma = 0;
+    let renderizador;
+    let controles;
+    let observador;
+    let geometria;
+    let escena;
+    let camara;
+
+    descartarVista = () => {
+      descartado = true;
+      cancelAnimationFrame(fotograma);
+      observador?.disconnect();
+      controles?.dispose();
+      geometria?.dispose();
+      escena?.traverse((objeto) => objeto.material?.dispose());
+      renderizador?.dispose();
+      renderizador?.domElement?.remove();
+    };
+
+    const redimensionar = () => {
+      if (!renderizador || !camara || !lienzoStl.clientWidth || !lienzoStl.clientHeight) return;
+      camara.aspect = lienzoStl.clientWidth / lienzoStl.clientHeight;
+      camara.updateProjectionMatrix();
+      renderizador.setSize(lienzoStl.clientWidth, lienzoStl.clientHeight, false);
+      renderizador.render(escena, camara);
+    };
+
+    try {
+      const [THREE, { OrbitControls }, { STLLoader }, datos] = await Promise.all([
+        import("three"),
+        import("three/examples/jsm/controls/OrbitControls.js"),
+        import("three/examples/jsm/loaders/STLLoader.js"),
+        archivo.arrayBuffer(),
+      ]);
+      if (descartado) return;
+
+      escena = new THREE.Scene();
+      escena.background = new THREE.Color(0xdedbd2);
+
+      camara = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      camara.position.set(90, 70, 110);
+
+      const luzPrincipal = new THREE.DirectionalLight(0xffffff, 2.2);
+      luzPrincipal.position.set(80, 120, 90);
+      escena.add(luzPrincipal);
+      escena.add(new THREE.HemisphereLight(0xffffff, 0xb8ac91, 1.6));
+
+      renderizador = new THREE.WebGLRenderer({ antialias: true });
+      renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderizador.outputColorSpace = THREE.SRGBColorSpace;
+      renderizador.setSize(lienzoStl.clientWidth, lienzoStl.clientHeight, false);
+      lienzoStl.appendChild(renderizador.domElement);
+
+      controles = new OrbitControls(camara, renderizador.domElement);
+      controles.enableDamping = true;
+      controles.dampingFactor = 0.08;
+
+      observador = new ResizeObserver(redimensionar);
+      observador.observe(lienzoStl);
+
+      geometria = new STLLoader().parse(datos);
+      geometria.computeVertexNormals();
+
+      const malla = new THREE.Mesh(
+        geometria,
+        new THREE.MeshStandardMaterial({ color: 0xe8dfcd, roughness: 0.5, metalness: 0.05 }),
+      );
+
+      const caja = new THREE.Box3().setFromObject(malla);
+      const medidas = caja.getSize(new THREE.Vector3());
+      malla.position.sub(caja.getCenter(new THREE.Vector3()));
+      malla.scale.setScalar(72 / (Math.max(medidas.x, medidas.y, medidas.z) || 1));
+      malla.rotation.x = -Math.PI / 2;
+      escena.add(malla);
+
+      controles.target.set(0, 0, 0);
+      controles.update();
+
+      const animar = () => {
+        fotograma = requestAnimationFrame(animar);
+        controles.update();
+        renderizador.render(escena, camara);
+      };
+      redimensionar();
+      animar();
+    } catch (fallo) {
+      mensajeStl.textContent =
+        "No se ha podido abrir este STL. Envíalo igualmente y lo revisamos a mano.";
+      mensajeStl.setAttribute("data-error", "");
+    }
+  }
+</script>

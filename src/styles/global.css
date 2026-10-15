@@ -1,0 +1,577 @@
+/* =====================================================================
+   3dbok — hoja base
+   ---------------------------------------------------------------------
+   La paleta y la tipografía salen del taller: la bancada de la impresora,
+   el filamento natural, el azul de un plano técnico y el naranja del
+   material recién extruido. Nada de degradados ni de sombras difusas:
+   lo que separa superficies aquí es una línea de 1px, como en un plano.
+
+   Roles tipográficos, tres y solo tres:
+     Archivo expandida ....... titulares
+     Archivo normal .......... prosa
+     IBM Plex Mono ........... datos, etiquetas y medidas
+   ===================================================================== */
+
+/* --- Tipografías, servidas desde el propio dominio ---------------------
+   Archivo es variable en peso y anchura (62%–125%): la anchura es lo que
+   separa un titular de una etiqueta, sin cambiar de familia.
+   Subconjunto latino, que ya cubre acentos y eñes.
+   ---------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Archivo Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("/fonts/archivo-latin-variable.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("/fonts/ibm-plex-mono-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light;
+
+  /* --- Color --------------------------------------------------------- */
+  --tinta: #15181b;
+  --tinta-media: #3a3e44;
+  --tinta-suave: #56595e;
+
+  --bancada: #e9e7e0; /* fondo de página: gris cálido de plancha */
+  --bancada-honda: #dedbd2; /* zonas rehundidas */
+  --pieza: #fcfbf7; /* superficies elevadas */
+
+  --cianotipo: #22367d; /* azul de plano: acciones y estructura */
+  --cianotipo-hondo: #1a2a63;
+  --cianotipo-lavado: #e0e3ef;
+
+  --filamento: #d75a28; /* acento escaso: la capa caliente */
+  --filamento-tinta: #a63c14; /* variante legible en texto pequeño */
+  --laton: #7e5f1c; /* valoraciones y marcas menores */
+  --verde: #1f6f62;
+  --alerta: #a32f22;
+
+  --linea: rgba(21, 24, 27, 0.13);
+  --linea-fuerte: rgba(21, 24, 27, 0.26);
+  --linea-clara: rgba(252, 251, 247, 0.18);
+
+  /* --- Materiales (compartido con la ficha de maker) ------------------ */
+  --mat-pla: #22367d;
+  --mat-petg: #1f6f62;
+  --mat-abs: #3e4148;
+  --mat-tpu: #c2621f;
+  --mat-resina: #5b4a9e;
+  --mat-nylon: #7e5f1c;
+
+  /* --- Tipografía ---------------------------------------------------- */
+  --fuente-titulo: "Archivo Variable", "Archivo", -apple-system, BlinkMacSystemFont, sans-serif;
+  --fuente-texto: "Archivo Variable", "Archivo", -apple-system, BlinkMacSystemFont, sans-serif;
+  --fuente-dato: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --paso--1: clamp(0.8rem, 0.77rem + 0.13vw, 0.86rem);
+  --paso-0: clamp(1rem, 0.96rem + 0.19vw, 1.08rem);
+  --paso-1: clamp(1.13rem, 1.06rem + 0.34vw, 1.32rem);
+  --paso-2: clamp(1.38rem, 1.22rem + 0.72vw, 1.82rem);
+  --paso-3: clamp(1.75rem, 1.4rem + 1.6vw, 2.85rem);
+  --paso-4: clamp(2.25rem, 1.62rem + 2.85vw, 3.9rem);
+
+  /* --- Métrica ------------------------------------------------------- */
+  --r-1: 3px;
+  --r-2: 6px;
+  --r-3: 10px;
+  --aire-seccion: clamp(3.5rem, 2rem + 6vw, 6.25rem);
+  --ancho: 1180px;
+  --canal: clamp(1.25rem, 0.6rem + 2.4vw, 2.5rem);
+}
+
+/* --- Reinicio -------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+/* La cabecera es pegajosa: los anclajes tienen que parar por debajo. */
+[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--bancada);
+  color: var(--tinta);
+  font-family: var(--fuente-texto);
+  font-size: var(--paso-0);
+  font-weight: 400;
+  line-height: 1.62;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+/* Cualquier clase con `display` propio le gana al `[hidden]` del navegador,
+   y medio sitio esconde pasos y paneles con ese atributo. */
+[hidden] {
+  display: none !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure,
+blockquote {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--cianotipo);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cianotipo);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.en-tinta :focus-visible {
+  outline-color: var(--filamento);
+}
+
+::selection {
+  background: var(--cianotipo);
+  color: var(--pieza);
+}
+
+/* --- Titulares ------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--fuente-titulo);
+  font-stretch: 116%;
+  font-weight: 720;
+  letter-spacing: -0.022em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--paso-4);
+  font-stretch: 120%;
+  font-weight: 760;
+  letter-spacing: -0.032em;
+  line-height: 1;
+}
+
+h2 {
+  font-size: var(--paso-3);
+}
+
+h3 {
+  font-size: var(--paso-1);
+  font-stretch: 108%;
+}
+
+/* --- Piezas reutilizables -------------------------------------------- */
+
+.envoltura {
+  width: min(100% - (var(--canal) * 2), var(--ancho));
+  margin-inline: auto;
+}
+
+.envoltura--angosta {
+  width: min(100% - (var(--canal) * 2), 660px);
+  margin-inline: auto;
+}
+
+.seccion {
+  padding-block: var(--aire-seccion);
+}
+
+.etiqueta {
+  display: block;
+  font-family: var(--fuente-dato);
+  font-size: 0.71rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.etiqueta--marca {
+  color: var(--filamento-tinta);
+}
+
+.dato {
+  font-family: var(--fuente-dato);
+  font-size: var(--paso--1);
+  letter-spacing: -0.01em;
+}
+
+.entradilla {
+  font-size: var(--paso-1);
+  line-height: 1.55;
+  color: var(--tinta-media);
+  text-wrap: pretty;
+}
+
+.regla {
+  height: 1px;
+  border: 0;
+  background: var(--linea);
+  margin: 0;
+}
+
+/* Fondo de bancada: la retícula de la plancha de impresión. */
+.malla {
+  background-image: linear-gradient(var(--linea) 1px, transparent 1px),
+    linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: center;
+}
+
+.en-tinta,
+.en-cianotipo {
+  color: var(--bancada);
+}
+
+.en-tinta {
+  background: var(--tinta);
+}
+
+.en-cianotipo {
+  background: var(--cianotipo);
+}
+
+.en-tinta h1,
+.en-tinta h2,
+.en-tinta h3,
+.en-cianotipo h1,
+.en-cianotipo h2,
+.en-cianotipo h3 {
+  color: var(--pieza);
+}
+
+.en-tinta .etiqueta,
+.en-cianotipo .etiqueta {
+  color: rgba(252, 251, 247, 0.6);
+}
+
+.en-cianotipo :focus-visible {
+  outline-color: var(--pieza);
+}
+
+/* --- Botones --------------------------------------------------------- */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  background: none;
+  font-family: var(--fuente-texto);
+  font-size: 0.97rem;
+  font-weight: 600;
+  font-stretch: 104%;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.boton__flecha {
+  display: inline-block;
+  transition: transform 0.16s ease;
+}
+
+.boton:hover .boton__flecha {
+  transform: translateX(3px);
+}
+
+.boton--principal {
+  background: var(--cianotipo);
+  border-color: var(--cianotipo);
+  color: var(--pieza);
+}
+
+.boton--principal:hover {
+  background: var(--cianotipo-hondo);
+  border-color: var(--cianotipo-hondo);
+}
+
+.boton--secundario {
+  border-color: var(--linea-fuerte);
+  color: var(--tinta);
+}
+
+.boton--secundario:hover {
+  border-color: var(--tinta);
+  background: rgba(21, 24, 27, 0.04);
+}
+
+.boton--claro {
+  background: var(--pieza);
+  border-color: var(--pieza);
+  color: var(--tinta);
+}
+
+.boton--claro:hover {
+  background: var(--bancada);
+  border-color: var(--bancada);
+}
+
+.boton--fantasma {
+  border-color: var(--linea-clara);
+  color: var(--pieza);
+}
+
+.boton--fantasma:hover {
+  border-color: var(--pieza);
+  background: rgba(252, 251, 247, 0.08);
+}
+
+.boton[disabled],
+.boton:disabled {
+  cursor: not-allowed;
+  background: var(--bancada-honda);
+  border-color: transparent;
+  color: var(--tinta-suave);
+}
+
+.boton--bloque {
+  width: 100%;
+  justify-content: center;
+}
+
+/* --- Campos de formulario -------------------------------------------- */
+
+.campo {
+  display: block;
+}
+
+.campo__nombre {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.93rem;
+  font-weight: 600;
+}
+
+.campo__ayuda {
+  margin-bottom: 0.6rem;
+  font-size: 0.86rem;
+  color: var(--tinta-suave);
+  line-height: 1.5;
+}
+
+.entrada {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--r-2);
+  background: var(--pieza);
+  font-size: 0.97rem;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.entrada::placeholder {
+  color: var(--tinta-suave);
+  opacity: 0.75;
+}
+
+.entrada:hover {
+  border-color: var(--tinta-media);
+}
+
+.entrada:focus-visible {
+  outline: none;
+  border-color: var(--cianotipo);
+  box-shadow: 0 0 0 3px var(--cianotipo-lavado);
+}
+
+textarea.entrada {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+select.entrada {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%2356595e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 12px;
+  padding-right: 2.4rem;
+}
+
+/* Opción tocable: la usan el briefing y el alta de makers. */
+.opcion {
+  display: block;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-2);
+  background: var(--pieza);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.opcion:hover {
+  border-color: var(--tinta-media);
+}
+
+.opcion__titulo {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.opcion__nota {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.84rem;
+  color: var(--tinta-suave);
+  line-height: 1.45;
+}
+
+.opcion__medida {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--fuente-dato);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--cianotipo);
+}
+
+.opcion[aria-pressed="true"],
+.opcion.esta-elegida {
+  border-color: var(--cianotipo);
+  background: var(--cianotipo-lavado);
+  box-shadow: inset 0 0 0 1px var(--cianotipo);
+}
+
+.opcion[aria-pressed="true"] .opcion__medida {
+  color: var(--cianotipo-hondo);
+}
+
+/* Variante compacta en línea (presupuestos, materiales, boquillas). */
+.opcion--pastilla {
+  width: auto;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--fuente-dato);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.fila-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* --- Accesibilidad --------------------------------------------------- */
+
+.salto-contenido {
+  position: absolute;
+  left: 50%;
+  top: 0.5rem;
+  z-index: 200;
+  translate: -50% -160%;
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--r-2);
+  background: var(--tinta);
+  color: var(--pieza);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: translate 0.18s ease;
+}
+
+.salto-contenido:focus-visible {
+  translate: -50% 0;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

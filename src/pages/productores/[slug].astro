@@ -15,221 +15,308 @@ export function getStaticPaths() {
 }
 
 const { productor } = Astro.props;
-const resenasAprobadas = resenasData
-  .filter((r) => r.productorId === productor.id && r.aprobada)
+
+const opiniones = resenasData
+  .filter((resena) => resena.productorId === productor.id && resena.aprobada)
   .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-const { media: mediaValoracion } = calcularMediaValoracion(productor.id, resenasData);
+const { media } = calcularMediaValoracion(productor.id, resenasData);
+
+const fichaTecnica = [
+  { clave: "Impresoras", valor: productor.impresoras.join(" · ") },
+  { clave: "Materiales", valor: productor.materiales.join(" · ") },
+  { clave: "Boquillas", valor: productor.tamNozzle.join(" · ") },
+  { clave: "Respuesta", valor: `~${productor.tiempoRespuestaHoras} h` },
+];
+
 const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
 ---
 
-<BaseLayout>
-  <div class="productor-page">
-    <header class="pp-header">
-      <img class="pp-avatar" src={productor.foto} alt={productor.nombre} />
-      <div>
-        <p class="pp-eyebrow pp-mono">Maker verificado</p>
-        <h1 class="pp-nombre">{productor.nombre}</h1>
-        <div class="pp-meta-row">
-          <span>{productor.ubicacion}</span>
-          <span>·</span>
-          <span>Responde en ~{productor.tiempoRespuestaHoras}h</span>
-          {mediaValoracion !== null && (
-            <>
-              <span>·</span>
-              <span class="pp-rating-pill">
-                <Estrellas valor={mediaValoracion} />
-                {mediaValoracion.toFixed(1)} ({resenasAprobadas.length})
-              </span>
-            </>
-          )}
-        </div>
-        <div class="pp-materiales-strip">
-          {productor.materiales.map((m) => (
-            <MaterialChip codigo={m} />
-          ))}
-        </div>
-      </div>
-    </header>
-    <div class="pp-cta">
-      <div class="pp-cta-text">
-        <strong>¿Quieres un encargo con {productor.nombre}?</strong>
-        Cuéntanos qué necesitas y te preparamos un brief a medida.
-      </div>
-      <a class="pp-cta-button" href={`/briefing?maker=${encodeURIComponent(productor.id)}`}>
-        Empezar encargo
-      </a>
-    </div>
+<BaseLayout
+  title={productor.nombre}
+  descripcion={`${productor.nombre} imprime en 3D desde ${productor.ubicacion}. Mira sus trabajos, sus materiales y las opiniones de otros clientes antes de encargar.`}
+>
+  <main class="ficha">
+    <div class="envoltura">
+      <header class="ficha__cabecera">
+        <a href="/productores" class="ficha__volver dato">← Todos los makers</a>
 
-
-    <div class="pp-body">
-      <aside>
-        <div class="pp-sidebar-block">
-          <p class="pp-sidebar-title pp-mono">Sobre el maker</p>
-          <p class="pp-bio">{productor.bio}</p>
-        </div>
-
-        <div class="pp-sidebar-block">
-          <p class="pp-sidebar-title pp-mono">Especialidades</p>
-          <ul class="pp-specialidades">
-            {productor.especialidades.map((esp) => (
-              <li>{esp}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div class="pp-sidebar-block">
-          <p class="pp-sidebar-title pp-mono">Equipo</p>
-          <p class="pp-impresoras pp-mono">
-            {productor.impresoras.join(" · ")}
-          </p>
-        </div>
-
-        <div class="pp-sidebar-block">
-          <p class="pp-sidebar-title pp-mono">Materiales Disponibless</p>
-          <p class="pp-impresoras pp-mono">
-            {productor.materiales.join(" · ")}
-          </p>
-        </div>
-
-        <div class="pp-sidebar-block">
-          <p class="pp-sidebar-title pp-mono">Tamaño de Nozzle</p>
-          <p class="pp-impresoras pp-mono">
-            {productor.tamNozzle.join(" · ")}
-          </p>
-        </div>
-      </aside>
-
-      <main>
-        <h2 class="pp-section-title">Trabajos publicados</h2>
-        <div class="pp-portfolio-grid">
-          {productor.productos.map((prod) => (
-            <a
-              class="pp-product-card"
-              href={`/briefing?maker=${encodeURIComponent(productor.id)}&product=${encodeURIComponent(prod.id)}`}
-              aria-label={`Pedir ${prod.nombre} a ${productor.nombre}`}
-            >
-              <img class="pp-product-photo" src={prod.foto} alt={prod.nombre} />
-              <div class="pp-product-body">
-                <h3 class="pp-product-nombre">{prod.nombre}</h3>
-                <div class="pp-spec-sheet pp-mono">
-                  <div class="pp-spec-row">
-                    <span>Material</span>
-                    <span>{MATERIALES[prod.material]?.label ?? prod.material}</span>
-                  </div>
-                  <div class="pp-spec-row">
-                    <span>Dimensiones</span>
-                    <span>{prod.dimensiones}</span>
-                  </div>
-                  <div class="pp-spec-row">
-                    <span>T. impresión</span>
-                    <span>{prod.tiempoImpresionHoras}h</span>
-                  </div>
-                </div>
-                <p class="pp-product-precio">
-                  Desde {prod.precioDesde.toFixed(2)} €
-                </p>
-              </div>
-            </a>
-          ))}
-        </div>
-
-        <h2 class="pp-section-title">Opiniones de clientes</h2>
-        <div class="pp-resenas-list">
-          {resenasAprobadas.length === 0 && (
-            <p class="pp-bio">Todavía no hay opiniones publicadas.</p>
-          )}
-          {resenasAprobadas.map((r) => (
-            <div class="pp-resena">
-              <span class="pp-resena-autor">{r.autor}</span>
-              <span class="pp-resena-estrellas">
-                <Estrellas valor={r.valoracion} />
-              </span>
-              <span class="pp-resena-fecha pp-mono">{r.fecha}</span>
-              <p class="pp-resena-texto">{r.comentario}</p>
+        <div class="ficha__identidad">
+          <img
+            class="ficha__retrato"
+            src={productor.foto}
+            alt=""
+            width="104"
+            height="104"
+          />
+          <div>
+            <p class="ficha__sello etiqueta">Maker verificado</p>
+            <h1 class="ficha__nombre">{productor.nombre}</h1>
+            <div class="ficha__datos dato">
+              <span>{productor.ubicacion}</span>
+              <span>Responde en ~{productor.tiempoRespuestaHoras} h</span>
+              {
+                media !== null && (
+                  <span class="ficha__nota">
+                    <Estrellas valor={media} />
+                    {media.toFixed(1)} ({opiniones.length})
+                  </span>
+                )
+              }
             </div>
-          ))}
+            <div class="ficha__materiales">
+              {productor.materiales.map((codigo) => <MaterialChip codigo={codigo} />)}
+            </div>
+          </div>
         </div>
 
-        <div class="pp-review-form" data-review-success hidden>
-          <p class="pp-review-form-title">¡Gracias por tu opinión!</p>
-          <p class="pp-review-note">
-            La revisamos y la publicamos en el perfil en breve.
+        <div class="ficha__encargo en-cianotipo">
+          <p class="ficha__encargo-texto">
+            <strong>¿Quieres encargarle algo a {productor.nombre}?</strong>
+            Cuéntanos la pieza y le llega directamente a su taller.
           </p>
+          <a
+            class="boton boton--claro"
+            href={`/briefing?maker=${encodeURIComponent(productor.id)}`}
+          >
+            Empezar el encargo
+            <span class="boton__flecha" aria-hidden="true">→</span>
+          </a>
         </div>
+      </header>
 
-        <form
-          class="pp-review-form"
-          data-review-form
-          data-productor-id={productor.id}
-          data-productor-nombre={productor.nombre}
-          data-endpoint={FORMSPREE_RESENAS_ENDPOINT}
-        >
-          <p class="pp-review-form-title">Deja tu opinión sobre este maker</p>
+      <div class="ficha__cuerpo">
+        <aside class="ficha__barra">
+          <section class="ficha__bloque">
+            <h2 class="ficha__bloque-titulo etiqueta">Sobre el maker</h2>
+            <p class="ficha__bio">{productor.bio}</p>
+          </section>
 
-          <label for="autor">Tu nombre</label>
-          <input id="autor" name="autor" type="text" required maxlength="60" />
+          <section class="ficha__bloque">
+            <h2 class="ficha__bloque-titulo etiqueta">Especialidades</h2>
+            <ul class="ficha__lista">
+              {productor.especialidades.map((especialidad) => <li>{especialidad}</li>)}
+            </ul>
+          </section>
 
-          <label for="valoracion">Valoración</label>
-          <select id="valoracion" name="valoracion" required value="5">
-            <option value="5">★★★★★ Excelente</option>
-            <option value="4">★★★★☆ Muy bueno</option>
-            <option value="3">★★★☆☆ Correcto</option>
-            <option value="2">★★☆☆☆ Regular</option>
-            <option value="1">★☆☆☆☆ Malo</option>
-          </select>
+          <section class="ficha__bloque">
+            <h2 class="ficha__bloque-titulo etiqueta">Ficha técnica</h2>
+            <dl class="ficha__tecnica dato">
+              {
+                fichaTecnica.map((linea) => (
+                  <div>
+                    <dt>{linea.clave}</dt>
+                    <dd>{linea.valor}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </section>
+        </aside>
 
-          <label for="comentario">Comentario</label>
-          <textarea id="comentario" name="comentario" required maxlength="500"></textarea>
+        <div>
+          <h2 class="ficha__seccion-titulo">Trabajos publicados</h2>
+          {
+            productor.productos.length === 0 ? (
+              <p class="ficha__vacio">
+                Todavía no ha publicado ningún trabajo. Puedes encargarle una
+                pieza igualmente.
+              </p>
+            ) : (
+              <div class="trabajos">
+                {productor.productos.map((producto) => (
+                  <a
+                    class="trabajo"
+                    href={`/briefing?maker=${encodeURIComponent(productor.id)}&product=${encodeURIComponent(producto.id)}`}
+                  >
+                    <img
+                      class="trabajo__foto"
+                      src={producto.foto}
+                      alt={producto.nombre}
+                      loading="lazy"
+                    />
+                    <div class="trabajo__cuerpo">
+                      <h3 class="trabajo__nombre">{producto.nombre}</h3>
+                      <div class="trabajo__ficha">
+                        <div>
+                          <span>Material</span>
+                          <span>
+                            {MATERIALES[producto.material]?.label ?? producto.material}
+                          </span>
+                        </div>
+                        <div>
+                          <span>Medidas</span>
+                          <span>{producto.dimensiones}</span>
+                        </div>
+                        <div>
+                          <span>Impresión</span>
+                          <span>{producto.tiempoImpresionHoras} h</span>
+                        </div>
+                      </div>
+                      <p class="trabajo__precio">
+                        Desde {producto.precioDesde.toFixed(2)} €
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )
+          }
 
-          <button class="pp-review-submit" type="submit" data-review-submit>
-            Enviar opinión
-          </button>
+          <h2 class="ficha__seccion-titulo">Opiniones de clientes</h2>
+          {
+            opiniones.length === 0 ? (
+              <p class="ficha__vacio">
+                Aún no hay opiniones publicadas. Si ya le has encargado algo,
+                puedes ser el primero en contarlo.
+              </p>
+            ) : (
+              <div class="opiniones">
+                {opiniones.map((opinion) => (
+                  <article class="opinion">
+                    <span class="opinion__autor">{opinion.autor}</span>
+                    <span class="opinion__estrellas">
+                      <Estrellas valor={opinion.valoracion} />
+                    </span>
+                    <span class="opinion__fecha dato">{opinion.fecha}</span>
+                    <p class="opinion__texto">{opinion.comentario}</p>
+                  </article>
+                ))}
+              </div>
+            )
+          }
 
-          <p class="pp-review-note" data-review-error hidden></p>
-          <p class="pp-review-note">
-            Se revisa antes de publicarse para evitar spam y opiniones falsas.
-          </p>
-        </form>
-      </main>
+          <div class="opinar" data-review-success hidden>
+            <p class="opinar__titulo">Gracias por contarlo</p>
+            <p class="ficha__bio">
+              Revisamos la opinión y la publicamos en el perfil en unos días.
+            </p>
+          </div>
+
+          <form
+            class="opinar"
+            data-review-form
+            data-productor-id={productor.id}
+            data-productor-nombre={productor.nombre}
+            data-endpoint={FORMSPREE_RESENAS_ENDPOINT}
+          >
+            <h2 class="opinar__titulo">Deja tu opinión sobre {productor.nombre}</h2>
+
+            <div class="opinar__campo campo">
+              <label class="campo__nombre" for="autor">Tu nombre</label>
+              <input class="entrada" id="autor" name="autor" type="text" required maxlength="60" />
+            </div>
+
+            <div class="opinar__campo campo">
+              <label class="campo__nombre" for="valoracion">Valoración</label>
+              <select class="entrada" id="valoracion" name="valoracion" required>
+                <option value="5" selected>★★★★★ Excelente</option>
+                <option value="4">★★★★☆ Muy bueno</option>
+                <option value="3">★★★☆☆ Correcto</option>
+                <option value="2">★★☆☆☆ Regular</option>
+                <option value="1">★☆☆☆☆ Malo</option>
+              </select>
+            </div>
+
+            <div class="opinar__campo campo">
+              <label class="campo__nombre" for="comentario">Comentario</label>
+              <textarea
+                class="entrada"
+                id="comentario"
+                name="comentario"
+                rows="4"
+                required
+                maxlength="500"></textarea>
+            </div>
+
+            <button class="boton boton--principal opinar__enviar" type="submit" data-review-submit>
+              Enviar opinión
+            </button>
+
+            <p class="opinar__nota opinar__nota--error" data-review-error hidden role="alert"></p>
+            <p class="opinar__nota">
+              La revisamos antes de publicarla, para evitar spam y opiniones
+              falsas.
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
-
-  </div>
-
-  <script>
-    const form = document.querySelector("[data-review-form]");
-    const success = document.querySelector("[data-review-success]");
-    const error = document.querySelector("[data-review-error]");
-    const submit = document.querySelector("[data-review-submit]");
-
-    form?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!submit || !error || !success) return;
-
-      submit.disabled = true;
-      submit.textContent = "Enviando…";
-      error.hidden = true;
-
-      const datos = new FormData(form);
-      datos.append("productorId", form.dataset.productorId || "");
-      datos.append("productorNombre", form.dataset.productorNombre || "");
-      datos.append("tipo", "resena");
-
-      try {
-        const res = await fetch(form.dataset.endpoint || "", {
-          method: "POST",
-          body: datos,
-          headers: { Accept: "application/json" },
-        });
-        if (!res.ok) throw new Error("Error al enviar");
-        form.hidden = true;
-        success.hidden = false;
-      } catch (err) {
-        error.textContent = "No se pudo enviar la reseña. Inténtalo de nuevo en un momento.";
-        error.hidden = false;
-      } finally {
-        submit.disabled = false;
-        submit.textContent = "Enviar opinión";
-      }
-    });
-  </script>
+  </main>
 </BaseLayout>
+
+<style>
+  .ficha__volver {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--tinta-suave);
+    text-decoration: none;
+  }
+
+  .ficha__volver:hover {
+    color: var(--tinta);
+    text-decoration: underline;
+  }
+
+  .ficha__tecnica div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .ficha__tecnica dt {
+    color: var(--tinta-suave);
+    white-space: nowrap;
+  }
+
+  .ficha__tecnica dd {
+    margin: 0;
+    text-align: right;
+    color: var(--tinta);
+  }
+
+  .opinar__enviar {
+    margin-top: 1.25rem;
+  }
+</style>
+
+<script>
+  const formulario = document.querySelector("[data-review-form]");
+  const exito = document.querySelector("[data-review-success]");
+  const error = document.querySelector("[data-review-error]");
+  const enviar = document.querySelector("[data-review-submit]");
+
+  formulario?.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (!enviar || !error || !exito) return;
+
+    enviar.disabled = true;
+    enviar.textContent = "Enviando…";
+    error.hidden = true;
+
+    const datos = new FormData(formulario);
+    datos.append("productorId", formulario.dataset.productorId || "");
+    datos.append("productorNombre", formulario.dataset.productorNombre || "");
+    datos.append("tipo", "resena");
+
+    try {
+      const respuesta = await fetch(formulario.dataset.endpoint || "", {
+        method: "POST",
+        body: datos,
+        headers: { Accept: "application/json" },
+      });
+      if (!respuesta.ok) throw new Error("Error al enviar");
+      formulario.hidden = true;
+      exito.hidden = false;
+      exito.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (fallo) {
+      error.textContent =
+        "No se pudo enviar la opinión. Vuelve a intentarlo en un momento.";
+      error.hidden = false;
+    } finally {
+      enviar.disabled = false;
+      enviar.textContent = "Enviar opinión";
+    }
+  });
+</script>
