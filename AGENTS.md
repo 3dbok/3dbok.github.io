@@ -30,7 +30,7 @@ These exact values are not currently wired into the site's CSS tokens. The imple
 - JavaScript/ES modules; there is no TypeScript configuration and no client UI framework.
 - Three.js `0.184.0`, dynamically loaded only for the STL preview in the customer briefing.
 - npm with `package-lock.json` lockfile version 3.
-- No Astro adapter, CMS, database, authentication, server routes, or application backend.
+- No Astro adapter, CMS, database, authentication, server routes, or application backend. Customer, maker, and review forms use Formspree as an external form receiver.
 - No test runner, linter, formatter, or `astro check` script is currently configured.
 - Canonical production origin: `https://3dbok.com` in both `astro.config.mjs` and `public/CNAME`.
 
@@ -42,6 +42,7 @@ Astro's locked Node engine range is `18.20.8 || ^20.3.0 || >=22.0.0`; deployment
 .
 ├── .github/workflows/deploy.yml   # GitHub Pages build and deployment
 ├── astro.config.mjs               # Astro config; sets the production site URL
+├── docs/                          # operational notes and manual release plans
 ├── package.json                   # dev/build/preview scripts and two direct dependencies
 ├── public/                        # assets copied verbatim to the site root
 │   ├── CNAME
@@ -54,7 +55,7 @@ Astro's locked Node engine range is `18.20.8 || ^20.3.0 || >=22.0.0`; deployment
     ├── data/                      # producer and review JSON sources
     ├── img/                       # duplicate source images; currently not imported by pages
     ├── layouts/BaseLayout.astro   # shared document shell and metadata
-    ├── lib/                       # shared icons and producer helpers
+    ├── lib/                       # shared order, icon, and producer helpers
     ├── pages/                     # file-based routes
     └── styles/                    # global tokens/utilities and producer-page composition
 ```
@@ -77,15 +78,19 @@ A five-step, client-side customer wizard:
 4. maker, material, colour, date, and budget;
 5. contact details.
 
-`?maker=<productor.id>` preselects a producer. When a valid `?product=<producto.id>` is also supplied, the wizard enters at step 4, locks the producer select, and shows the chosen work.
+`?maker=<productor.id>` preselects a producer. When a valid `?product=<producto.id>` is also supplied, the wizard locks the producer select and shows the chosen work, but still starts at step 1 so that required order details are not skipped.
 
-Important current behaviour: submitting this wizard does **not** make a network request. It waits briefly, creates a client-side reference, removes the in-memory `File` object, saves the remaining summary under `sessionStorage["3dbok-pedido"]`, and redirects to `/confirmacion`. The chosen STL is parsed locally for preview and is not uploaded. Do not describe this as a completed or persisted order flow.
+The final step submits `FormData` to Formspree with `Accept: application/json`. It defaults to the existing `https://formspree.io/f/xlgyykkz` inbox and can be changed at build time with `PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT`. Every customer submission includes `tipo=pedido_cliente`, a stable `requestId`, and a human-readable reference. Only a successful HTTP response creates the short-lived confirmation summary and redirects to `/confirmacion`; failures stay in the wizard with a retry message.
+
+The selected STL is parsed only in the browser and is never appended to the submitted `FormData` or placed in web storage. The request only sends `stlSeleccionado`, so administrators know to ask the customer for the file by email. Keep copy explicit about this limitation. Files over 20 MB are not previewed. Non-file answers are autosaved in `sessionStorage["3dbok-pedido-borrador"]` for two hours and scoped to the current path/query; a file must always be reselected after a reload.
 
 The STL preview dynamically imports `three`, `OrbitControls`, and `STLLoader` only after a `.stl` file is chosen. Keep that lazy-loading boundary for performance. The renderer, controls, geometry, animation frame, and `ResizeObserver` are disposed when the preview is replaced or cleared.
 
 ### `/confirmacion` — `src/pages/confirmacion.astro`
 
-Reads `3dbok-pedido` from `sessionStorage` and renders the customer summary. It has a deliberate empty-state link back to `/briefing` when no stored order exists. Its size/material label maps and the briefing's stored IDs form a shared implicit contract; update both pages together if those values change.
+Reads the versioned `3dbok-pedido` success record from `sessionStorage` and renders the customer summary only when it represents a successful, recent submission. The record expires after 30 minutes; invalid, expired, or missing data produces an empty state linking back to `/briefing`. A reference-only URL fallback handles the rare case where Formspree succeeds but `sessionStorage` is unavailable. The page is `noindex` and does not claim that an automatic email was sent.
+
+Order option lists, display labels, storage keys, TTLs, the STL preview limit, and reference generation live in `src/lib/pedidoShared.js`; update both order pages through that shared contract.
 
 ### `/maker` — `src/pages/maker.astro`
 
@@ -101,20 +106,25 @@ Static maker profiles generated by `getStaticPaths()`. A profile shows identity,
 
 The review form posts `FormData` to `https://formspree.io/f/mvzjyjrb`. A successful Formspree submission does not update `resenas.json` or publish a review automatically; published reviews exist only when approved review data is added to the repository and the site is rebuilt.
 
+### `/privacidad` — `src/pages/privacidad.astro`
+
+Public Spanish privacy information for form users. It explains Formspree processing and international transfers, limited sharing with designers/makers, retention, user rights, and that STL files remain local to the customer's browser.
+
 ### `/404` — `src/pages/404.astro`
 
 Small branded not-found page using `BaseLayout` with the normal shared navigation and footer.
 
 ## Shared components and modules
 
-- `BaseLayout.astro`: imports global CSS; supplies the Spanish document, title/description, canonical URL, favicon, theme colour, Open Graph/Twitter basics, font preload, skip link, navigation, content target, and footer. Page titles become `<page> · 3dbok`; the home page uses the default title.
+- `BaseLayout.astro`: imports global CSS; supplies the Spanish document, title/description, canonical URL, optional `noindex`, favicon, theme colour, Open Graph/Twitter basics, font preload, skip link, navigation, content target, and footer. Page titles become `<page> · 3dbok`; the home page uses the default title.
 - `Nav.astro`: sticky desktop navigation plus an accessible button-controlled menu at widths up to 720 px. It marks active `/productores` and `/maker` routes with `aria-current` and closes the compact menu on Escape or breakpoint changes.
-- `Footer.astro`: service, maker, and contact navigation; computes the displayed year at build time.
+- `Footer.astro`: service, maker, contact, and privacy navigation; computes the displayed year at build time.
 - `Logo.astro`: inline layered-print brand mark with `tinta` and `claro` tones.
 - `PiezaEnCapas.astro`: inline SVG hero showing a Málaga boquerón printed in 26 animated layers. It is meaningful imagery with an accessible label, not a generic decoration.
 - `MaterialChip.astro`: renders only material codes present in the shared `MATERIALES` map.
 - `Estrellas.astro`: renders a five-character star string and exposes the numerical rating through an accessible label.
 - `src/lib/productorShared.js`: the canonical material map for producer views, star rendering, and approved-review aggregation.
+- `src/lib/pedidoShared.js`: the canonical customer-order options, labels, storage keys/expiry times, preview size limit, and request/reference generator.
 - `src/lib/icons.js`: path data for the three benefits on the maker-registration page.
 
 Prefer extending an existing component or shared helper when a pattern is used on more than one page. Keep one-off page composition and behaviour close to its page.

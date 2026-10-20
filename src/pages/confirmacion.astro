@@ -3,16 +3,21 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout
-  title="Pedido enviado"
-  descripcion="Resumen de tu pedido en 3dbok y qué pasa a partir de ahora."
+  title="Solicitud recibida"
+  descripcion="Confirmación privada de una solicitud enviada a 3dbok."
+  noindex
 >
   <main class="acuse">
     <div class="envoltura--angosta">
-      <section class="acuse__vacio" data-no-order>
-        <h1 class="acuse__titulo">Aquí no hay ningún pedido</h1>
+      <section class="acuse__vacio" data-order-loading>
+        <h1 class="acuse__titulo">Comprobando la solicitud…</h1>
+      </section>
+
+      <section class="acuse__vacio" data-no-order hidden>
+        <h1 class="acuse__titulo">Aquí no hay ninguna solicitud reciente</h1>
         <p class="acuse__texto">
-          Este resumen solo aparece justo después de enviar un pedido. Si venías
-          a hacer uno, se empieza aquí.
+          Este resumen solo está disponible durante un tiempo después de enviar
+          el formulario desde este navegador.
         </p>
         <a href="/briefing" class="boton boton--principal acuse__accion">
           Pedir una pieza <span class="boton__flecha" aria-hidden="true">→</span>
@@ -20,11 +25,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </section>
 
       <div data-order-confirmation hidden>
-        <p class="etiqueta etiqueta--marca">Pedido enviado</p>
-        <h1 class="acuse__titulo">Ya lo tenemos</h1>
-        <p class="acuse__texto">
-          Te hemos escrito a <strong data-order-email>tu email</strong> con esta
-          misma información.
+        <p class="etiqueta etiqueta--marca">Solicitud recibida</p>
+        <h1 class="acuse__titulo">Ya la tenemos</h1>
+        <p class="acuse__texto" data-order-intro>
+          Revisaremos la información y te contactaremos en
+          <strong data-order-email>tu email</strong>.
         </p>
 
         <div class="acuse__resguardo">
@@ -33,13 +38,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
               <p class="etiqueta">Referencia</p>
               <p class="acuse__referencia dato" data-order-id></p>
             </div>
-            <span class="acuse__estado dato">Pendiente de boceto</span>
+            <span class="acuse__estado dato">Pendiente de revisión</span>
           </div>
 
-          <dl class="acuse__detalle dato">
+          <dl class="acuse__detalle dato" data-order-details>
             <div data-row="maker">
               <dt>Maker</dt>
               <dd data-order-maker></dd>
+            </div>
+            <div data-row="product" hidden>
+              <dt>Trabajo de referencia</dt>
+              <dd data-order-product></dd>
             </div>
             <div data-row="size">
               <dt>Tamaño</dt>
@@ -48,6 +57,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             <div data-row="material">
               <dt>Material</dt>
               <dd data-order-material></dd>
+            </div>
+            <div data-row="stl" hidden>
+              <dt>STL</dt>
+              <dd data-order-stl></dd>
             </div>
             <div data-row="deadline" hidden>
               <dt>Fecha deseada</dt>
@@ -59,27 +72,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             </div>
           </dl>
 
-          <div class="acuse__descripcion">
+          <div class="acuse__descripcion" data-order-description-block>
             <p class="etiqueta">Lo que nos has contado</p>
             <p class="acuse__cita" data-order-description></p>
           </div>
         </div>
 
-        <section class="acuse__siguiente">
+        <section class="acuse__siguiente" data-order-next-steps>
           <h2 class="acuse__subtitulo">Qué pasa ahora</h2>
-          {/* Las dos secuencias van escritas: la de JS no heredaría los
-              estilos con ámbito de esta página. */}
           <ol class="acuse__pasos" data-steps="idea">
-            <li>Un diseñador lee tu descripción y empieza el boceto</li>
-            <li>Te enviamos el boceto para que lo apruebes o pidas cambios</li>
-            <li>Ves fotos del proceso mientras se imprime</li>
-            <li>Recibes la pieza en la dirección que nos digas</li>
+            <li>Revisamos la descripción y comprobamos qué información falta</li>
+            <li>Te contactamos para concretar el diseño y las medidas</li>
+            <li>Recibes una propuesta y un precio para que los apruebes</li>
+            <li>Solo después coordinamos la producción y la entrega</li>
           </ol>
           <ol class="acuse__pasos" data-steps="diseno" hidden>
-            <li>Buscamos un maker disponible cerca de ti</li>
-            <li>El maker confirma el encargo y el precio final</li>
-            <li>Ves fotos del proceso mientras se imprime</li>
-            <li>Recibes la pieza en la dirección que nos digas</li>
+            <li>Revisamos los detalles de la solicitud</li>
+            <li>Te contactamos por email para pedirte el archivo STL</li>
+            <li>Recibes una valoración y un precio para que los apruebes</li>
+            <li>Solo después coordinamos la impresión y la entrega</li>
           </ol>
         </section>
 
@@ -239,26 +250,48 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </style>
 
 <script>
-  const etiquetasTamano = {
-    xs: "Pequeño · menos de 5 cm",
-    s: "Compacto · 5 – 15 cm",
-    m: "Mediano · 15 – 30 cm",
-    l: "Grande · más de 30 cm",
-  };
+  import {
+    CONFIRMACION_TTL_MS,
+    ETIQUETAS_MATERIAL,
+    ETIQUETAS_TAMANO,
+    PEDIDO_CONFIRMACION_STORAGE_KEY,
+  } from "../lib/pedidoShared.js";
 
-  const etiquetasMaterial = {
-    any: "Lo elige el maker",
-    pla: "PLA",
-    resin: "Resina",
-    petg: "PETG",
-  };
-
+  const cargando = document.querySelector("[data-order-loading]");
   const sinPedido = document.querySelector("[data-no-order]");
   const resumen = document.querySelector("[data-order-confirmation]");
-  const guardado = sessionStorage.getItem("3dbok-pedido");
-  const pedido = guardado ? JSON.parse(guardado) : null;
 
-  if (pedido && sinPedido && resumen) {
+  const leerConfirmacion = () => {
+    try {
+      const guardado = sessionStorage.getItem(PEDIDO_CONFIRMACION_STORAGE_KEY);
+      if (!guardado) return null;
+      const pedido = JSON.parse(guardado);
+      const valido =
+        pedido?.version === 2 &&
+        pedido?.status === "submitted" &&
+        typeof pedido?.orderId === "string" &&
+        /^3DB-[A-Z0-9]{5,12}$/.test(pedido.orderId) &&
+        Number.isFinite(pedido?.submittedAt) &&
+        Date.now() - pedido.submittedAt <= CONFIRMACION_TTL_MS;
+
+      if (!valido) {
+        sessionStorage.removeItem(PEDIDO_CONFIRMACION_STORAGE_KEY);
+        return null;
+      }
+      return pedido;
+    } catch {
+      return null;
+    }
+  };
+
+  const referenciaDeRespaldo = new URLSearchParams(window.location.search).get("referencia");
+  const referenciaValida =
+    typeof referenciaDeRespaldo === "string" && /^3DB-[A-Z0-9]{5,12}$/.test(referenciaDeRespaldo);
+  const pedido = leerConfirmacion();
+
+  if (cargando) cargando.hidden = true;
+
+  if ((pedido || referenciaValida) && sinPedido && resumen) {
     sinPedido.hidden = true;
     resumen.hidden = false;
 
@@ -272,37 +305,68 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       if (fila) fila.hidden = !texto;
     };
 
-    escribir("[data-order-email]", pedido.email || "tu email");
-    escribir("[data-order-id]", pedido.orderId);
-    escribir("[data-order-maker]", pedido.makerNombre || "Lo elegimos nosotros");
-    escribir("[data-order-size]", etiquetasTamano[pedido.size] || pedido.size);
-    escribir(
-      "[data-order-material]",
-      etiquetasMaterial[pedido.material] || pedido.material,
-    );
-    escribir("[data-order-description]", pedido.description);
+    escribir("[data-order-id]", pedido?.orderId || referenciaDeRespaldo);
 
-    if (pedido.deadline) {
-      const fecha = new Date(`${pedido.deadline}T00:00:00`);
+    if (!pedido) {
+      const introduccion = document.querySelector("[data-order-intro]");
+      if (introduccion) {
+        introduccion.textContent =
+          "La solicitud se envió correctamente, pero este navegador no ha podido conservar el resumen. Guarda la referencia por si necesitas escribirnos.";
+      }
+      document.querySelector("[data-order-details]")?.setAttribute("hidden", "");
+      document.querySelector("[data-order-description-block]")?.setAttribute("hidden", "");
+      document.querySelector("[data-order-next-steps]")?.setAttribute("hidden", "");
+    } else {
+      escribir("[data-order-email]", pedido.email || "tu email");
+      escribir("[data-order-maker]", pedido.makerNombre || "Lo elegimos nosotros");
+      escribir("[data-order-size]", ETIQUETAS_TAMANO[pedido.size] || pedido.size);
       escribir(
-        "[data-order-deadline]",
-        fecha.toLocaleDateString("es-ES", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }),
+        "[data-order-material]",
+        ETIQUETAS_MATERIAL[pedido.material] || pedido.material,
       );
-      mostrarFila("deadline", true);
-    }
+      escribir("[data-order-description]", pedido.description);
 
-    if (pedido.budget) {
-      escribir("[data-order-budget]", pedido.budget);
-      mostrarFila("budget", true);
-    }
+      if (pedido.productName) {
+        escribir("[data-order-product]", pedido.productName);
+        mostrarFila("product", true);
+      }
 
-    const secuencia = pedido.hasDesign ? "diseno" : "idea";
-    document.querySelectorAll("[data-steps]").forEach((lista) => {
-      lista.hidden = lista.dataset.steps !== secuencia;
-    });
+      if (pedido.hasDesign) {
+        escribir(
+          "[data-order-stl]",
+          pedido.stlSelected
+            ? "Seleccionado localmente; te lo pediremos por email"
+            : "No seleccionado; te lo pediremos por email",
+        );
+        mostrarFila("stl", true);
+      }
+
+      if (pedido.deadline) {
+        const fecha = new Date(`${pedido.deadline}T00:00:00`);
+        if (!Number.isNaN(fecha.getTime())) {
+          escribir(
+            "[data-order-deadline]",
+            fecha.toLocaleDateString("es-ES", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }),
+          );
+          mostrarFila("deadline", true);
+        }
+      }
+
+      if (pedido.budget) {
+        escribir("[data-order-budget]", pedido.budget);
+        mostrarFila("budget", true);
+      }
+
+      const secuencia = pedido.hasDesign ? "diseno" : "idea";
+      document.querySelectorAll("[data-steps]").forEach((lista) => {
+        lista.hidden = lista.dataset.steps !== secuencia;
+      });
+    }
+  } else if (sinPedido) {
+    sinPedido.hidden = false;
   }
 </script>

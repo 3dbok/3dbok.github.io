@@ -8,6 +8,7 @@ const {
   title,
   descripcion = "Cuéntanos qué pieza necesitas y un maker cercano la imprime en 3D. Sin saber nada de impresión: recibes un boceto antes de fabricar.",
   showNav = true,
+  noindex = false,
 } = Astro.props;
 
 const titulo = title ? `${title} · 3dbok` : "3dbok · Impresión 3D por encargo";
@@ -21,6 +22,7 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? "https://3dbok.com");
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{titulo}</title>
     <meta name="description" content={descripcion} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonica.href} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link

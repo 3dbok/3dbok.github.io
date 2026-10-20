@@ -1,45 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import productores from "../data/productores.json";
+import {
+  MATERIALES_PEDIDO,
+  PASOS_PEDIDO,
+  PRESUPUESTOS_PEDIDO,
+  TAMANOS_PEDIDO,
+} from "../lib/pedidoShared.js";
 
-const PASOS = [
-  { id: "descripcion", titulo: "Cuéntanos tu idea" },
-  { id: "diseno", titulo: "¿Ya tienes el diseño?" },
-  { id: "tamano", titulo: "¿De qué tamaño?" },
-  { id: "detalles", titulo: "Últimos detalles" },
-  { id: "contacto", titulo: "¿Cómo te avisamos?" },
-];
-
-const TAMANOS = [
-  { id: "xs", etiqueta: "Pequeño", nota: "Como una moneda", medida: "menos de 5 cm" },
-  { id: "s", etiqueta: "Compacto", nota: "Como un móvil", medida: "5 – 15 cm" },
-  { id: "m", etiqueta: "Mediano", nota: "Como un libro", medida: "15 – 30 cm" },
-  { id: "l", etiqueta: "Grande", nota: "Como una mochila", medida: "más de 30 cm" },
-];
-
-const MATERIALES = [
-  { id: "any", etiqueta: "Que elija el maker", nota: "Lo normal si no lo tienes claro" },
-  { id: "pla", etiqueta: "PLA", nota: "Rígido y económico" },
-  { id: "resin", etiqueta: "Resina", nota: "Máximo detalle, superficie lisa" },
-  { id: "petg", etiqueta: "PETG", nota: "Aguanta golpes, calor y humedad" },
-];
-
-const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aún no lo sé"];
+const FORMSPREE_PEDIDOS_ENDPOINT =
+  import.meta.env.PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT ?? "https://formspree.io/f/xlgyykkz";
 ---
 
 <BaseLayout
   title="Pedir una pieza"
-  descripcion="Describe la pieza que necesitas en cinco pasos. Recibirás un boceto antes de que nadie empiece a imprimir."
+  descripcion="Describe la pieza que necesitas en cinco pasos. Revisaremos tu solicitud antes de que nadie empiece a diseñar o imprimir."
 >
   <main class="brief">
-    <div class="envoltura--angosta">
+    <form
+      class="envoltura--angosta"
+      data-order-form
+      data-endpoint={FORMSPREE_PEDIDOS_ENDPOINT}
+      novalidate
+    >
       <button class="brief__volver dato" data-back type="button">
         ← Volver al inicio
       </button>
 
       <div class="brief__avance">
         <div class="brief__avance-datos dato">
-          <span>Paso <span data-step-current>1</span> de {PASOS.length}</span>
+          <span>Paso <span data-step-current>1</span> de {PASOS_PEDIDO.length}</span>
           <span><span data-progress-text>0</span> % completado</span>
         </div>
         <div
@@ -55,12 +45,17 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
         </div>
       </div>
 
-      <h1 class="brief__titulo" data-step-title>{PASOS[0].titulo}</h1>
+      <p class="brief__elegido" data-selected-product hidden></p>
+      <p class="brief__recuperado dato" data-draft-notice role="status" hidden></p>
+
+      <h1 class="brief__titulo" data-step-title tabindex="-1">
+        {PASOS_PEDIDO[0].titulo}
+      </h1>
 
       <section data-step="0">
-        <p class="brief__ayuda">
+        <p class="brief__ayuda" id="description-help">
           Escríbelo como se lo contarías a un amigo. Cuanto más detalle nos des,
-          menos vueltas dará el boceto.
+          menos vueltas dará la propuesta.
         </p>
         <label class="solo-lectores" for="brief-descripcion">Describe la pieza</label>
         <textarea
@@ -68,60 +63,68 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
           id="brief-descripcion"
           data-field="description"
           rows="7"
+          required
+          minlength="15"
+          maxlength="2000"
+          aria-describedby="description-help description-count"
           placeholder="Por ejemplo: quiero una miniatura de un dragón negro de unos 10 cm, con las alas desplegadas y postura amenazante. Es para mi partida de rol y quiero que imponga…"
         ></textarea>
-        <p class="brief__contador dato" data-description-count>
-          0 caracteres · mínimo 15
+        <p class="brief__contador dato" id="description-count" data-description-count>
+          0 de 2000 caracteres · mínimo 15
         </p>
       </section>
 
       <section data-step="1" hidden>
-        <p class="brief__ayuda">
-          Si ya tienes un archivo 3D (.STL) lo usamos tal cual. Si no, un
-          diseñador lo crea a partir de lo que nos acabas de contar.
+        <p class="brief__ayuda" id="design-help">
+          Si tienes un STL, puedes previsualizarlo aquí. El archivo no se envía
+          ni se guarda: si lo seleccionas, te lo pediremos después por email.
         </p>
-        <div class="brief__opciones">
-          {
-            [
-              {
-                valor: false,
-                etiqueta: "Solo tengo la idea",
-                nota: "Un diseñador la convierte en un modelo y te lo enseña",
-              },
-              {
-                valor: true,
-                etiqueta: "Ya tengo el diseño",
-                nota: "Súbelo y pasamos directamente a imprimir",
-              },
-            ].map((opcion) => (
-              <button
-                class="opcion"
-                type="button"
-                data-choice="hasDesign"
-                data-value={String(opcion.valor)}
-                aria-pressed="false"
-              >
-                <span class="opcion__titulo">{opcion.etiqueta}</span>
-                <span class="opcion__nota">{opcion.nota}</span>
-              </button>
-            ))
-          }
-        </div>
+        <fieldset class="brief__grupo" data-choice-group="hasDesign" aria-describedby="design-help">
+          <legend class="solo-lectores">Estado del diseño</legend>
+          <div class="brief__opciones">
+            {
+              [
+                {
+                  valor: false,
+                  etiqueta: "Solo tengo la idea",
+                  nota: "Te ayudaremos a concretar el diseño antes de imprimir",
+                },
+                {
+                  valor: true,
+                  etiqueta: "Ya tengo el diseño",
+                  nota: "Puedes comprobar el STL aquí; te lo pediremos por email",
+                },
+              ].map((opcion) => (
+                <button
+                  class="opcion"
+                  type="button"
+                  data-choice="hasDesign"
+                  data-value={String(opcion.valor)}
+                  aria-pressed="false"
+                >
+                  <span class="opcion__titulo">{opcion.etiqueta}</span>
+                  <span class="opcion__nota">{opcion.nota}</span>
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
 
         <div class="brief__subida" data-design-upload hidden>
-          <input
-            data-design-file
-            type="file"
-            accept=".stl"
-            hidden
-          />
+          <input data-design-file type="file" accept=".stl" hidden />
           <button class="brief__soltar" type="button" data-design-upload-button>
-            <span class="brief__soltar-titulo">Subir archivo .STL</span>
-            <span class="brief__soltar-nota dato">Lo verás aquí mismo antes de enviarlo</span>
+            <span class="brief__soltar-titulo">Elegir STL para previsualizar</span>
+            <span class="brief__soltar-nota dato">No se sube ni se guarda</span>
           </button>
+          <div class="brief__archivo-acciones" data-design-file-actions hidden>
+            <p class="brief__archivo-estado dato" data-design-file-status role="status" aria-live="polite"></p>
+            <button class="brief__quitar dato" type="button" data-design-remove>
+              Quitar archivo
+            </button>
+          </div>
           <div class="brief__vista" data-stl-preview hidden>
             <div class="brief__lienzo" data-stl-container></div>
-            <p class="brief__ayuda-corta dato" data-stl-message>
+            <p class="brief__ayuda-corta dato" data-stl-message aria-live="polite">
               Arrastra para girar la pieza, rueda para acercar.
             </p>
           </div>
@@ -129,39 +132,46 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
       </section>
 
       <section data-step="2" hidden>
-        <p class="brief__elegido" data-selected-product hidden></p>
-        <p class="brief__ayuda">
-          Con una referencia aproximada basta. El diseñador ajusta las medidas
-          exactas contigo.
+        <p class="brief__ayuda" id="size-help">
+          Con una referencia aproximada basta. Ajustaremos las medidas exactas
+          contigo antes de producir la pieza.
         </p>
-        <div class="brief__rejilla">
-          {
-            TAMANOS.map((tamano) => (
-              <button
-                class="opcion"
-                type="button"
-                data-choice="size"
-                data-value={tamano.id}
-                aria-pressed="false"
-              >
-                <span class="opcion__titulo">{tamano.etiqueta}</span>
-                <span class="opcion__nota">{tamano.nota}</span>
-                <span class="opcion__medida">{tamano.medida}</span>
-              </button>
-            ))
-          }
-        </div>
+        <fieldset class="brief__grupo" data-choice-group="size" aria-describedby="size-help">
+          <legend class="solo-lectores">Tamaño aproximado</legend>
+          <div class="brief__rejilla">
+            {
+              TAMANOS_PEDIDO.map((tamano) => (
+                <button
+                  class="opcion"
+                  type="button"
+                  data-choice="size"
+                  data-value={tamano.id}
+                  aria-pressed="false"
+                >
+                  <span class="opcion__titulo">{tamano.etiqueta}</span>
+                  <span class="opcion__nota">{tamano.nota}</span>
+                  <span class="opcion__medida">{tamano.medida}</span>
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
       </section>
 
       <section data-step="3" hidden>
         <div class="brief__campos">
           <div class="campo">
             <label class="campo__nombre" for="brief-maker">Quién lo imprime</label>
-            <p class="campo__ayuda">
+            <p class="campo__ayuda" id="maker-help">
               Puedes elegir un maker concreto o dejar que te propongamos el más
               adecuado para tu pieza.
             </p>
-            <select class="entrada" id="brief-maker" data-field="makerId">
+            <select
+              class="entrada"
+              id="brief-maker"
+              data-field="makerId"
+              aria-describedby="maker-help"
+            >
               <option value="recommended">Que 3dbok elija por mí</option>
               {
                 productores.map((productor) => (
@@ -179,11 +189,11 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
             </select>
           </div>
 
-          <div class="campo">
-            <span class="campo__nombre">Material</span>
+          <fieldset class="brief__grupo campo" data-choice-group="material">
+            <legend class="campo__nombre">Material</legend>
             <div class="brief__rejilla">
               {
-                MATERIALES.map((material) => (
+                MATERIALES_PEDIDO.map((material) => (
                   <button
                     class="opcion"
                     type="button"
@@ -197,11 +207,11 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
                 ))
               }
             </div>
-          </div>
+          </fieldset>
 
           <div class="campo">
             <label class="campo__nombre" for="brief-color">Color</label>
-            <p class="campo__ayuda">
+            <p class="campo__ayuda" id="color-help">
               Descríbelo con tus palabras. Si te da igual, déjalo en blanco.
             </p>
             <input
@@ -209,23 +219,32 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
               id="brief-color"
               data-field="color"
               type="text"
+              maxlength="100"
+              aria-describedby="color-help"
               placeholder="Negro mate, rojo sangre, madera natural…"
             />
           </div>
 
           <div class="campo">
             <label class="campo__nombre" for="brief-fecha">Para cuándo lo necesitas</label>
-            <input class="entrada" id="brief-fecha" data-field="deadline" type="date" />
+            <p class="campo__ayuda" id="deadline-help">La fecha más próxima es dentro de 7 días.</p>
+            <input
+              class="entrada"
+              id="brief-fecha"
+              data-field="deadline"
+              type="date"
+              aria-describedby="deadline-help"
+            />
           </div>
 
-          <div class="campo">
-            <span class="campo__nombre">Presupuesto aproximado</span>
-            <p class="campo__ayuda">
-              Solo orienta al diseñador. No es un compromiso ni un precio final.
+          <fieldset class="brief__grupo campo" data-choice-group="budget">
+            <legend class="campo__nombre">Presupuesto aproximado</legend>
+            <p class="campo__ayuda" id="budget-help">
+              Solo nos orienta. No es un compromiso ni un precio final.
             </p>
-            <div class="fila-opciones">
+            <div class="fila-opciones" aria-describedby="budget-help">
               {
-                PRESUPUESTOS.map((presupuesto) => (
+                PRESUPUESTOS_PEDIDO.map((presupuesto) => (
                   <button
                     class="opcion opcion--pastilla"
                     type="button"
@@ -238,44 +257,79 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
                 ))
               }
             </div>
-          </div>
+          </fieldset>
         </div>
       </section>
 
       <section data-step="4" hidden>
         <p class="brief__ayuda">
-          Es para mandarte el boceto y avisarte de cómo va el pedido. Nada más.
+          Usaremos estos datos para responder a la solicitud y coordinar los
+          siguientes pasos contigo.
         </p>
         <div class="brief__campos">
           <div class="campo">
             <label class="campo__nombre" for="brief-nombre">Nombre</label>
-            <input class="entrada" id="brief-nombre" data-field="name" type="text" autocomplete="name" placeholder="Tu nombre" />
+            <input
+              class="entrada"
+              id="brief-nombre"
+              data-field="name"
+              type="text"
+              autocomplete="name"
+              required
+              minlength="2"
+              maxlength="100"
+              placeholder="Tu nombre"
+            />
           </div>
           <div class="campo">
             <label class="campo__nombre" for="brief-email">Email</label>
-            <input class="entrada" id="brief-email" data-field="email" type="email" autocomplete="email" placeholder="tu@email.com" />
+            <input
+              class="entrada"
+              id="brief-email"
+              data-field="email"
+              type="email"
+              autocomplete="email"
+              required
+              maxlength="254"
+              inputmode="email"
+              placeholder="tu@email.com"
+            />
           </div>
           <div class="campo">
-            <label class="campo__nombre" for="brief-tel">Teléfono <span class="campo__opcional">(opcional)</span></label>
-            <input class="entrada" id="brief-tel" data-field="phone" type="tel" autocomplete="tel" placeholder="+34 600 000 000" />
+            <label class="campo__nombre" for="brief-tel">
+              Teléfono <span class="campo__opcional">(opcional)</span>
+            </label>
+            <input
+              class="entrada"
+              id="brief-tel"
+              data-field="phone"
+              type="tel"
+              autocomplete="tel"
+              maxlength="30"
+              placeholder="+34 600 000 000"
+            />
           </div>
         </div>
 
         <p class="brief__privacidad">
-          Usamos tus datos únicamente para gestionar este pedido. No los
-          compartimos con nadie más.
+          Trataremos los datos para responder a tu solicitud. Formspree procesa
+          el formulario por cuenta de 3dbok y podremos compartir la información
+          necesaria con el diseñador o maker que la valore. Consulta la
+          <a href="/privacidad">política de privacidad</a>.
         </p>
       </section>
 
+      <p class="brief__error" data-form-error role="alert" tabindex="-1" hidden></p>
+
       <div class="brief__pie">
         <p class="brief__nota dato" data-footer-note>
-          Sin compromiso hasta que apruebes el boceto
+          Sin compromiso hasta que apruebes la propuesta
         </p>
-        <button class="boton boton--principal" data-next type="button" disabled>
+        <button class="boton boton--principal" data-next type="submit">
           Continuar <span class="boton__flecha" aria-hidden="true">→</span>
         </button>
       </div>
-    </div>
+    </form>
   </main>
 </BaseLayout>
 
@@ -292,7 +346,8 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     cursor: pointer;
   }
 
-  .brief__volver:hover {
+  .brief__volver:hover,
+  .brief__quitar:hover {
     color: var(--tinta);
     text-decoration: underline;
   }
@@ -317,7 +372,7 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
 
   .brief__barra-relleno {
     height: 100%;
-    width: 20%;
+    width: 0;
     background: var(--filamento);
     transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -326,6 +381,10 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     margin-top: 1.75rem;
     margin-bottom: 1.5rem;
     font-size: var(--paso-3);
+  }
+
+  .brief__titulo:focus {
+    outline: none;
   }
 
   .brief__ayuda {
@@ -341,6 +400,18 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
 
   .brief__contador[data-completo] {
     color: var(--verde);
+  }
+
+  .brief__grupo {
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  .brief__grupo[aria-invalid="true"] .opcion,
+  .entrada[aria-invalid="true"] {
+    border-color: var(--alerta);
   }
 
   .brief__opciones {
@@ -364,15 +435,19 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     font-weight: 400;
   }
 
-  .brief__elegido {
+  .brief__elegido,
+  .brief__recuperado {
     padding: 0.75rem 1rem;
-    margin-bottom: 1.25rem;
+    margin-top: 1.25rem;
     border-left: 3px solid var(--filamento);
     background: var(--pieza);
     font-size: 0.93rem;
   }
 
-  /* --- Subida y vista del STL ------------------------------------------ */
+  .brief__recuperado {
+    border-left-color: var(--cianotipo);
+    color: var(--tinta-media);
+  }
 
   .brief__subida {
     margin-top: 1.25rem;
@@ -401,13 +476,30 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     font-weight: 600;
   }
 
-  .brief__soltar-nota {
+  .brief__soltar-nota,
+  .brief__archivo-estado {
     color: var(--tinta-suave);
   }
 
   .brief__soltar[data-cargado] {
     border-style: solid;
     border-color: var(--verde);
+  }
+
+  .brief__archivo-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-top: 0.65rem;
+  }
+
+  .brief__quitar {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--tinta-suave);
+    cursor: pointer;
   }
 
   .brief__vista {
@@ -427,7 +519,8 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     color: var(--tinta-suave);
   }
 
-  .brief__ayuda-corta[data-error] {
+  .brief__ayuda-corta[data-error],
+  .brief__error {
     color: var(--alerta);
   }
 
@@ -442,7 +535,13 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     line-height: 1.55;
   }
 
-  /* --- Pie de navegación ------------------------------------------------ */
+  .brief__error {
+    margin-top: 1.25rem;
+    padding: 0.85rem 1rem;
+    border-left: 3px solid var(--alerta);
+    background: var(--pieza);
+    line-height: 1.5;
+  }
 
   .brief__pie {
     display: flex;
@@ -476,23 +575,28 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
 </style>
 
 <script>
-  const pasos = [
-    "Cuéntanos tu idea",
-    "¿Ya tienes el diseño?",
-    "¿De qué tamaño?",
-    "Últimos detalles",
-    "¿Cómo te avisamos?",
-  ];
+  import {
+    BORRADOR_TTL_MS,
+    MATERIALES_PEDIDO,
+    MAX_STL_PREVIEW_BYTES,
+    PASOS_PEDIDO,
+    PEDIDO_BORRADOR_STORAGE_KEY,
+    PEDIDO_CONFIRMACION_STORAGE_KEY,
+    PRESUPUESTOS_PEDIDO,
+    TAMANOS_PEDIDO,
+    crearIdentidadPedido,
+  } from "../lib/pedidoShared.js";
 
   let paso = 0;
-  let pasoDeEntrada = 0;
   let enviando = false;
   let descartarVista = null;
+  let origenMakerSlug = "";
 
   const pedido = {
     description: "",
     hasDesign: null,
-    designFile: null,
+    designFileName: "",
+    designFileSize: 0,
     designFileObject: null,
     size: "",
     color: "",
@@ -504,221 +608,540 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
     phone: "",
     makerId: "recommended",
     productId: "",
+    productName: "",
+    requestId: "",
+    orderId: "",
   };
 
+  const formulario = document.querySelector("[data-order-form]");
   const secciones = Array.from(document.querySelectorAll("[data-step]"));
   const botonAtras = document.querySelector("[data-back]");
   const botonSiguiente = document.querySelector("[data-next]");
-  const titulo = document.querySelector("[data-step-title]");
+  const tituloPaso = document.querySelector("[data-step-title]");
   const pasoActual = document.querySelector("[data-step-current]");
   const textoAvance = document.querySelector("[data-progress-text]");
   const barraAvance = document.querySelector("[data-progress-bar]");
   const rellenoAvance = document.querySelector("[data-progress-fill]");
   const notaPie = document.querySelector("[data-footer-note]");
+  const errorFormulario = document.querySelector("[data-form-error]");
+  const avisoBorrador = document.querySelector("[data-draft-notice]");
   const zonaSubida = document.querySelector("[data-design-upload]");
   const entradaArchivo = document.querySelector("[data-design-file]");
   const botonSubir = document.querySelector("[data-design-upload-button]");
+  const accionesArchivo = document.querySelector("[data-design-file-actions]");
+  const estadoArchivo = document.querySelector("[data-design-file-status]");
+  const botonQuitarArchivo = document.querySelector("[data-design-remove]");
   const contador = document.querySelector("[data-description-count]");
   const trabajoElegido = document.querySelector("[data-selected-product]");
   const vistaStl = document.querySelector("[data-stl-preview]");
   const lienzoStl = document.querySelector("[data-stl-container]");
   const mensajeStl = document.querySelector("[data-stl-message]");
+  const selectorMaker = document.querySelector('[data-field="makerId"]');
+  const campoFecha = document.querySelector('[data-field="deadline"]');
+  const contextoBorrador = `${window.location.pathname}${window.location.search}`;
 
-  const puedeSeguir = () => {
-    if (paso === 0) return pedido.description.trim().length >= 15;
-    if (paso === 1) return pedido.hasDesign !== null;
-    if (paso === 2) return Boolean(pedido.size);
-    if (paso === 4) return pedido.name.trim().length > 1 && pedido.email.includes("@");
-    return true;
+  const leerSesion = (clave) => {
+    try {
+      const valor = sessionStorage.getItem(clave);
+      return valor ? JSON.parse(valor) : null;
+    } catch {
+      return null;
+    }
   };
 
-  const actualizarBoton = () => {
-    if (!(botonSiguiente instanceof HTMLButtonElement)) return;
-    const ultimo = paso === pasos.length - 1;
-    botonSiguiente.disabled = !puedeSeguir() || enviando;
-    botonSiguiente.innerHTML = enviando
-      ? "Enviando…"
-      : `${ultimo ? "Enviar el pedido" : "Continuar"} <span class="boton__flecha" aria-hidden="true">→</span>`;
+  const escribirSesion = (clave, valor) => {
+    try {
+      sessionStorage.setItem(clave, JSON.stringify(valor));
+      return true;
+    } catch {
+      return false;
+    }
   };
 
-  const actualizarPaso = () => {
-    secciones.forEach((seccion) => {
-      seccion.hidden = seccion.dataset.step !== String(paso);
+  const borrarSesion = (clave) => {
+    try {
+      sessionStorage.removeItem(clave);
+    } catch {}
+  };
+
+  const mostrarError = (mensaje, objetivo) => {
+    if (errorFormulario) {
+      errorFormulario.textContent = mensaje;
+      errorFormulario.hidden = false;
+    }
+    if (objetivo !== errorFormulario) objetivo?.setAttribute?.("aria-invalid", "true");
+    objetivo?.focus?.();
+  };
+
+  const limpiarError = () => {
+    if (errorFormulario) {
+      errorFormulario.textContent = "";
+      errorFormulario.hidden = true;
+    }
+  };
+
+  const guardarBorrador = () => {
+    const { designFileObject, ...datos } = pedido;
+    escribirSesion(PEDIDO_BORRADOR_STORAGE_KEY, {
+      version: 1,
+      savedAt: Date.now(),
+      context: contextoBorrador,
+      hadFile: Boolean(designFileObject),
+      data: {
+        ...datos,
+        designFileName: "",
+        designFileSize: 0,
+      },
+    });
+  };
+
+  const restaurarBorrador = () => {
+    const borrador = leerSesion(PEDIDO_BORRADOR_STORAGE_KEY);
+    if (!borrador) return;
+    if (
+      borrador.version !== 1 ||
+      !Number.isFinite(borrador.savedAt) ||
+      Date.now() - borrador.savedAt > BORRADOR_TTL_MS ||
+      !borrador.data
+    ) {
+      borrarSesion(PEDIDO_BORRADOR_STORAGE_KEY);
+      return;
+    }
+    if (borrador.context !== contextoBorrador) return;
+
+    const datos = borrador.data;
+    const camposTexto = [
+      "description",
+      "color",
+      "deadline",
+      "name",
+      "email",
+      "phone",
+      "requestId",
+      "orderId",
+    ];
+    camposTexto.forEach((campo) => {
+      if (typeof datos[campo] === "string") pedido[campo] = datos[campo];
     });
 
-    if (botonAtras) {
-      botonAtras.textContent =
-        paso === pasoDeEntrada
-          ? pasoDeEntrada === 3
-            ? "← Volver al taller"
-            : "← Volver al inicio"
-          : "← Paso anterior";
+    if (datos.hasDesign === true || datos.hasDesign === false) pedido.hasDesign = datos.hasDesign;
+    if (TAMANOS_PEDIDO.some(({ id }) => id === datos.size)) pedido.size = datos.size;
+    if (MATERIALES_PEDIDO.some(({ id }) => id === datos.material)) pedido.material = datos.material;
+    if (PRESUPUESTOS_PEDIDO.includes(datos.budget)) pedido.budget = datos.budget;
+    if (typeof datos.makerId === "string") pedido.makerId = datos.makerId;
+
+    if (avisoBorrador) {
+      avisoBorrador.textContent = borrador.hadFile
+        ? "Hemos recuperado tus respuestas. Por privacidad, tendrás que volver a elegir el STL si quieres previsualizarlo."
+        : "Hemos recuperado las respuestas de esta sesión.";
+      avisoBorrador.hidden = false;
     }
-
-    if (titulo) titulo.textContent = pasos[paso];
-    if (pasoActual) pasoActual.textContent = String(paso + 1);
-
-    const porcentaje = Math.round(((paso + 1) / pasos.length) * 100);
-    if (textoAvance) textoAvance.textContent = String(porcentaje);
-    if (rellenoAvance) rellenoAvance.style.width = `${porcentaje}%`;
-    if (barraAvance) barraAvance.setAttribute("aria-valuenow", String(porcentaje));
-
-    if (notaPie) {
-      notaPie.textContent =
-        paso === pasos.length - 1
-          ? "Te llega un email de confirmación al enviarlo"
-          : "Sin compromiso hasta que apruebes el boceto";
-    }
-
-    actualizarBoton();
   };
 
   const marcarElegido = (grupo, valor) => {
     document.querySelectorAll(`[data-choice="${grupo}"]`).forEach((boton) => {
       boton.setAttribute("aria-pressed", String(boton.dataset.value === String(valor)));
     });
+    document.querySelector(`[data-choice-group="${grupo}"]`)?.removeAttribute("aria-invalid");
   };
 
-  document.querySelectorAll("[data-choice]").forEach((boton) => {
-    boton.addEventListener("click", () => {
-      const grupo = boton.dataset.choice;
-      const bruto = boton.dataset.value || "";
-      pedido[grupo] = grupo === "hasDesign" ? bruto === "true" : bruto;
-      marcarElegido(grupo, bruto);
-
-      if (grupo === "hasDesign" && zonaSubida) {
-        const tieneDiseno = bruto === "true";
-        zonaSubida.hidden = !tieneDiseno;
-        if (!tieneDiseno) {
-          pedido.designFile = null;
-          pedido.designFileObject = null;
-          descartarVistaStl();
-        }
-      }
-
-      actualizarBoton();
+  const sincronizarCampos = () => {
+    document.querySelectorAll("[data-field]").forEach((campo) => {
+      const nombre = campo.dataset.field;
+      if (nombre && nombre in pedido) campo.value = pedido[nombre] ?? "";
     });
-  });
+    if (pedido.hasDesign !== null) marcarElegido("hasDesign", String(pedido.hasDesign));
+    if (pedido.size) marcarElegido("size", pedido.size);
+    marcarElegido("material", pedido.material);
+    if (pedido.budget) marcarElegido("budget", pedido.budget);
+    if (zonaSubida) zonaSubida.hidden = pedido.hasDesign !== true;
+  };
 
-  document.querySelectorAll("[data-field]").forEach((campo) => {
-    campo.addEventListener("input", () => {
-      pedido[campo.dataset.field] = campo.value;
+  const actualizarContador = () => {
+    if (!contador) return;
+    const total = pedido.description.trim().length;
+    contador.textContent =
+      total >= 15
+        ? `${total} de 2000 caracteres`
+        : `${total} de 2000 caracteres · mínimo 15`;
+    contador.toggleAttribute("data-completo", total >= 15);
+  };
 
-      if (campo.dataset.field === "description" && contador) {
-        const total = pedido.description.trim().length;
-        contador.textContent =
-          total >= 15 ? `${total} caracteres` : `${total} caracteres · mínimo 15`;
-        contador.toggleAttribute("data-completo", total >= 15);
-      }
+  const actualizarBoton = () => {
+    if (!(botonSiguiente instanceof HTMLButtonElement)) return;
+    const ultimo = paso === PASOS_PEDIDO.length - 1;
+    botonSiguiente.disabled = enviando;
+    botonSiguiente.innerHTML = enviando
+      ? "Enviando…"
+      : `${ultimo ? "Enviar solicitud" : "Continuar"} <span class="boton__flecha" aria-hidden="true">→</span>`;
+  };
 
-      actualizarBoton();
+  const actualizarPaso = (enfocar = false) => {
+    secciones.forEach((seccion) => {
+      seccion.hidden = seccion.dataset.step !== String(paso);
     });
-  });
 
-  // Si se llega desde la ficha de un maker, se salta a "Últimos detalles"
-  // con ese maker y ese trabajo ya seleccionados.
-  const selectorMaker = document.querySelector('[data-field="makerId"]');
+    if (botonAtras) {
+      botonAtras.textContent =
+        paso === 0
+          ? origenMakerSlug
+            ? "← Volver al taller"
+            : "← Volver al inicio"
+          : "← Paso anterior";
+    }
+
+    if (tituloPaso) tituloPaso.textContent = PASOS_PEDIDO[paso].titulo;
+    if (pasoActual) pasoActual.textContent = String(paso + 1);
+
+    const porcentaje = Math.round((paso / PASOS_PEDIDO.length) * 100);
+    if (textoAvance) textoAvance.textContent = String(porcentaje);
+    if (rellenoAvance) rellenoAvance.style.width = `${porcentaje}%`;
+    if (barraAvance) barraAvance.setAttribute("aria-valuenow", String(porcentaje));
+
+    if (notaPie) {
+      notaPie.textContent =
+        paso === PASOS_PEDIDO.length - 1
+          ? "Solo confirmaremos la recepción cuando el envío termine"
+          : "Sin compromiso hasta que apruebes la propuesta";
+    }
+
+    actualizarBoton();
+    if (enfocar) {
+      window.scrollTo({
+        top: 0,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
+      tituloPaso?.focus?.({ preventScroll: true });
+    }
+  };
+
+  const fechaMinimaLocal = () => {
+    const fecha = new Date();
+    fecha.setDate(fecha.getDate() + 7);
+    const ano = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  };
+
+  const validarPaso = (indice, anunciar = true) => {
+    limpiarError();
+    document.querySelectorAll('[aria-invalid="true"]').forEach((nodo) => {
+      nodo.removeAttribute("aria-invalid");
+    });
+
+    let mensaje = "";
+    let objetivo = null;
+
+    if (indice === 0) {
+      objetivo = document.querySelector('[data-field="description"]');
+      if (pedido.description.trim().length < 15) {
+        mensaje = "Describe la pieza con al menos 15 caracteres para poder valorarla.";
+      } else if (pedido.description.trim().length > 2000) {
+        mensaje = "Acorta la descripción a un máximo de 2000 caracteres.";
+      }
+    } else if (indice === 1 && pedido.hasDesign === null) {
+      mensaje = "Indica si ya tienes el diseño o si partes solo de una idea.";
+      objetivo = document.querySelector('[data-choice="hasDesign"]');
+      document.querySelector('[data-choice-group="hasDesign"]')?.setAttribute("aria-invalid", "true");
+    } else if (indice === 2 && !pedido.size) {
+      mensaje = "Elige un tamaño aproximado para la pieza.";
+      objetivo = document.querySelector('[data-choice="size"]');
+      document.querySelector('[data-choice-group="size"]')?.setAttribute("aria-invalid", "true");
+    } else if (indice === 3 && pedido.deadline && pedido.deadline < fechaMinimaLocal()) {
+      mensaje = "Elige una fecha que deje al menos 7 días para valorar y producir la pieza.";
+      objetivo = campoFecha;
+    } else if (indice === 4) {
+      const campoNombre = document.querySelector('[data-field="name"]');
+      const campoEmail = document.querySelector('[data-field="email"]');
+      pedido.name = pedido.name.trim();
+      pedido.email = pedido.email.trim();
+      if (campoNombre instanceof HTMLInputElement) campoNombre.value = pedido.name;
+      if (campoEmail instanceof HTMLInputElement) campoEmail.value = pedido.email;
+      if (
+        !(campoNombre instanceof HTMLInputElement) ||
+        pedido.name.length < 2 ||
+        !campoNombre.validity.valid
+      ) {
+        mensaje = "Escribe tu nombre para que sepamos cómo dirigirnos a ti.";
+        objetivo = campoNombre;
+      } else if (!(campoEmail instanceof HTMLInputElement) || !campoEmail.validity.valid) {
+        mensaje = "Escribe una dirección de email válida para que podamos responderte.";
+        objetivo = campoEmail;
+      }
+    }
+
+    if (mensaje && anunciar) mostrarError(mensaje, objetivo);
+    return !mensaje;
+  };
+
+  const validarTodo = () => {
+    for (let indice = 0; indice < PASOS_PEDIDO.length; indice += 1) {
+      if (!validarPaso(indice, false)) {
+        paso = indice;
+        actualizarPaso(true);
+        window.setTimeout(() => validarPaso(indice, true), 0);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const limpiarArchivo = () => {
+    pedido.designFileName = "";
+    pedido.designFileSize = 0;
+    pedido.designFileObject = null;
+    if (entradaArchivo instanceof HTMLInputElement) entradaArchivo.value = "";
+    if (botonSubir) {
+      botonSubir.querySelector(".brief__soltar-titulo").textContent =
+        "Elegir STL para previsualizar";
+      botonSubir.querySelector(".brief__soltar-nota").textContent = "No se sube ni se guarda";
+      botonSubir.removeAttribute("data-cargado");
+    }
+    if (accionesArchivo) accionesArchivo.hidden = true;
+    if (estadoArchivo) estadoArchivo.textContent = "";
+    descartarVistaStl();
+    guardarBorrador();
+  };
+
+  restaurarBorrador();
+
   if (selectorMaker instanceof HTMLSelectElement) {
     const parametros = new URLSearchParams(window.location.search);
     const makerPedido = parametros.get("maker");
-    const existe = Array.from(selectorMaker.options).some(
+    const opcionMaker = Array.from(selectorMaker.options).find(
       (opcion) => opcion.value === makerPedido && opcion.value !== "recommended",
     );
-    selectorMaker.value = existe ? makerPedido : "recommended";
+
+    const valorRestauradoValido = Array.from(selectorMaker.options).some(
+      (opcion) => opcion.value === pedido.makerId,
+    );
+    selectorMaker.value = opcionMaker?.value ?? (valorRestauradoValido ? pedido.makerId : "recommended");
     pedido.makerId = selectorMaker.value;
+    origenMakerSlug = opcionMaker?.dataset.slug ?? "";
 
     let trabajos = [];
     try {
-      trabajos = JSON.parse(selectorMaker.selectedOptions[0]?.dataset.products || "[]");
+      trabajos = JSON.parse(opcionMaker?.dataset.products || "[]");
     } catch {}
 
     const trabajo = trabajos.find((item) => item.id === parametros.get("product"));
     if (trabajo) {
       pedido.productId = trabajo.id;
-      paso = 3;
-      pasoDeEntrada = 3;
+      pedido.productName = trabajo.nombre;
       selectorMaker.disabled = true;
       if (trabajoElegido) {
-        trabajoElegido.textContent = `Trabajo elegido: ${trabajo.nombre}`;
+        trabajoElegido.textContent = `Trabajo elegido: ${trabajo.nombre}. Completa los pasos para solicitar uno similar.`;
         trabajoElegido.hidden = false;
       }
     }
   }
 
+  sincronizarCampos();
+  actualizarContador();
+  if (campoFecha instanceof HTMLInputElement) campoFecha.min = fechaMinimaLocal();
+
+  document.querySelectorAll("[data-choice]").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const grupo = boton.dataset.choice;
+      const bruto = boton.dataset.value || "";
+      if (!grupo) return;
+      pedido[grupo] = grupo === "hasDesign" ? bruto === "true" : bruto;
+      marcarElegido(grupo, bruto);
+      limpiarError();
+
+      if (grupo === "hasDesign" && zonaSubida) {
+        const tieneDiseno = bruto === "true";
+        zonaSubida.hidden = !tieneDiseno;
+        if (!tieneDiseno) limpiarArchivo();
+      }
+
+      guardarBorrador();
+    });
+  });
+
+  document.querySelectorAll("[data-field]").forEach((campo) => {
+    campo.addEventListener("input", () => {
+      const nombre = campo.dataset.field;
+      if (!nombre) return;
+      pedido[nombre] = campo.value;
+      campo.removeAttribute("aria-invalid");
+      limpiarError();
+      if (nombre === "description") actualizarContador();
+      guardarBorrador();
+    });
+  });
+
   botonAtras?.addEventListener("click", () => {
-    if (paso === pasoDeEntrada) {
-      const slug =
-        selectorMaker instanceof HTMLSelectElement
-          ? selectorMaker.selectedOptions[0]?.dataset.slug
-          : null;
-      window.location.href =
-        pasoDeEntrada === 3 ? (slug ? `/productores/${slug}` : "/productores") : "/";
+    if (paso === 0) {
+      window.location.href = origenMakerSlug ? `/productores/${origenMakerSlug}` : "/";
       return;
     }
     paso -= 1;
-    actualizarPaso();
-    window.scrollTo({ top: 0 });
+    limpiarError();
+    actualizarPaso(true);
   });
 
-  botonSiguiente?.addEventListener("click", async () => {
-    if (!puedeSeguir() || enviando) return;
+  formulario?.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (enviando || !validarPaso(paso)) return;
 
-    if (paso < pasos.length - 1) {
+    if (paso < PASOS_PEDIDO.length - 1) {
       paso += 1;
-      actualizarPaso();
-      window.scrollTo({ top: 0 });
+      actualizarPaso(true);
       return;
     }
 
-    enviando = true;
-    actualizarBoton();
-    await new Promise((resolver) => setTimeout(resolver, 900));
-    const referencia = `3DB-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-    const { designFileObject, ...datos } = pedido;
-    const maker =
+    if (!validarTodo()) return;
+    if (!(formulario instanceof HTMLFormElement)) return;
+
+    if (!pedido.requestId || !pedido.orderId) {
+      Object.assign(pedido, crearIdentidadPedido());
+      guardarBorrador();
+    }
+
+    const makerNombre =
       selectorMaker instanceof HTMLSelectElement
-        ? selectorMaker.selectedOptions[0]?.textContent?.trim()
-        : "";
-    sessionStorage.setItem(
-      "3dbok-pedido",
-      JSON.stringify({ ...datos, makerNombre: maker, orderId: referencia }),
-    );
-    window.location.href = "/confirmacion";
+        ? selectorMaker.selectedOptions[0]?.textContent?.trim() || "Lo elegimos nosotros"
+        : "Lo elegimos nosotros";
+    const datos = new FormData();
+    const campos = {
+      tipo: "pedido_cliente",
+      _subject: `Nueva solicitud ${pedido.orderId}`,
+      referencia: pedido.orderId,
+      requestId: pedido.requestId,
+      nombre: pedido.name.trim(),
+      email: pedido.email.trim(),
+      telefono: pedido.phone.trim() || "No indicado",
+      descripcion: pedido.description.trim(),
+      tieneDiseno: pedido.hasDesign ? "Sí" : "No, necesita ayuda con el diseño",
+      stlSeleccionado: pedido.designFileObject
+        ? "Sí. No se ha enviado ni guardado; solicitar al cliente por email."
+        : "No",
+      tamano: pedido.size,
+      material: pedido.material,
+      color: pedido.color.trim() || "Sin preferencia",
+      fechaDeseada: pedido.deadline || "No indicada",
+      presupuesto: pedido.budget || "No indicado",
+      makerId: pedido.makerId,
+      maker: makerNombre,
+      productoId: pedido.productId || "No procede",
+      producto: pedido.productName || "No procede",
+    };
+    Object.entries(campos).forEach(([nombre, valor]) => datos.append(nombre, valor));
+
+    enviando = true;
+    limpiarError();
+    actualizarBoton();
+
+    const controlador = new AbortController();
+    const temporizador = window.setTimeout(() => controlador.abort(), 20000);
+
+    try {
+      const respuesta = await fetch(formulario.dataset.endpoint, {
+        method: "POST",
+        body: datos,
+        headers: { Accept: "application/json" },
+        signal: controlador.signal,
+      });
+
+      if (!respuesta.ok) {
+        if (respuesta.status === 429) {
+          throw new Error("Hemos alcanzado temporalmente el límite de solicitudes. Escríbenos a contacto@3dbok.com o inténtalo más tarde.");
+        }
+        if (respuesta.status === 400 || respuesta.status === 422) {
+          throw new Error("Formspree no ha podido validar la solicitud. Revisa los datos e inténtalo de nuevo.");
+        }
+        throw new Error("No hemos podido enviar la solicitud. Tus respuestas siguen aquí para que puedas reintentarlo.");
+      }
+
+      const confirmacion = {
+        version: 2,
+        status: "submitted",
+        submittedAt: Date.now(),
+        orderId: pedido.orderId,
+        requestId: pedido.requestId,
+        email: pedido.email.trim(),
+        description: pedido.description.trim(),
+        hasDesign: pedido.hasDesign,
+        stlSelected: Boolean(pedido.designFileObject),
+        size: pedido.size,
+        material: pedido.material,
+        deadline: pedido.deadline,
+        budget: pedido.budget,
+        makerNombre,
+        productName: pedido.productName,
+      };
+      const guardada = escribirSesion(PEDIDO_CONFIRMACION_STORAGE_KEY, confirmacion);
+      borrarSesion(PEDIDO_BORRADOR_STORAGE_KEY);
+      window.location.href = guardada
+        ? "/confirmacion"
+        : `/confirmacion?referencia=${encodeURIComponent(pedido.orderId)}`;
+    } catch (error) {
+      enviando = false;
+      actualizarBoton();
+      const mensaje =
+        error instanceof DOMException && error.name === "AbortError"
+          ? `El envío está tardando demasiado y no podemos confirmar si llegó. Espera un momento y reinténtalo una sola vez, o escríbenos a contacto@3dbok.com indicando la referencia ${pedido.orderId}.`
+          : error instanceof Error
+            ? error.message
+            : "No hemos podido enviar la solicitud. Tus respuestas siguen aquí para que puedas reintentarlo.";
+      mostrarError(mensaje, errorFormulario);
+    } finally {
+      window.clearTimeout(temporizador);
+    }
   });
 
   botonSubir?.addEventListener("click", () => {
     if (entradaArchivo instanceof HTMLInputElement) entradaArchivo.click();
   });
 
+  botonQuitarArchivo?.addEventListener("click", limpiarArchivo);
+
   entradaArchivo?.addEventListener("change", () => {
     if (!(entradaArchivo instanceof HTMLInputElement)) return;
     const archivo = entradaArchivo.files?.[0] || null;
-    pedido.designFile = archivo?.name || null;
-    pedido.designFileObject = archivo;
-
-    if (botonSubir) {
-      const titulo = botonSubir.querySelector(".brief__soltar-titulo");
-      const nota = botonSubir.querySelector(".brief__soltar-nota");
-      if (titulo) titulo.textContent = archivo ? archivo.name : "Subir archivo .STL";
-      if (nota) {
-        nota.textContent = archivo
-          ? "Pulsa aquí si quieres cambiarlo"
-          : "Lo verás aquí mismo antes de enviarlo";
-      }
-      botonSubir.toggleAttribute("data-cargado", Boolean(archivo));
+    if (!archivo) {
+      limpiarArchivo();
+      return;
     }
 
-    if (archivo?.name?.toLowerCase().endsWith(".stl")) dibujarStl(archivo);
-    else descartarVistaStl();
+    if (!archivo.name.toLowerCase().endsWith(".stl")) {
+      limpiarArchivo();
+      mostrarError("Elige un archivo con extensión .stl para previsualizarlo.", botonSubir);
+      return;
+    }
+
+    pedido.designFileName = archivo.name;
+    pedido.designFileSize = archivo.size;
+    pedido.designFileObject = archivo;
+    if (botonSubir) {
+      botonSubir.querySelector(".brief__soltar-titulo").textContent = archivo.name;
+      botonSubir.querySelector(".brief__soltar-nota").textContent = "Pulsa aquí para elegir otro";
+      botonSubir.setAttribute("data-cargado", "");
+    }
+    if (accionesArchivo) accionesArchivo.hidden = false;
+    if (estadoArchivo) {
+      estadoArchivo.textContent =
+        "Seleccionado solo para esta previsualización. No se enviará ni se guardará.";
+    }
+    limpiarError();
+    guardarBorrador();
+
+    if (archivo.size > MAX_STL_PREVIEW_BYTES) {
+      descartarVistaStl();
+      if (accionesArchivo) accionesArchivo.hidden = false;
+      if (estadoArchivo) {
+        estadoArchivo.textContent =
+          "El archivo es demasiado grande para previsualizarlo aquí. No se enviará; te lo pediremos por email.";
+      }
+      return;
+    }
+    dibujarStl(archivo);
   });
 
-  const campoFecha = document.querySelector('[data-field="deadline"]');
-  if (campoFecha instanceof HTMLInputElement) {
-    campoFecha.min = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
-  }
-
-  marcarElegido("material", "any");
   actualizarPaso();
+  window.addEventListener("pagehide", () => descartarVistaStl(), { once: true });
 
   function descartarVistaStl() {
     if (descartarVista) descartarVista();
@@ -751,7 +1174,10 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
       observador?.disconnect();
       controles?.dispose();
       geometria?.dispose();
-      escena?.traverse((objeto) => objeto.material?.dispose());
+      escena?.traverse((objeto) => {
+        const materiales = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
+        materiales.filter(Boolean).forEach((material) => material.dispose?.());
+      });
       renderizador?.dispose();
       renderizador?.domElement?.remove();
     };
@@ -788,6 +1214,8 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
       renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderizador.outputColorSpace = THREE.SRGBColorSpace;
       renderizador.setSize(lienzoStl.clientWidth, lienzoStl.clientHeight, false);
+      renderizador.domElement.setAttribute("role", "img");
+      renderizador.domElement.setAttribute("aria-label", `Previsualización local de ${archivo.name}`);
       lienzoStl.appendChild(renderizador.domElement);
 
       controles = new OrbitControls(camara, renderizador.domElement);
@@ -822,9 +1250,9 @@ const PRESUPUESTOS = ["Menos de 20 €", "20 – 50 €", "50 – 100 €", "Aú
       };
       redimensionar();
       animar();
-    } catch (fallo) {
+    } catch {
       mensajeStl.textContent =
-        "No se ha podido abrir este STL. Envíalo igualmente y lo revisamos a mano.";
+        "No hemos podido previsualizar este STL. No se enviará; te lo pediremos por email.";
       mensajeStl.setAttribute("data-error", "");
     }
   }
