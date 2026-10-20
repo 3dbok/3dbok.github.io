@@ -22,11 +22,33 @@ const opiniones = resenasData
 const { media } = calcularMediaValoracion(productor.id, resenasData);
 
 const fichaTecnica = [
-  { clave: "Impresoras", valor: productor.impresoras.join(" · ") },
-  { clave: "Materiales", valor: productor.materiales.join(" · ") },
-  { clave: "Boquillas", valor: productor.tamNozzle.join(" · ") },
-  { clave: "Respuesta", valor: `~${productor.tiempoRespuestaHoras} h` },
+  {
+    clave: "Impresoras",
+    valor: productor.impresoras.join(" · "),
+    nota: "El equipo que usa para producir las piezas.",
+  },
+  {
+    clave: "Materiales",
+    valor: productor.materiales.join(" · "),
+    nota: "El material influye en el acabado y el uso de la pieza.",
+  },
+  {
+    clave: "Boquillas",
+    valor: productor.tamNozzle.join(" · "),
+    nota: "El diámetro influye en el detalle y el tiempo de impresión.",
+  },
+  {
+    clave: "Respuesta habitual",
+    valor: `~${productor.tiempoRespuestaHoras} h`,
+    nota: "Tiempo aproximado para responder al briefing.",
+  },
 ];
+
+const formatearPrecio = new Intl.NumberFormat("es-ES", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 2,
+});
 
 const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
 ---
@@ -36,44 +58,60 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
   descripcion={`${productor.nombre} imprime en 3D desde ${productor.ubicacion}. Mira sus trabajos, sus materiales y las opiniones de otros clientes antes de encargar.`}
 >
   <main class="ficha">
-    <div class="envoltura">
-      <header class="ficha__cabecera">
+    <header class="ficha__cabecera malla">
+      <div class="envoltura">
         <a href="/productores" class="ficha__volver dato">← Todos los makers</a>
 
-        <div class="ficha__identidad">
-          <img
-            class="ficha__retrato"
-            src={productor.foto}
-            alt=""
-            width="104"
-            height="104"
-          />
-          <div>
-            <p class="ficha__sello etiqueta">Maker verificado</p>
-            <h1 class="ficha__nombre">{productor.nombre}</h1>
-            <div class="ficha__datos dato">
-              <span>{productor.ubicacion}</span>
-              <span>Responde en ~{productor.tiempoRespuestaHoras} h</span>
-              {
-                media !== null && (
-                  <span class="ficha__nota">
-                    <Estrellas valor={media} />
-                    {media.toFixed(1)} ({opiniones.length})
-                  </span>
-                )
-              }
-            </div>
-            <div class="ficha__materiales">
-              {productor.materiales.map((codigo) => <MaterialChip codigo={codigo} />)}
+        <div class="ficha__hero">
+          <div class="ficha__identidad">
+            <img
+              class="ficha__retrato"
+              src={productor.foto}
+              alt=""
+              width="120"
+              height="120"
+            />
+            <div>
+              <p class="ficha__sello etiqueta">Taller en 3dbok</p>
+              <h1 class="ficha__nombre">{productor.nombre}</h1>
+              <div class="ficha__datos dato">
+                <span>{productor.ubicacion}</span>
+                {
+                  media !== null && (
+                    <span class="ficha__nota">
+                      <Estrellas valor={media} />
+                      {media.toFixed(1)} ({opiniones.length})
+                    </span>
+                  )
+                }
+              </div>
+              <div class="ficha__materiales">
+                {productor.materiales.map((codigo) => <MaterialChip codigo={codigo} />)}
+              </div>
             </div>
           </div>
+
+          <dl class="ficha__resumen">
+            <div>
+              <dt class="etiqueta">Respuesta habitual</dt>
+              <dd class="dato">~{productor.tiempoRespuestaHoras} h</dd>
+            </div>
+            <div>
+              <dt class="etiqueta">Trabajos publicados</dt>
+              <dd class="dato">{String(productor.productos.length).padStart(2, "0")}</dd>
+            </div>
+          </dl>
         </div>
 
         <div class="ficha__encargo en-cianotipo">
-          <p class="ficha__encargo-texto">
-            <strong>¿Quieres encargarle algo a {productor.nombre}?</strong>
-            Cuéntanos la pieza y le llega directamente a su taller.
-          </p>
+          <div>
+            <p class="etiqueta">Encargo guiado</p>
+            <p class="ficha__encargo-texto">
+              <strong>¿Tienes una pieza para {productor.nombre}?</strong>
+              Empieza el briefing con este taller seleccionado y cuéntanos qué
+              necesitas antes de enviar la solicitud.
+            </p>
+          </div>
           <a
             class="boton boton--claro"
             href={`/briefing?maker=${encodeURIComponent(productor.id)}`}
@@ -82,93 +120,149 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
             <span class="boton__flecha" aria-hidden="true">→</span>
           </a>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <div class="ficha__cuerpo">
-        <aside class="ficha__barra">
-          <section class="ficha__bloque">
-            <h2 class="ficha__bloque-titulo etiqueta">Sobre el maker</h2>
-            <p class="ficha__bio">{productor.bio}</p>
-          </section>
+    <div class="envoltura ficha__cuerpo">
+      <aside class="ficha__barra">
+        <section class="ficha__bloque">
+          <h2 class="ficha__bloque-titulo etiqueta">Sobre el maker</h2>
+          <p class="ficha__bio">{productor.bio}</p>
+        </section>
 
-          <section class="ficha__bloque">
-            <h2 class="ficha__bloque-titulo etiqueta">Especialidades</h2>
-            <ul class="ficha__lista">
-              {productor.especialidades.map((especialidad) => <li>{especialidad}</li>)}
-            </ul>
-          </section>
+        <section class="ficha__bloque">
+          <h2 class="ficha__bloque-titulo etiqueta">Qué tipo de piezas hace</h2>
+          <ul class="ficha__lista">
+            {productor.especialidades.map((especialidad) => <li>{especialidad}</li>)}
+          </ul>
+        </section>
 
-          <section class="ficha__bloque">
-            <h2 class="ficha__bloque-titulo etiqueta">Ficha técnica</h2>
-            <dl class="ficha__tecnica dato">
-              {
-                fichaTecnica.map((linea) => (
-                  <div>
-                    <dt>{linea.clave}</dt>
-                    <dd>{linea.valor}</dd>
-                  </div>
-                ))
-              }
-            </dl>
-          </section>
-        </aside>
+        <section class="ficha__bloque">
+          <h2 class="ficha__bloque-titulo etiqueta">Capacidad del taller</h2>
+          <dl class="ficha__tecnica">
+            {
+              fichaTecnica.map((linea) => (
+                <div>
+                  <dt>
+                    <span class="dato">{linea.clave}</span>
+                    <small>{linea.nota}</small>
+                  </dt>
+                  <dd class="dato">{linea.valor}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+      </aside>
 
-        <div>
-          <h2 class="ficha__seccion-titulo">Trabajos publicados</h2>
+      <div class="ficha__contenido">
+        <section class="ficha__trabajos" aria-labelledby="trabajos-titulo">
+          <header class="ficha__seccion-cabecera">
+            <div>
+              <p class="etiqueta etiqueta--marca">Muestra del taller</p>
+              <h2 class="ficha__seccion-titulo" id="trabajos-titulo">
+                Trabajos publicados
+              </h2>
+            </div>
+            <p class="ficha__seccion-intro">
+              Referencias reales para entender el tamaño, material, tiempo y
+              precio de piezas similares.
+            </p>
+          </header>
+
           {
             productor.productos.length === 0 ? (
-              <p class="ficha__vacio">
-                Todavía no ha publicado ningún trabajo. Puedes encargarle una
-                pieza igualmente.
-              </p>
+              <div class="ficha__vacio">
+                <p class="etiqueta">Sin trabajos publicados</p>
+                <p>
+                  Todavía no ha publicado ningún trabajo. Puedes encargarle una
+                  pieza igualmente.
+                </p>
+              </div>
             ) : (
-              <div class="trabajos">
-                {productor.productos.map((producto) => (
+              <div class="trabajos" data-cantidad={productor.productos.length}>
+                {productor.productos.map((producto, indice) => (
                   <a
                     class="trabajo"
                     href={`/briefing?maker=${encodeURIComponent(productor.id)}&product=${encodeURIComponent(producto.id)}`}
                   >
-                    <img
-                      class="trabajo__foto"
-                      src={producto.foto}
-                      alt={producto.nombre}
-                      loading="lazy"
-                    />
-                    <div class="trabajo__cuerpo">
-                      <h3 class="trabajo__nombre">{producto.nombre}</h3>
-                      <div class="trabajo__ficha">
-                        <div>
-                          <span>Material</span>
-                          <span>
-                            {MATERIALES[producto.material]?.label ?? producto.material}
-                          </span>
-                        </div>
-                        <div>
-                          <span>Medidas</span>
-                          <span>{producto.dimensiones}</span>
-                        </div>
-                        <div>
-                          <span>Impresión</span>
-                          <span>{producto.tiempoImpresionHoras} h</span>
-                        </div>
-                      </div>
-                      <p class="trabajo__precio">
-                        Desde {producto.precioDesde.toFixed(2)} €
+                    <div class="trabajo__visual">
+                      <p class="trabajo__numero dato">
+                        Referencia {String(indice + 1).padStart(2, "0")}
                       </p>
+                      <img
+                        class="trabajo__foto"
+                        src={producto.foto}
+                        alt={producto.nombre}
+                        loading="lazy"
+                      />
+                    </div>
+                    <div class="trabajo__cuerpo">
+                      <p class="etiqueta">Pieza publicada</p>
+                      <h3 class="trabajo__nombre">{producto.nombre}</h3>
+                      <p class="trabajo__intro">
+                        Una referencia para orientar tu solicitud. El precio final
+                        depende de los detalles del encargo.
+                      </p>
+                      <dl class="trabajo__ficha">
+                        <div>
+                          <dt>Material</dt>
+                          <dd>
+                            {MATERIALES[producto.material]?.label ?? producto.material}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Medidas</dt>
+                          <dd>{producto.dimensiones}</dd>
+                        </div>
+                        <div>
+                          <dt>Tiempo de impresión</dt>
+                          <dd>{producto.tiempoImpresionHoras} h</dd>
+                        </div>
+                      </dl>
+                      <div class="trabajo__pie">
+                        <p class="trabajo__precio">
+                          <span>Precio publicado desde</span>
+                          {formatearPrecio.format(producto.precioDesde)}
+                        </p>
+                        <span class="trabajo__accion">
+                          Pedir una similar
+                          <span class="boton__flecha" aria-hidden="true">→</span>
+                        </span>
+                      </div>
                     </div>
                   </a>
                 ))}
               </div>
             )
           }
+        </section>
 
-          <h2 class="ficha__seccion-titulo">Opiniones de clientes</h2>
+        <section class="ficha__opiniones" aria-labelledby="opiniones-titulo">
+          <header class="ficha__seccion-cabecera">
+            <div>
+              <p class="etiqueta etiqueta--marca">Experiencias publicadas</p>
+              <h2 class="ficha__seccion-titulo" id="opiniones-titulo">
+                Opiniones de clientes
+              </h2>
+            </div>
+            <p class="ficha__seccion-intro">
+              Solo mostramos opiniones revisadas antes de publicarlas.
+            </p>
+          </header>
+
           {
             opiniones.length === 0 ? (
-              <p class="ficha__vacio">
-                Aún no hay opiniones publicadas. Si ya le has encargado algo,
-                puedes ser el primero en contarlo.
-              </p>
+              <div class="opiniones__vacio">
+                <p class="opiniones__cero dato">00</p>
+                <div>
+                  <p class="etiqueta">Sin opiniones publicadas</p>
+                  <p>
+                    Aún no hay opiniones en este perfil. Si ya le has encargado
+                    algo, puedes compartir tu experiencia.
+                  </p>
+                </div>
+              </div>
             ) : (
               <div class="opiniones">
                 {opiniones.map((opinion) => (
@@ -185,7 +279,14 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
             )
           }
 
-          <div class="opinar" data-review-success hidden>
+          <div
+            class="opinar opinar--exito"
+            data-review-success
+            hidden
+            tabindex="-1"
+            role="status"
+          >
+            <p class="etiqueta">Opinión recibida</p>
             <p class="opinar__titulo">Gracias por contarlo</p>
             <p class="ficha__bio">
               Revisamos la opinión y la publicamos en el perfil en unos días.
@@ -198,88 +299,79 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
             data-productor-id={productor.id}
             data-productor-nombre={productor.nombre}
             data-endpoint={FORMSPREE_RESENAS_ENDPOINT}
+            aria-describedby="opinar-nota"
           >
-            <h2 class="opinar__titulo">Deja tu opinión sobre {productor.nombre}</h2>
-
-            <div class="opinar__campo campo">
-              <label class="campo__nombre" for="autor">Tu nombre</label>
-              <input class="entrada" id="autor" name="autor" type="text" required maxlength="60" />
+            <div class="opinar__cabecera">
+              <div>
+                <p class="etiqueta">Comparte tu experiencia</p>
+                <h3 class="opinar__titulo">Deja tu opinión sobre {productor.nombre}</h3>
+              </div>
+              <p class="opinar__introduccion">
+                Tu opinión ayuda a otras personas a elegir un taller con más
+                contexto.
+              </p>
             </div>
 
-            <div class="opinar__campo campo">
-              <label class="campo__nombre" for="valoracion">Valoración</label>
-              <select class="entrada" id="valoracion" name="valoracion" required>
-                <option value="5" selected>★★★★★ Excelente</option>
-                <option value="4">★★★★☆ Muy bueno</option>
-                <option value="3">★★★☆☆ Correcto</option>
-                <option value="2">★★☆☆☆ Regular</option>
-                <option value="1">★☆☆☆☆ Malo</option>
-              </select>
+            <div class="opinar__campos">
+              <div class="opinar__campo campo">
+                <label class="campo__nombre" for="autor">Tu nombre</label>
+                <input
+                  class="entrada"
+                  id="autor"
+                  name="autor"
+                  type="text"
+                  autocomplete="name"
+                  required
+                  maxlength="60"
+                />
+              </div>
+
+              <div class="opinar__campo campo">
+                <label class="campo__nombre" for="valoracion">Valoración</label>
+                <select class="entrada" id="valoracion" name="valoracion" required>
+                  <option value="5" selected>★★★★★ Excelente</option>
+                  <option value="4">★★★★☆ Muy bueno</option>
+                  <option value="3">★★★☆☆ Correcto</option>
+                  <option value="2">★★☆☆☆ Regular</option>
+                  <option value="1">★☆☆☆☆ Malo</option>
+                </select>
+              </div>
+
+              <div class="opinar__campo opinar__campo--ancho campo">
+                <label class="campo__nombre" for="comentario">Comentario</label>
+                <textarea
+                  class="entrada"
+                  id="comentario"
+                  name="comentario"
+                  rows="5"
+                  required
+                  maxlength="500"></textarea>
+              </div>
             </div>
 
-            <div class="opinar__campo campo">
-              <label class="campo__nombre" for="comentario">Comentario</label>
-              <textarea
-                class="entrada"
-                id="comentario"
-                name="comentario"
-                rows="4"
-                required
-                maxlength="500"></textarea>
+            <div class="opinar__pie">
+              <button class="boton boton--principal opinar__enviar" type="submit" data-review-submit>
+                Enviar opinión
+              </button>
+              <p class="opinar__nota" id="opinar-nota">
+                La revisamos antes de publicarla para evitar spam y contenido
+                falso.
+              </p>
             </div>
 
-            <button class="boton boton--principal opinar__enviar" type="submit" data-review-submit>
-              Enviar opinión
-            </button>
-
-            <p class="opinar__nota opinar__nota--error" data-review-error hidden role="alert"></p>
-            <p class="opinar__nota">
-              La revisamos antes de publicarla, para evitar spam y opiniones
-              falsas.
-            </p>
+            <p
+              class="opinar__nota opinar__nota--error"
+              data-review-error
+              hidden
+              role="alert"
+              tabindex="-1"
+            ></p>
           </form>
-        </div>
+        </section>
       </div>
     </div>
   </main>
 </BaseLayout>
-
-<style>
-  .ficha__volver {
-    display: inline-block;
-    margin-bottom: 1.5rem;
-    color: var(--tinta-suave);
-    text-decoration: none;
-  }
-
-  .ficha__volver:hover {
-    color: var(--tinta);
-    text-decoration: underline;
-  }
-
-  .ficha__tecnica div {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.45rem 0;
-    border-bottom: 1px solid var(--linea);
-  }
-
-  .ficha__tecnica dt {
-    color: var(--tinta-suave);
-    white-space: nowrap;
-  }
-
-  .ficha__tecnica dd {
-    margin: 0;
-    text-align: right;
-    color: var(--tinta);
-  }
-
-  .opinar__enviar {
-    margin-top: 1.25rem;
-  }
-</style>
 
 <script>
   const formulario = document.querySelector("[data-review-form]");
@@ -291,6 +383,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
     evento.preventDefault();
     if (!enviar || !error || !exito) return;
 
+    formulario.setAttribute("aria-busy", "true");
     enviar.disabled = true;
     enviar.textContent = "Enviando…";
     error.hidden = true;
@@ -309,12 +402,20 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
       if (!respuesta.ok) throw new Error("Error al enviar");
       formulario.hidden = true;
       exito.hidden = false;
-      exito.scrollIntoView({ behavior: "smooth", block: "center" });
+      exito.focus({ preventScroll: true });
+      exito.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "center",
+      });
     } catch (fallo) {
       error.textContent =
         "No se pudo enviar la opinión. Vuelve a intentarlo en un momento.";
       error.hidden = false;
+      error.focus();
     } finally {
+      formulario.removeAttribute("aria-busy");
       enviar.disabled = false;
       enviar.textContent = "Enviar opinión";
     }

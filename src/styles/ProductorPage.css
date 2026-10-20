@@ -1,64 +1,306 @@
 /* =====================================================================
-   Ficha de maker y directorio.
-   El perfil se lee como la hoja de características de un taller: datos
-   a la izquierda en monoespaciada, trabajo publicado a la derecha.
-   Los tokens salen de global.css; aquí solo hay composición.
+   Directorio y ficha de maker.
+   La composición toma la forma de una hoja de taller: retícula, índices,
+   reglas y datos técnicos explicados con lenguaje orientado al cliente.
+   Los tokens visuales viven en global.css.
    ===================================================================== */
 
-.ficha {
-  padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+/* --- Directorio ------------------------------------------------------- */
+
+.directorio__cabecera {
+  padding-block: clamp(2.75rem, 1.8rem + 4vw, 5.25rem);
+  border-bottom: 1px solid var(--linea);
+  background-color: var(--bancada);
+  background-size: 32px 32px;
 }
 
-/* --- Cabecera del perfil ---------------------------------------------- */
+.directorio__cabecera-interior {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 23rem);
+  gap: clamp(2.5rem, 1.5rem + 5vw, 6rem);
+  align-items: end;
+}
 
-.ficha__cabecera {
-  padding-block: clamp(2rem, 1.2rem + 2.6vw, 3.25rem);
+.directorio__presentacion {
+  max-width: 44rem;
+}
+
+.directorio__titulo {
+  max-width: 13ch;
+  margin-top: 0.8rem;
+}
+
+.directorio__entrada {
+  max-width: 45ch;
+  margin-top: 1.35rem;
+}
+
+.directorio__recuento {
+  margin-top: 1.75rem;
+  color: var(--tinta-suave);
+}
+
+.directorio__guia {
+  border-top: 3px solid var(--tinta);
+  border-bottom: 1px solid var(--linea-fuerte);
+  background: var(--pieza);
+}
+
+.directorio__guia > .etiqueta {
+  padding: 1rem 1.1rem 0.75rem;
   border-bottom: 1px solid var(--linea);
 }
 
-.ficha__identidad {
+.directorio__pasos li {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: center;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid var(--linea);
+  color: var(--tinta-media);
+  font-size: 0.91rem;
+  line-height: 1.45;
 }
 
-.ficha__retrato {
-  width: 104px;
-  height: 104px;
-  border: 1px solid var(--linea);
-  border-radius: var(--r-3);
+.directorio__pasos li:last-child {
+  border-bottom: 0;
+}
+
+.directorio__pasos .dato {
+  color: var(--filamento-tinta);
+  font-weight: 600;
+}
+
+.directorio__zona {
+  padding-block: clamp(3rem, 2rem + 4vw, 5.5rem);
+}
+
+.directorio__lista-cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 24rem);
+  gap: 1.5rem 3rem;
+  align-items: end;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--tinta);
+}
+
+.directorio__lista-cabecera h2 {
+  max-width: 20ch;
+  margin-top: 0.55rem;
+}
+
+.directorio__lista-nota {
+  justify-self: end;
+  max-width: 30ch;
+  color: var(--tinta-suave);
+  text-align: right;
+}
+
+.directorio__item {
+  border-bottom: 1px solid var(--linea-fuerte);
+}
+
+.fila-maker {
+  display: grid;
+  grid-template-columns: 2.25rem 112px minmax(13rem, 1.25fr) minmax(14rem, 0.85fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+  margin-inline: -1rem;
+  padding: 1.75rem 1rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.16s ease;
+}
+
+.fila-maker:hover {
+  background: var(--pieza);
+}
+
+.fila-maker__indice {
+  align-self: start;
+  padding-top: 0.25rem;
+  color: var(--tinta-suave);
+}
+
+.fila-maker__foto {
+  width: 112px;
+  height: 112px;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--r-2);
   background: var(--pieza);
   object-fit: cover;
 }
 
-/* Selector doblado a propósito: gana a `.etiqueta`, que trae display y color
-   propios desde global.css. */
+.fila-maker__tipo {
+  margin-bottom: 0.4rem;
+  color: var(--verde);
+}
+
+.fila-maker__nombre {
+  font-size: var(--paso-2);
+}
+
+.fila-maker:hover .fila-maker__nombre {
+  text-decoration: underline;
+  text-decoration-color: var(--filamento);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
+}
+
+.fila-maker__sitio {
+  margin-top: 0.35rem;
+  color: var(--tinta-suave);
+  line-height: 1.5;
+}
+
+.fila-maker__nota {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  color: var(--laton);
+  font-weight: 600;
+}
+
+.fila-maker__bio {
+  display: -webkit-box;
+  max-width: 46ch;
+  margin-top: 0.7rem;
+  overflow: hidden;
+  color: var(--tinta-media);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.fila-maker__equipo-titulo {
+  margin-bottom: 0.65rem;
+}
+
+.fila-maker__materiales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.fila-maker__especialidad {
+  max-width: 32ch;
+  margin-top: 0.65rem;
+  color: var(--tinta-suave);
+  line-height: 1.6;
+}
+
+.fila-maker__ir {
+  align-self: end;
+  padding-bottom: 0.15rem;
+  color: var(--cianotipo);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.fila-maker:hover .boton__flecha {
+  transform: translateX(3px);
+}
+
+.directorio__aviso {
+  padding-block: clamp(2.75rem, 1.8rem + 3.5vw, 4.5rem);
+}
+
+.directorio__aviso-interior {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.5rem 3rem;
+}
+
+.directorio__aviso-titulo {
+  max-width: 22ch;
+  margin-top: 0.55rem;
+}
+
+.directorio__aviso-texto {
+  max-width: 54ch;
+  margin-top: 0.9rem;
+  color: rgba(252, 251, 247, 0.78);
+}
+
+/* --- Cabecera del perfil --------------------------------------------- */
+
+.ficha {
+  padding-bottom: clamp(3.5rem, 2rem + 5vw, 6rem);
+}
+
+.ficha__cabecera {
+  padding-block: clamp(2rem, 1.3rem + 2.7vw, 3.75rem);
+  border-bottom: 1px solid var(--linea);
+  background-color: var(--bancada);
+  background-size: 32px 32px;
+}
+
+.ficha__volver {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--tinta-suave);
+  text-decoration: none;
+}
+
+.ficha__volver:hover {
+  color: var(--tinta);
+  text-decoration: underline;
+}
+
+.ficha__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17rem, 21rem);
+  gap: 2rem clamp(3rem, 2rem + 5vw, 6rem);
+  align-items: end;
+  margin-top: 1.25rem;
+}
+
+.ficha__identidad {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+  align-items: center;
+}
+
+.ficha__retrato {
+  width: 120px;
+  height: 120px;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--r-2);
+  background: var(--pieza);
+  object-fit: cover;
+}
+
 .etiqueta.ficha__sello {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.6rem;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
   color: var(--verde);
 }
 
 .etiqueta.ficha__sello::before {
-  content: "";
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: 1px;
   background: currentColor;
+  content: "";
 }
 
 .ficha__nombre {
-  font-size: var(--paso-3);
+  font-size: clamp(2.25rem, 1.7rem + 2.4vw, 3.6rem);
 }
 
 .ficha__datos {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem 1.25rem;
+  gap: 0.4rem 1.25rem;
   margin-top: 0.6rem;
   color: var(--tinta-suave);
 }
@@ -78,153 +320,260 @@
   margin-top: 0.9rem;
 }
 
-/* --- Aviso de encargo -------------------------------------------------- */
+.ficha__resumen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 3px solid var(--tinta);
+  border-bottom: 1px solid var(--linea-fuerte);
+  background: var(--pieza);
+}
+
+.ficha__resumen div {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.ficha__resumen div + div {
+  border-left: 1px solid var(--linea);
+}
+
+.ficha__resumen dd {
+  margin: 0.45rem 0 0;
+  color: var(--cianotipo);
+  font-size: 1rem;
+  font-weight: 600;
+}
 
 .ficha__encargo {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem 3rem;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem 2rem;
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-radius: var(--r-3);
+  margin-top: 2.25rem;
+  padding: clamp(1.35rem, 1rem + 1.5vw, 2rem);
+  border-radius: var(--r-2);
 }
 
 .ficha__encargo-texto {
-  max-width: 44ch;
+  max-width: 56ch;
+  margin-top: 0.55rem;
   color: rgba(252, 251, 247, 0.78);
-  font-size: 0.95rem;
+  font-size: 0.96rem;
 }
 
 .ficha__encargo-texto strong {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
   color: var(--pieza);
   font-family: var(--fuente-titulo);
   font-size: var(--paso-1);
   font-stretch: 108%;
-  font-weight: 700;
+  font-weight: 720;
   letter-spacing: -0.015em;
+  line-height: 1.2;
 }
 
-/* --- Cuerpo: barra de datos + trabajo ---------------------------------- */
+/* --- Cuerpo del perfil ------------------------------------------------ */
 
 .ficha__cuerpo {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 2.5rem;
-  margin-top: clamp(2rem, 1.2rem + 2.6vw, 3rem);
+  gap: clamp(3rem, 2rem + 4vw, 5rem);
+  margin-top: clamp(3rem, 2rem + 4vw, 5rem);
 }
 
-@media (min-width: 860px) {
-  .ficha__cuerpo {
-    grid-template-columns: 17rem minmax(0, 1fr);
-    gap: 3.5rem;
-  }
-
-  .ficha__barra {
-    position: sticky;
-    top: 5.5rem;
-    align-self: start;
-  }
+.ficha__barra {
+  border-top: 3px solid var(--tinta);
 }
 
-.ficha__bloque + .ficha__bloque {
-  margin-top: 1.5rem;
+.ficha__bloque {
+  padding-block: 1.35rem;
+  border-bottom: 1px solid var(--linea-fuerte);
 }
 
 .ficha__bloque-titulo {
-  padding-bottom: 0.45rem;
-  margin-bottom: 0.6rem;
-  border-bottom: 1px solid var(--linea);
+  margin-bottom: 0.8rem;
 }
 
 .ficha__bio {
-  font-size: 0.95rem;
-  line-height: 1.62;
   color: var(--tinta-media);
+  font-size: 0.95rem;
+  line-height: 1.65;
 }
 
 .ficha__lista li {
-  padding: 0.35rem 0 0.35rem 1rem;
   position: relative;
-  font-size: 0.93rem;
+  padding: 0.35rem 0 0.35rem 1rem;
   color: var(--tinta-media);
+  font-size: 0.93rem;
 }
 
 .ficha__lista li::before {
-  content: "";
   position: absolute;
-  left: 0;
   top: 0.95em;
+  left: 0;
   width: 5px;
   height: 5px;
   border-radius: 1px;
   background: var(--filamento);
+  content: "";
 }
 
-.ficha__equipo {
-  font-size: 0.82rem;
-  line-height: 1.7;
-  color: var(--tinta-media);
+.ficha__tecnica {
+  margin: 0;
 }
 
-/* --- Trabajos publicados ------------------------------------------------ */
+.ficha__tecnica > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.ficha__tecnica > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.ficha__tecnica dt {
+  color: var(--tinta);
+  line-height: 1.35;
+}
+
+.ficha__tecnica dt small {
+  display: block;
+  max-width: 30ch;
+  margin-top: 0.3rem;
+  color: var(--tinta-suave);
+  font-family: var(--fuente-texto);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.ficha__tecnica dd {
+  max-width: 13rem;
+  margin: 0;
+  color: var(--cianotipo);
+  font-weight: 600;
+  text-align: right;
+}
+
+.ficha__contenido {
+  min-width: 0;
+}
+
+.ficha__seccion-cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 24rem);
+  gap: 1rem 2.5rem;
+  align-items: end;
+  padding: 0 0 1.35rem;
+  border-bottom: 3px solid var(--tinta);
+}
 
 .ficha__seccion-titulo {
-  font-size: var(--paso-2);
-  margin-bottom: 1.25rem;
+  margin-top: 0.45rem;
 }
 
-.ficha__seccion-titulo:not(:first-child) {
-  margin-top: 3rem;
+.ficha__seccion-intro {
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
+
+.ficha__vacio {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--linea-fuerte);
+  background: var(--pieza);
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+
+.ficha__vacio p + p {
+  margin-top: 0.55rem;
+}
+
+/* --- Trabajos publicados --------------------------------------------- */
 
 .trabajos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
   gap: 1.25rem;
+  padding-top: 1.5rem;
 }
 
 .trabajo {
   display: flex;
-  flex-direction: column;
-  border: 1px solid var(--linea);
-  border-radius: var(--r-3);
-  background: var(--pieza);
+  min-width: 0;
   overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--r-2);
+  background: var(--pieza);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.16s ease, transform 0.16s ease;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
 }
 
 .trabajo:hover {
-  border-color: var(--tinta-media);
-  transform: translateY(-2px);
+  border-color: var(--tinta);
+  background: var(--cianotipo-lavado);
+}
+
+.trabajo__visual {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bancada-honda);
+}
+
+.trabajo__numero {
+  position: absolute;
+  z-index: 1;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--linea-clara);
+  border-radius: var(--r-1);
+  background: rgba(21, 24, 27, 0.82);
+  color: var(--pieza);
 }
 
 .trabajo__foto {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: var(--bancada-honda);
+  transition: transform 0.25s ease;
+}
+
+.trabajo:hover .trabajo__foto {
+  transform: scale(1.015);
 }
 
 .trabajo__cuerpo {
   display: flex;
-  flex-direction: column;
+  min-width: 0;
   flex: 1;
-  padding: 1rem 1.1rem 1.15rem;
+  flex-direction: column;
+  padding: clamp(1.1rem, 0.9rem + 1vw, 1.5rem);
 }
 
 .trabajo__nombre {
-  font-size: 1rem;
-  font-stretch: 104%;
+  margin-top: 0.45rem;
+  font-size: var(--paso-1);
+}
+
+.trabajo__intro {
+  margin-top: 0.7rem;
+  color: var(--tinta-suave);
+  font-size: 0.86rem;
+  line-height: 1.5;
 }
 
 .trabajo__ficha {
-  margin-top: 0.75rem;
+  margin: 1rem 0 0;
   font-family: var(--fuente-dato);
   font-size: 0.73rem;
 }
@@ -233,48 +582,81 @@
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.3rem 0;
+  padding: 0.4rem 0;
   border-bottom: 1px solid var(--linea);
+}
+
+.trabajo__ficha dt {
   color: var(--tinta-suave);
 }
 
-.trabajo__ficha div span:last-child {
+.trabajo__ficha dd {
+  margin: 0;
   color: var(--tinta);
   text-align: right;
 }
 
-.trabajo__precio {
+.trabajo__pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
+  align-items: end;
+  justify-content: space-between;
   margin-top: auto;
-  padding-top: 0.9rem;
-  font-family: var(--fuente-dato);
-  font-size: 0.88rem;
-  font-weight: 600;
+  padding-top: 1.1rem;
+}
+
+.trabajo__precio {
   color: var(--cianotipo);
+  font-family: var(--fuente-dato);
+  font-size: 0.92rem;
+  font-weight: 600;
 }
 
-.ficha__vacio {
-  padding: 1.25rem 0;
+.trabajo__precio span {
+  display: block;
+  margin-bottom: 0.15rem;
   color: var(--tinta-suave);
-  font-size: 0.95rem;
+  font-size: 0.66rem;
+  font-weight: 400;
+  text-transform: uppercase;
 }
 
-/* --- Opiniones ---------------------------------------------------------- */
+.trabajo__accion {
+  color: var(--cianotipo);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.trabajo:hover .boton__flecha {
+  transform: translateX(3px);
+}
+
+/* --- Opiniones -------------------------------------------------------- */
+
+.ficha__opiniones {
+  margin-top: clamp(3.5rem, 2.5rem + 4vw, 5.5rem);
+}
 
 .opiniones {
-  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea-fuerte);
 }
 
 .opinion {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.2rem 1rem;
-  padding: 1.15rem 0;
+  padding: 1.25rem 0;
   border-bottom: 1px solid var(--linea);
 }
 
+.opinion:last-child {
+  border-bottom: 0;
+}
+
 .opinion__autor {
-  font-weight: 650;
   font-size: 0.95rem;
+  font-weight: 650;
 }
 
 .opinion__estrellas {
@@ -293,145 +675,199 @@
 .opinion__texto {
   grid-column: 1 / -1;
   margin-top: 0.4rem;
+  color: var(--tinta-media);
   font-size: 0.94rem;
   line-height: 1.6;
-  color: var(--tinta-media);
 }
 
-/* --- Formulario de opinión ---------------------------------------------- */
+.opiniones__vacio {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.4rem;
+  border-bottom: 1px solid var(--linea-fuerte);
+  background: var(--pieza);
+}
+
+.opiniones__cero {
+  color: var(--cianotipo);
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.opiniones__vacio > div {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--linea);
+}
+
+.opiniones__vacio p:last-child {
+  max-width: 52ch;
+  margin-top: 0.4rem;
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+/* --- Formulario de opinión ------------------------------------------- */
 
 .opinar {
   margin-top: 2rem;
-  padding: 1.5rem;
-  border: 1px solid var(--linea);
-  border-radius: var(--r-3);
+  padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+  border: 1px solid var(--linea-fuerte);
+  border-top: 3px solid var(--cianotipo);
+  border-radius: 0 0 var(--r-2) var(--r-2);
   background: var(--pieza);
+}
+
+.opinar__cabecera {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 22rem);
+  gap: 1rem 2rem;
+  align-items: end;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--linea);
 }
 
 .opinar__titulo {
+  margin-top: 0.4rem;
   font-size: var(--paso-1);
   font-stretch: 108%;
-  margin-bottom: 1.1rem;
 }
 
-.opinar__campo + .opinar__campo {
-  margin-top: 1rem;
+.opinar__introduccion {
+  color: var(--tinta-suave);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.opinar__campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.opinar__campo--ancho {
+  grid-column: 1 / -1;
+}
+
+.opinar__pie {
+  display: flex;
+  gap: 1rem 1.5rem;
+  align-items: center;
+  margin-top: 1.25rem;
 }
 
 .opinar__nota {
-  margin-top: 0.9rem;
-  font-size: 0.8rem;
   color: var(--tinta-suave);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .opinar__nota--error {
+  margin-top: 1rem;
   color: var(--alerta);
-}
-
-/* --- Directorio ---------------------------------------------------------- */
-
-.directorio__cabecera {
-  padding-block: clamp(2.25rem, 1.4rem + 3vw, 3.75rem);
-  border-bottom: 1px solid var(--linea);
-}
-
-.directorio__titulo {
-  margin-top: 0.7rem;
-  max-width: 18ch;
-}
-
-.directorio__entrada {
-  margin-top: 1.1rem;
-  max-width: 52ch;
-}
-
-.directorio__recuento {
-  margin-top: 1.5rem;
-  color: var(--tinta-suave);
-}
-
-/* Un listado a todo lo ancho, no una cuadrícula de tarjetas: con un maker
-   dado de alta se lee igual de bien que con cincuenta. */
-.directorio__lista {
-  padding-block: clamp(1.5rem, 1rem + 2vw, 2.5rem)
-    clamp(2.5rem, 1.6rem + 3vw, 4rem);
-  border-top: 2px solid var(--tinta);
-  margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-}
-
-.fila-maker {
-  display: grid;
-  grid-template-columns: 96px minmax(0, 1.5fr) minmax(0, 1fr) auto;
-  gap: 1.5rem 2rem;
-  align-items: center;
-  padding: 1.5rem 1rem 1.5rem 0;
-  border-bottom: 1px solid var(--linea);
-  color: inherit;
-  text-decoration: none;
-  transition: background-color 0.16s ease;
-}
-
-.fila-maker:hover {
-  background: var(--pieza);
-}
-
-.fila-maker__foto {
-  width: 96px;
-  height: 96px;
-  border: 1px solid var(--linea);
-  border-radius: var(--r-2);
-  background: var(--pieza);
-  object-fit: cover;
-}
-
-.fila-maker__nombre {
-  font-size: var(--paso-2);
-}
-
-.fila-maker:hover .fila-maker__nombre {
-  text-decoration: underline;
-  text-decoration-color: var(--filamento);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.16em;
-}
-
-.fila-maker__sitio {
-  margin-top: 0.25rem;
-  color: var(--tinta-suave);
-}
-
-.fila-maker__nota {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.5rem;
-  color: var(--laton);
   font-weight: 600;
 }
 
-.fila-maker__materiales {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+.opinar--exito {
+  max-width: 42rem;
 }
 
-.fila-maker__especialidad {
+.opinar--exito .ficha__bio {
   margin-top: 0.6rem;
-  color: var(--tinta-suave);
-  line-height: 1.6;
 }
 
-.fila-maker__ir {
-  color: var(--cianotipo);
-  font-weight: 600;
-  white-space: nowrap;
+/* --- Adaptación ------------------------------------------------------- */
+
+@media (min-width: 940px) {
+  .ficha__cuerpo {
+    grid-template-columns: minmax(17rem, 19rem) minmax(0, 1fr);
+    gap: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .ficha__barra {
+    position: sticky;
+    top: 5.5rem;
+    align-self: start;
+  }
 }
 
-@media (max-width: 860px) {
+@media (min-width: 700px) {
+  .trabajos[data-cantidad="1"] .trabajo {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+  }
+
+  .trabajos[data-cantidad="1"] .trabajo__visual {
+    min-height: 23rem;
+  }
+
+  .trabajos[data-cantidad="1"] .trabajo__foto {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@media (max-width: 1000px) {
   .fila-maker {
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 1rem 1.25rem;
+    grid-template-columns: 2rem 96px minmax(0, 1fr) auto;
+  }
+
+  .fila-maker__foto {
+    width: 96px;
+    height: 96px;
+  }
+
+  .fila-maker__equipo {
+    grid-column: 3;
+  }
+
+  .fila-maker__ir {
+    grid-row: 2;
+    grid-column: 4;
+  }
+}
+
+@media (max-width: 780px) {
+  .directorio__cabecera-interior,
+  .directorio__lista-cabecera,
+  .ficha__hero,
+  .ficha__seccion-cabecera,
+  .opinar__cabecera {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .directorio__guia {
+    max-width: 36rem;
+  }
+
+  .directorio__lista-nota {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .ficha__resumen {
+    max-width: 32rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .directorio__aviso-interior,
+  .ficha__encargo {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+}
+
+@media (max-width: 620px) {
+  .fila-maker {
+    grid-template-columns: 1.75rem 72px minmax(0, 1fr);
+    gap: 1rem 0.8rem;
     align-items: start;
+    padding-block: 1.35rem;
   }
 
   .fila-maker__foto {
@@ -441,18 +877,107 @@
 
   .fila-maker__equipo,
   .fila-maker__ir {
-    grid-column: 2;
+    grid-column: 2 / 4;
   }
-}
 
-@media (max-width: 620px) {
+  .fila-maker__equipo {
+    grid-row: auto;
+    margin-top: 0.25rem;
+  }
+
+  .fila-maker__ir {
+    grid-row: auto;
+  }
+
+  .fila-maker__bio {
+    -webkit-line-clamp: 3;
+  }
+
   .ficha__identidad {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 84px minmax(0, 1fr);
     gap: 1rem;
   }
 
   .ficha__retrato {
     width: 84px;
     height: 84px;
+  }
+
+  .ficha__nombre {
+    font-size: clamp(2rem, 1.4rem + 4vw, 2.5rem);
+  }
+
+  .ficha__encargo .boton,
+  .directorio__aviso .boton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ficha__tecnica > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ficha__tecnica dd {
+    max-width: none;
+    text-align: left;
+  }
+
+  .opinar__campos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .opinar__campo--ancho {
+    grid-column: auto;
+  }
+
+  .opinar__pie {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .opinar__enviar {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .directorio__cabecera {
+    padding-block: 2.5rem;
+  }
+
+  .directorio__zona {
+    padding-block: 2.75rem;
+  }
+
+  .fila-maker__sitio {
+    font-size: 0.75rem;
+  }
+
+  .ficha__identidad {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .ficha__retrato {
+    width: 76px;
+    height: 76px;
+  }
+
+  .ficha__resumen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ficha__resumen div + div {
+    border-top: 1px solid var(--linea);
+    border-left: 0;
+  }
+
+  .opiniones__vacio {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .opiniones__vacio > div {
+    padding-left: 0.75rem;
   }
 }
