@@ -237,12 +237,16 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
             />
           </div>
 
-          <fieldset class="brief__grupo campo" data-choice-group="budget">
+          <fieldset
+            class="brief__grupo campo"
+            data-choice-group="budget"
+            aria-describedby="budget-help"
+          >
             <legend class="campo__nombre">Presupuesto aproximado</legend>
             <p class="campo__ayuda" id="budget-help">
               Solo nos orienta. No es un compromiso ni un precio final.
             </p>
-            <div class="fila-opciones" aria-describedby="budget-help">
+            <div class="fila-opciones">
               {
                 PRESUPUESTOS_PEDIDO.map((presupuesto) => (
                   <button
@@ -330,6 +334,17 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
         </button>
       </div>
     </form>
+
+    <section class="envoltura--angosta brief__confirmacion-local" data-inline-confirmation hidden>
+      <p class="etiqueta etiqueta--marca">Solicitud recibida</p>
+      <h1 class="brief__titulo" data-inline-confirmation-title tabindex="-1">Ya la tenemos</h1>
+      <p class="brief__ayuda">
+        El envío ha terminado correctamente. Este navegador no ha podido guardar
+        el resumen, así que conserva la referencia
+        <strong class="dato" data-inline-order-id></strong> por si necesitas escribirnos.
+      </p>
+      <a href="/" class="boton boton--secundario">Volver al inicio</a>
+    </section>
   </main>
 </BaseLayout>
 
@@ -381,10 +396,6 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     margin-top: 1.75rem;
     margin-bottom: 1.5rem;
     font-size: var(--paso-3);
-  }
-
-  .brief__titulo:focus {
-    outline: none;
   }
 
   .brief__ayuda {
@@ -558,6 +569,10 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     color: var(--tinta-suave);
   }
 
+  .brief__confirmacion-local .brief__titulo {
+    margin-bottom: 0.9rem;
+  }
+
   @media (max-width: 480px) {
     .brief__pie {
       flex-direction: column-reverse;
@@ -584,7 +599,10 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     PEDIDO_CONFIRMACION_STORAGE_KEY,
     PRESUPUESTOS_PEDIDO,
     TAMANOS_PEDIDO,
+    crearCamposFormspreePedido,
     crearIdentidadPedido,
+    esIdentidadPedidoValida,
+    mensajeErrorEnvioPedido,
   } from "../lib/pedidoShared.js";
 
   let paso = 0;
@@ -614,6 +632,9 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
   };
 
   const formulario = document.querySelector("[data-order-form]");
+  const confirmacionLocal = document.querySelector("[data-inline-confirmation]");
+  const tituloConfirmacionLocal = document.querySelector("[data-inline-confirmation-title]");
+  const referenciaConfirmacionLocal = document.querySelector("[data-inline-order-id]");
   const secciones = Array.from(document.querySelectorAll("[data-step]"));
   const botonAtras = document.querySelector("[data-back]");
   const botonSiguiente = document.querySelector("[data-next]");
@@ -741,6 +762,7 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
   const marcarElegido = (grupo, valor) => {
     document.querySelectorAll(`[data-choice="${grupo}"]`).forEach((boton) => {
       boton.setAttribute("aria-pressed", String(boton.dataset.value === String(valor)));
+      boton.removeAttribute("aria-invalid");
     });
     document.querySelector(`[data-choice-group="${grupo}"]`)?.removeAttribute("aria-invalid");
   };
@@ -995,7 +1017,7 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     if (!validarTodo()) return;
     if (!(formulario instanceof HTMLFormElement)) return;
 
-    if (!pedido.requestId || !pedido.orderId) {
+    if (!esIdentidadPedidoValida(pedido)) {
       Object.assign(pedido, crearIdentidadPedido());
       guardarBorrador();
     }
@@ -1005,34 +1027,17 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
         ? selectorMaker.selectedOptions[0]?.textContent?.trim() || "Lo elegimos nosotros"
         : "Lo elegimos nosotros";
     const datos = new FormData();
-    const campos = {
-      tipo: "pedido_cliente",
-      _subject: `Nueva solicitud ${pedido.orderId}`,
-      referencia: pedido.orderId,
-      requestId: pedido.requestId,
-      nombre: pedido.name.trim(),
-      email: pedido.email.trim(),
-      telefono: pedido.phone.trim() || "No indicado",
-      descripcion: pedido.description.trim(),
-      tieneDiseno: pedido.hasDesign ? "Sí" : "No, necesita ayuda con el diseño",
-      stlSeleccionado: pedido.designFileObject
-        ? "Sí. No se ha enviado ni guardado; solicitar al cliente por email."
-        : "No",
-      tamano: pedido.size,
-      material: pedido.material,
-      color: pedido.color.trim() || "Sin preferencia",
-      fechaDeseada: pedido.deadline || "No indicada",
-      presupuesto: pedido.budget || "No indicado",
-      makerId: pedido.makerId,
-      maker: makerNombre,
-      productoId: pedido.productId || "No procede",
-      producto: pedido.productName || "No procede",
-    };
+    const campos = crearCamposFormspreePedido(
+      pedido,
+      makerNombre,
+      Boolean(pedido.designFileObject),
+    );
     Object.entries(campos).forEach(([nombre, valor]) => datos.append(nombre, valor));
 
     enviando = true;
     limpiarError();
     actualizarBoton();
+    formulario.setAttribute("aria-busy", "true");
 
     const controlador = new AbortController();
     const temporizador = window.setTimeout(() => controlador.abort(), 20000);
@@ -1046,13 +1051,14 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
       });
 
       if (!respuesta.ok) {
-        if (respuesta.status === 429) {
-          throw new Error("Hemos alcanzado temporalmente el límite de solicitudes. Escríbenos a contacto@3dbok.com o inténtalo más tarde.");
-        }
-        if (respuesta.status === 400 || respuesta.status === 422) {
-          throw new Error("Formspree no ha podido validar la solicitud. Revisa los datos e inténtalo de nuevo.");
-        }
-        throw new Error("No hemos podido enviar la solicitud. Tus respuestas siguen aquí para que puedas reintentarlo.");
+        enviando = false;
+        actualizarBoton();
+        formulario.removeAttribute("aria-busy");
+        mostrarError(
+          mensajeErrorEnvioPedido({ status: respuesta.status }),
+          errorFormulario,
+        );
+        return;
       }
 
       const confirmacion = {
@@ -1074,19 +1080,28 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
       };
       const guardada = escribirSesion(PEDIDO_CONFIRMACION_STORAGE_KEY, confirmacion);
       borrarSesion(PEDIDO_BORRADOR_STORAGE_KEY);
-      window.location.href = guardada
-        ? "/confirmacion"
-        : `/confirmacion?referencia=${encodeURIComponent(pedido.orderId)}`;
+      if (guardada) {
+        window.location.href = "/confirmacion";
+      } else if (confirmacionLocal && formulario) {
+        descartarVistaStl();
+        formulario.removeAttribute("aria-busy");
+        formulario.hidden = true;
+        confirmacionLocal.hidden = false;
+        if (referenciaConfirmacionLocal) referenciaConfirmacionLocal.textContent = pedido.orderId;
+        window.scrollTo({ top: 0, behavior: "auto" });
+        tituloConfirmacionLocal?.focus?.();
+      }
     } catch (error) {
       enviando = false;
       actualizarBoton();
-      const mensaje =
-        error instanceof DOMException && error.name === "AbortError"
-          ? `El envío está tardando demasiado y no podemos confirmar si llegó. Espera un momento y reinténtalo una sola vez, o escríbenos a contacto@3dbok.com indicando la referencia ${pedido.orderId}.`
-          : error instanceof Error
-            ? error.message
-            : "No hemos podido enviar la solicitud. Tus respuestas siguen aquí para que puedas reintentarlo.";
-      mostrarError(mensaje, errorFormulario);
+      formulario.removeAttribute("aria-busy");
+      mostrarError(
+        mensajeErrorEnvioPedido({
+          abortado: error?.name === "AbortError",
+          referencia: pedido.orderId,
+        }),
+        errorFormulario,
+      );
     } finally {
       window.clearTimeout(temporizador);
     }

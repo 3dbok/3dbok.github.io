@@ -31,7 +31,7 @@ These exact values are not currently wired into the site's CSS tokens. The imple
 - Three.js `0.184.0`, dynamically loaded only for the STL preview in the customer briefing.
 - npm with `package-lock.json` lockfile version 3.
 - No Astro adapter, CMS, database, authentication, server routes, or application backend. Customer, maker, and review forms use Formspree as an external form receiver.
-- No test runner, linter, formatter, or `astro check` script is currently configured.
+- Focused order-flow tests use Node's built-in test runner through `npm test`. No external test framework, linter, formatter, or `astro check` script is configured.
 - Canonical production origin: `https://3dbok.com` in both `astro.config.mjs` and `public/CNAME`.
 
 Astro's locked Node engine range is `18.20.8 || ^20.3.0 || >=22.0.0`; deployment deliberately uses Node 20.
@@ -50,6 +50,7 @@ Astro's locked Node engine range is `18.20.8 || ^20.3.0 || >=22.0.0`; deployment
 │   ├── fonts/                     # self-hosted Archivo and IBM Plex Mono
 │   └── img/                       # runtime image URLs such as /img/productores/...
 ├── scripts/                       # auxiliary Printables research tooling; not part of Astro
+├── test/                          # Node tests for customer-order contracts
 └── src/
     ├── components/                # reusable Astro UI
     ├── data/                      # producer and review JSON sources
@@ -80,7 +81,7 @@ A five-step, client-side customer wizard:
 
 `?maker=<productor.id>` preselects a producer. When a valid `?product=<producto.id>` is also supplied, the wizard locks the producer select and shows the chosen work, but still starts at step 1 so that required order details are not skipped.
 
-The final step submits `FormData` to Formspree with `Accept: application/json`. It defaults to the existing `https://formspree.io/f/xlgyykkz` inbox and can be changed at build time with `PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT`. Every customer submission includes `tipo=pedido_cliente`, a stable `requestId`, and a human-readable reference. Only a successful HTTP response creates the short-lived confirmation summary and redirects to `/confirmacion`; failures stay in the wizard with a retry message.
+The final step submits `FormData` to the dedicated Formspree endpoint `https://formspree.io/f/xpqgngdj` with `Accept: application/json`; it can be changed at build time with `PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT`. Every customer submission includes `tipo=pedido_cliente`, a stable `requestId`, and a human-readable reference. Only a successful HTTP response creates the short-lived confirmation summary and redirects to `/confirmacion`; failures stay in the wizard with a retry message.
 
 The selected STL is parsed only in the browser and is never appended to the submitted `FormData` or placed in web storage. The request only sends `stlSeleccionado`, so administrators know to ask the customer for the file by email. Keep copy explicit about this limitation. Files over 20 MB are not previewed. Non-file answers are autosaved in `sessionStorage["3dbok-pedido-borrador"]` for two hours and scoped to the current path/query; a file must always be reselected after a reload.
 
@@ -88,7 +89,7 @@ The STL preview dynamically imports `three`, `OrbitControls`, and `STLLoader` on
 
 ### `/confirmacion` — `src/pages/confirmacion.astro`
 
-Reads the versioned `3dbok-pedido` success record from `sessionStorage` and renders the customer summary only when it represents a successful, recent submission. The record expires after 30 minutes; invalid, expired, or missing data produces an empty state linking back to `/briefing`. A reference-only URL fallback handles the rare case where Formspree succeeds but `sessionStorage` is unavailable. The page is `noindex` and does not claim that an automatic email was sent.
+Reads the versioned `3dbok-pedido` success record from `sessionStorage` and renders the customer summary only when it represents a successful, recent submission. The record expires after 30 minutes; invalid, future-dated, expired, or missing data produces an empty state linking back to `/briefing`. If Formspree succeeds but `sessionStorage` is unavailable, `/briefing` displays an in-page receipt instead of accepting a forgeable URL-only confirmation. The confirmation page is `noindex` and does not claim that an automatic email was sent.
 
 Order option lists, display labels, storage keys, TTLs, the STL preview limit, and reference generation live in `src/lib/pedidoShared.js`; update both order pages through that shared contract.
 
@@ -124,7 +125,7 @@ Small branded not-found page using `BaseLayout` with the normal shared navigatio
 - `MaterialChip.astro`: renders only material codes present in the shared `MATERIALES` map.
 - `Estrellas.astro`: renders a five-character star string and exposes the numerical rating through an accessible label.
 - `src/lib/productorShared.js`: the canonical material map for producer views, star rendering, and approved-review aggregation.
-- `src/lib/pedidoShared.js`: the canonical customer-order options, labels, storage keys/expiry times, preview size limit, and request/reference generator.
+- `src/lib/pedidoShared.js`: the canonical customer-order options, labels, storage keys/expiry times, preview size limit, request/reference validation, Formspree payload/error mapping, and identity generator.
 - `src/lib/icons.js`: path data for the three benefits on the maker-registration page.
 
 Prefer extending an existing component or shared helper when a pattern is used on more than one page. Keep one-off page composition and behaviour close to its page.
@@ -224,11 +225,12 @@ Run from the repository root:
 ```bash
 npm ci          # reproducible dependency install from package-lock.json
 npm run dev     # Astro development server
+npm test        # dependency-free Node tests for customer-order contracts
 npm run build   # production static build into dist/
 npm run preview # serve the production build locally
 ```
 
-There is currently no `test`, `lint`, `format`, or `check` script. Do not claim such checks ran. For normal source changes, `npm run build` is the minimum automated validation; then manually exercise the affected route at a narrow and a wide viewport and check keyboard interaction. For form work, verify success and failure states without assuming Formspree updates local JSON.
+There is currently no `lint`, `format`, or `check` script. Run `npm test` for order-flow changes and `npm run build` as the minimum production validation; then manually exercise the affected route at a narrow and a wide viewport and check keyboard interaction. For form work, verify success and failure states without assuming Formspree updates local JSON.
 
 ## Build and deployment
 
@@ -237,10 +239,11 @@ There is currently no `test`, `lint`, `format`, or `check` script. Do not claim 
 1. checks out the repository;
 2. installs Node 20 with npm caching;
 3. runs `npm ci`;
-4. runs `npm run build`;
-5. configures GitHub Pages;
-6. uploads `./dist` as the Pages artifact; and
-7. deploys it in the `github-pages` environment.
+4. runs `npm test`;
+5. runs `npm run build`;
+6. configures GitHub Pages;
+7. uploads `./dist` as the Pages artifact; and
+8. deploys it in the `github-pages` environment.
 
 The workflow has `contents: read`, `pages: write`, and `id-token: write` permissions. Its `pages` concurrency group cancels an older in-progress deployment when a newer one starts. Do not commit `dist`; it is generated and ignored. Keep `astro.config.mjs`'s `site` and `public/CNAME` aligned if the production domain changes.
 

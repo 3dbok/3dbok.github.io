@@ -251,10 +251,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <script>
   import {
-    CONFIRMACION_TTL_MS,
     ETIQUETAS_MATERIAL,
     ETIQUETAS_TAMANO,
     PEDIDO_CONFIRMACION_STORAGE_KEY,
+    esConfirmacionPedidoValida,
   } from "../lib/pedidoShared.js";
 
   const cargando = document.querySelector("[data-order-loading]");
@@ -266,32 +266,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       const guardado = sessionStorage.getItem(PEDIDO_CONFIRMACION_STORAGE_KEY);
       if (!guardado) return null;
       const pedido = JSON.parse(guardado);
-      const valido =
-        pedido?.version === 2 &&
-        pedido?.status === "submitted" &&
-        typeof pedido?.orderId === "string" &&
-        /^3DB-[A-Z0-9]{5,12}$/.test(pedido.orderId) &&
-        Number.isFinite(pedido?.submittedAt) &&
-        Date.now() - pedido.submittedAt <= CONFIRMACION_TTL_MS;
-
-      if (!valido) {
+      if (!esConfirmacionPedidoValida(pedido)) {
         sessionStorage.removeItem(PEDIDO_CONFIRMACION_STORAGE_KEY);
         return null;
       }
       return pedido;
     } catch {
+      try {
+        sessionStorage.removeItem(PEDIDO_CONFIRMACION_STORAGE_KEY);
+      } catch {}
       return null;
     }
   };
 
-  const referenciaDeRespaldo = new URLSearchParams(window.location.search).get("referencia");
-  const referenciaValida =
-    typeof referenciaDeRespaldo === "string" && /^3DB-[A-Z0-9]{5,12}$/.test(referenciaDeRespaldo);
   const pedido = leerConfirmacion();
 
   if (cargando) cargando.hidden = true;
 
-  if ((pedido || referenciaValida) && sinPedido && resumen) {
+  if (pedido && sinPedido && resumen) {
     sinPedido.hidden = true;
     resumen.hidden = false;
 
@@ -305,67 +297,56 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       if (fila) fila.hidden = !texto;
     };
 
-    escribir("[data-order-id]", pedido?.orderId || referenciaDeRespaldo);
+    escribir("[data-order-id]", pedido.orderId);
 
-    if (!pedido) {
-      const introduccion = document.querySelector("[data-order-intro]");
-      if (introduccion) {
-        introduccion.textContent =
-          "La solicitud se envió correctamente, pero este navegador no ha podido conservar el resumen. Guarda la referencia por si necesitas escribirnos.";
-      }
-      document.querySelector("[data-order-details]")?.setAttribute("hidden", "");
-      document.querySelector("[data-order-description-block]")?.setAttribute("hidden", "");
-      document.querySelector("[data-order-next-steps]")?.setAttribute("hidden", "");
-    } else {
-      escribir("[data-order-email]", pedido.email || "tu email");
-      escribir("[data-order-maker]", pedido.makerNombre || "Lo elegimos nosotros");
-      escribir("[data-order-size]", ETIQUETAS_TAMANO[pedido.size] || pedido.size);
-      escribir(
-        "[data-order-material]",
-        ETIQUETAS_MATERIAL[pedido.material] || pedido.material,
-      );
-      escribir("[data-order-description]", pedido.description);
+    escribir("[data-order-email]", pedido.email || "tu email");
+    escribir("[data-order-maker]", pedido.makerNombre || "Lo elegimos nosotros");
+    escribir("[data-order-size]", ETIQUETAS_TAMANO[pedido.size] || pedido.size);
+    escribir(
+      "[data-order-material]",
+      ETIQUETAS_MATERIAL[pedido.material] || pedido.material,
+    );
+    escribir("[data-order-description]", pedido.description);
 
-      if (pedido.productName) {
-        escribir("[data-order-product]", pedido.productName);
-        mostrarFila("product", true);
-      }
-
-      if (pedido.hasDesign) {
-        escribir(
-          "[data-order-stl]",
-          pedido.stlSelected
-            ? "Seleccionado localmente; te lo pediremos por email"
-            : "No seleccionado; te lo pediremos por email",
-        );
-        mostrarFila("stl", true);
-      }
-
-      if (pedido.deadline) {
-        const fecha = new Date(`${pedido.deadline}T00:00:00`);
-        if (!Number.isNaN(fecha.getTime())) {
-          escribir(
-            "[data-order-deadline]",
-            fecha.toLocaleDateString("es-ES", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            }),
-          );
-          mostrarFila("deadline", true);
-        }
-      }
-
-      if (pedido.budget) {
-        escribir("[data-order-budget]", pedido.budget);
-        mostrarFila("budget", true);
-      }
-
-      const secuencia = pedido.hasDesign ? "diseno" : "idea";
-      document.querySelectorAll("[data-steps]").forEach((lista) => {
-        lista.hidden = lista.dataset.steps !== secuencia;
-      });
+    if (pedido.productName) {
+      escribir("[data-order-product]", pedido.productName);
+      mostrarFila("product", true);
     }
+
+    if (pedido.hasDesign) {
+      escribir(
+        "[data-order-stl]",
+        pedido.stlSelected
+          ? "Seleccionado localmente; te lo pediremos por email"
+          : "No seleccionado; te lo pediremos por email",
+      );
+      mostrarFila("stl", true);
+    }
+
+    if (pedido.deadline) {
+      const fecha = new Date(`${pedido.deadline}T00:00:00`);
+      if (!Number.isNaN(fecha.getTime())) {
+        escribir(
+          "[data-order-deadline]",
+          fecha.toLocaleDateString("es-ES", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+        );
+        mostrarFila("deadline", true);
+      }
+    }
+
+    if (pedido.budget) {
+      escribir("[data-order-budget]", pedido.budget);
+      mostrarFila("budget", true);
+    }
+
+    const secuencia = pedido.hasDesign ? "diseno" : "idea";
+    document.querySelectorAll("[data-steps]").forEach((lista) => {
+      lista.hidden = lista.dataset.steps !== secuencia;
+    });
   } else if (sinPedido) {
     sinPedido.hidden = false;
   }

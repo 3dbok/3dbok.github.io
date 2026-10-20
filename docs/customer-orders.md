@@ -16,9 +16,9 @@ This runbook covers the static customer request flow at `/briefing`.
 
 ## Delivery path
 
-- The production build defaults customer submissions to the existing Formspree form `xlgyykkz`.
-- Set `PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT` at build time to move customer requests to a dedicated Formspree form without changing source code.
-- Customer records are distinguishable from maker registrations by `tipo=pedido_cliente`.
+- The production build sends customer submissions to the dedicated Formspree form `xpqgngdj`.
+- Set `PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT` at build time to change the customer form without changing source code.
+- Customer records include `tipo=pedido_cliente` for operational filtering.
 - A successful submission includes `referencia` and `requestId`. Treat matching `requestId` values as the same attempt if a customer retried after a timeout.
 - The STL itself never leaves the browser. When `stlSeleccionado` says yes, contact the customer at the submitted email address and ask them to reply with the STL.
 
@@ -32,7 +32,7 @@ Monitor the Formspree dashboard and notification inbox. If the allowance is exha
 
 ## Formspree setup checklist
 
-1. Confirm the target email for form `xlgyykkz` is monitored.
+1. Confirm the target email for form `xpqgngdj` is monitored.
 2. Keep Formspree's spam filtering enabled.
 3. Restrict submissions to the production domain when the dashboard configuration is ready.
 4. Test that `tipo`, `referencia`, `requestId`, contact details, order details, and `stlSeleccionado` appear in both the notification and dashboard.
@@ -40,7 +40,8 @@ Monitor the Formspree dashboard and notification inbox. If the allowance is exha
 
 ## Failure handling
 
-- HTTP success: the browser stores a confirmation summary for 30 minutes and opens `/confirmacion`.
+- HTTP success: the browser stores a validated confirmation summary for 30 minutes and opens `/confirmacion`.
+- Storage unavailable after HTTP success: the wizard shows an in-page receipt with the reference; URL parameters alone never create a success state.
 - Validation or service error: the customer remains on the final step, sees an actionable error, and can retry without re-entering text.
 - Twenty-second timeout: delivery is uncertain. The same `requestId` is retained for one cautious retry so administrators can identify a duplicate.
 - Reload before submission: non-file answers are restored for two hours in the same tab and URL context. Browsers do not retain the STL; the customer is told to select it again.
@@ -56,5 +57,9 @@ Monitor the Formspree dashboard and notification inbox. If the allowance is exha
 7. Submit against the live Formspree form. Confirm exactly one dashboard/email record arrives with `tipo=pedido_cliente`, all expected fields, and the correct `stlSeleccionado` value.
 8. Confirm the success page appears only after the network success, displays the reference and accurate next steps, survives one refresh, and contains a `noindex, nofollow` robots meta tag.
 9. Simulate offline mode, a 422 response, a 429 response, and a timeout. Confirm no success page appears, the draft remains, the submit button re-enables, and the error gives a usable next action.
-10. Open `/confirmacion` directly, with malformed storage, and with an expired record. Confirm it shows the empty state without a script error.
+10. Open `/confirmacion` directly, with a fabricated `?referencia=...` parameter, malformed storage, a future timestamp, and an expired record. Confirm every case shows the empty state without a script error.
 11. Repeat the happy path at a wide desktop width and check the privacy link, visible focus styles, layout, and Spanish copy.
+
+## Automated checks
+
+Run `npm test` to validate request/reference generation, confirmation TTL and schema checks, Formspree field construction (including the absence of STL bytes), and customer-facing failure messages. The deployment workflow runs these tests before the production build.
