@@ -24,19 +24,24 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   descripcion="Da de alta tu impresora 3D en 3dbok: recibes encargos de tu zona, eliges cuáles aceptas y solo pagas comisión cuando entregas."
 >
   <main class="alta">
-    <div class="envoltura--angosta">
-      <header class="alta__portada">
-        <p class="etiqueta etiqueta--marca">Para makers</p>
-        <h1 class="alta__titulo">Que tu impresora trabaje también para otros</h1>
-        <p class="entradilla alta__entrada">
-          Te llegan encargos de gente de tu zona y decides cuáles coges. Sin
-          cuota mensual: solo una comisión cuando entregas la pieza.
-        </p>
+    <section class="alta__portada">
+      <div class="envoltura alta__portada-interior">
+        <header class="alta__presentacion">
+          <p class="etiqueta etiqueta--marca">Para makers</p>
+          <h1 class="alta__titulo">Que tu impresora trabaje también para otros</h1>
+          <p class="entradilla alta__entrada">
+            Te llegan encargos de gente de tu zona y decides cuáles coges. Sin
+            cuota mensual: solo una comisión cuando entregas la pieza.
+          </p>
+        </header>
 
         <ul class="alta__ventajas" id="ventajas">
           {
-            ventajas.map((ventaja) => (
+            ventajas.map((ventaja, indice) => (
               <li class="ventaja">
+                <span class="ventaja__numero dato" aria-hidden="true">
+                  {String(indice + 1).padStart(2, "0")}
+                </span>
                 <span class="ventaja__icono" aria-hidden="true">
                   <svg
                     viewBox="0 0 24 24"
@@ -54,150 +59,223 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
             ))
           }
         </ul>
-      </header>
+      </div>
+    </section>
 
+    <section class="alta__registro">
       <form
-        class="alta__formulario"
+        class="envoltura alta__formulario"
         data-signup-form
         data-endpoint={FORMSPREE_MAKERS_ENDPOINT}
       >
-        <!-- Paso 1: impresora, materiales y experiencia -->
-        <div data-step-panel="1">
-          <p class="etiqueta alta__paso">Paso 1 de 3</p>
-          <h2 class="alta__seccion">Tu impresora y tu experiencia</h2>
-
-          <div class="alta__campos">
-            <div class="campo">
-              <label class="campo__nombre" for="alta-modelo">Modelo de impresora</label>
-              <input
-                class="entrada"
-                id="alta-modelo"
-                data-signup-input="printerModel"
-                name="printerModel"
-                type="text"
-                placeholder="Bambu Lab P1S, Prusa MK4, Ender 3…"
-              />
+        <aside class="alta__guia" aria-label="Progreso del alta de maker">
+          <p class="etiqueta etiqueta--marca">Alta de maker</p>
+          <div class="alta__avance">
+            <div class="alta__avance-datos dato">
+              <span>Paso <span data-signup-current>1</span> de 3</span>
+              <span><span data-signup-progress-text>0</span> % completado</span>
             </div>
-
-            <div class="campo">
-              <span class="campo__nombre">Con qué materiales trabajas</span>
-              <p class="campo__ayuda">Puedes marcar varios.</p>
-              <div class="fila-opciones">
-                {
-                  MATERIALES.map((material) => (
-                    <button
-                      class="opcion opcion--pastilla"
-                      type="button"
-                      data-material={material}
-                      aria-pressed="false"
-                    >
-                      {material}
-                    </button>
-                  ))
-                }
-              </div>
-            </div>
-
-            <div class="campo" data-nozzle-container hidden>
-              <span class="campo__nombre">Qué boquillas tienes</span>
-              <div class="fila-opciones">
-                {
-                  BOQUILLAS.map((boquilla) => (
-                    <button
-                      class="opcion opcion--pastilla"
-                      type="button"
-                      data-nozzle={boquilla}
-                      aria-pressed="false"
-                    >
-                      {boquilla}
-                    </button>
-                  ))
-                }
-              </div>
-            </div>
-
-            <div class="campo">
-              <span class="campo__nombre">Cuánto llevas imprimiendo en 3D</span>
-              <div class="alta__opciones">
-                {
-                  EXPERIENCIAS.map((experiencia) => (
-                    <button
-                      class="opcion"
-                      type="button"
-                      data-experience={experiencia}
-                      aria-pressed="false"
-                    >
-                      <span class="opcion__titulo">{experiencia}</span>
-                    </button>
-                  ))
-                }
-              </div>
+            <div
+              class="alta__barra"
+              role="progressbar"
+              aria-label="Progreso del alta"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+              data-signup-progress
+            >
+              <div class="alta__barra-relleno" data-signup-progress-fill></div>
             </div>
           </div>
 
-          <div class="alta__pie">
-            <button class="boton boton--principal boton--bloque" data-next="1" type="button" disabled>
-              Siguiente <span class="boton__flecha" aria-hidden="true">→</span>
-            </button>
-          </div>
-        </div>
+          <ol class="alta__pasos">
+            {
+              [
+                "Equipo y experiencia",
+                "Colores disponibles",
+                "Datos de contacto",
+              ].map((titulo, indice) => (
+                <li
+                  class="alta__indicador"
+                  data-signup-progress-step={indice + 1}
+                  aria-current={indice === 0 ? "step" : undefined}
+                >
+                  <span class="alta__indicador-numero dato">
+                    {String(indice + 1).padStart(2, "0")}
+                  </span>
+                  <span class="alta__indicador-titulo">{titulo}</span>
+                </li>
+              ))
+            }
+          </ol>
 
-        <!-- Paso 2: colores disponibles por material -->
-        <div data-step-panel="2" hidden>
-          <p class="etiqueta alta__paso">Paso 2 de 3</p>
-          <h2 class="alta__seccion">Qué colores tienes</h2>
-          <p class="alta__ayuda">
-            Marca los que tengas de cada material. Si tienes alguno que no
-            aparece, escríbelo abajo.
+          <p class="alta__garantia dato">
+            Revisamos cada alta antes de publicar el perfil del maker.
           </p>
+        </aside>
 
-          <div data-colors-container></div>
+        <div class="alta__panel">
+          <!-- Paso 1: impresora, materiales y experiencia -->
+          <div data-step-panel="1">
+            <p class="etiqueta etiqueta--marca alta__paso">Paso 1 de 3</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">
+              Tu impresora y tu experiencia
+            </h2>
 
-          <div class="alta__pie alta__pie--doble">
-            <button class="boton boton--secundario" data-prev="2" type="button">← Atrás</button>
-            <button class="boton boton--principal" data-next="2" type="button" disabled>
-              Siguiente <span class="boton__flecha" aria-hidden="true">→</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Paso 3: datos de contacto -->
-        <div data-step-panel="3" hidden>
-          <p class="etiqueta alta__paso">Paso 3 de 3</p>
-          <h2 class="alta__seccion">Tus datos</h2>
-
-          <div class="alta__campos">
-            <div class="alta__dupla">
+            <div class="alta__campos">
               <div class="campo">
-                <label class="campo__nombre" for="alta-nombre">Nombre</label>
-                <input class="entrada" id="alta-nombre" data-signup-input="name" name="name" type="text" autocomplete="name" placeholder="Tu nombre" />
+                <label class="campo__nombre" for="alta-modelo">Modelo de impresora</label>
+                <input
+                  class="entrada"
+                  id="alta-modelo"
+                  data-signup-input="printerModel"
+                  name="printerModel"
+                  type="text"
+                  placeholder="Bambu Lab P1S, Prusa MK4, Ender 3…"
+                />
               </div>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">Con qué materiales trabajas</legend>
+                <p class="campo__ayuda">Puedes marcar varios.</p>
+                <div class="fila-opciones">
+                  {
+                    MATERIALES.map((material) => (
+                      <button
+                        class="opcion opcion--pastilla"
+                        type="button"
+                        data-material={material}
+                        aria-pressed="false"
+                      >
+                        {material}
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="campo alta__grupo" data-nozzle-container hidden>
+                <legend class="campo__nombre">Qué boquillas tienes</legend>
+                <p class="campo__ayuda">Marca todos los tamaños disponibles.</p>
+                <div class="fila-opciones">
+                  {
+                    BOQUILLAS.map((boquilla) => (
+                      <button
+                        class="opcion opcion--pastilla"
+                        type="button"
+                        data-nozzle={boquilla}
+                        aria-pressed="false"
+                      >
+                        {boquilla}
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">Cuánto llevas imprimiendo en 3D</legend>
+                <div class="alta__opciones">
+                  {
+                    EXPERIENCIAS.map((experiencia) => (
+                      <button
+                        class="opcion"
+                        type="button"
+                        data-experience={experiencia}
+                        aria-pressed="false"
+                      >
+                        <span class="opcion__titulo">{experiencia}</span>
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="alta__pie">
+              <p class="alta__requisito dato">
+                Completa equipo, materiales, boquillas y experiencia para continuar.
+              </p>
+              <div class="alta__acciones">
+                <button class="boton boton--principal" data-next="1" type="button" disabled>
+                  Siguiente <span class="boton__flecha" aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: colores disponibles por material -->
+          <div data-step-panel="2" hidden>
+            <p class="etiqueta etiqueta--marca alta__paso">Paso 2 de 3</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">Qué colores tienes</h2>
+            <p class="alta__ayuda">
+              Marca los que tengas de cada material. Si tienes alguno que no
+              aparece, escríbelo abajo.
+            </p>
+
+            <div data-colors-container></div>
+
+            <div class="alta__pie">
+              <p class="alta__requisito dato">Elige al menos un color por material.</p>
+              <div class="alta__acciones alta__acciones--doble">
+                <button class="boton boton--secundario" data-prev="2" type="button">← Atrás</button>
+                <button class="boton boton--principal" data-next="2" type="button" disabled>
+                  Siguiente <span class="boton__flecha" aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: datos de contacto -->
+          <div data-step-panel="3" hidden>
+            <p class="etiqueta etiqueta--marca alta__paso">Paso 3 de 3</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">Tus datos</h2>
+            <p class="alta__ayuda">
+              Los usaremos para revisar tu alta y contarte los siguientes pasos.
+            </p>
+
+            <div class="alta__campos">
+              <div class="alta__dupla">
+                <div class="campo">
+                  <label class="campo__nombre" for="alta-nombre">Nombre</label>
+                  <input class="entrada" id="alta-nombre" data-signup-input="name" name="name" type="text" autocomplete="name" placeholder="Tu nombre" />
+                </div>
+                <div class="campo">
+                  <label class="campo__nombre" for="alta-ciudad">Ciudad</label>
+                  <input class="entrada" id="alta-ciudad" data-signup-input="city" name="city" type="text" placeholder="Málaga" />
+                </div>
+              </div>
+
               <div class="campo">
-                <label class="campo__nombre" for="alta-ciudad">Ciudad</label>
-                <input class="entrada" id="alta-ciudad" data-signup-input="city" name="city" type="text" placeholder="Málaga" />
+                <label class="campo__nombre" for="alta-email">Email</label>
+                <input class="entrada" id="alta-email" data-signup-input="email" name="email" type="email" autocomplete="email" placeholder="tu@email.com" />
               </div>
             </div>
 
-            <div class="campo">
-              <label class="campo__nombre" for="alta-email">Email</label>
-              <input class="entrada" id="alta-email" data-signup-input="email" name="email" type="email" autocomplete="email" placeholder="tu@email.com" />
+            <p class="alta__privacidad">
+              Trataremos estos datos para revisar el alta y responderte. Formspree
+              procesa el formulario por cuenta de 3dbok. Consulta la
+              <a href="/privacidad">política de privacidad</a>.
+            </p>
+
+            <p class="alta__error" data-signup-error hidden role="alert" tabindex="-1"></p>
+
+            <div class="alta__pie">
+              <p class="alta__requisito dato">Necesitamos nombre, ciudad y un email válido.</p>
+              <div class="alta__acciones alta__acciones--doble">
+                <button class="boton boton--secundario" data-prev="3" type="button">← Atrás</button>
+                <button class="boton boton--principal" data-signup-submit type="submit" disabled>
+                  Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>
+                </button>
+              </div>
             </div>
           </div>
-
-          <div class="alta__pie alta__pie--doble">
-            <button class="boton boton--secundario" data-prev="3" type="button">← Atrás</button>
-            <button class="boton boton--principal" data-signup-submit type="submit" disabled>
-              Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>
-            </button>
-          </div>
-
-          <p class="alta__error" data-signup-error hidden role="alert"></p>
         </div>
       </form>
 
-      <section class="alta__exito" data-signup-success hidden>
+      <section class="envoltura alta__exito" data-signup-success hidden>
         <p class="etiqueta etiqueta--marca">Alta recibida</p>
-        <h2 class="alta__titulo">Te escribimos en unos días</h2>
+        <h2 class="alta__titulo" data-success-title tabindex="-1">Te escribimos en unos días</h2>
         <p class="alta__texto">
           Repasamos tu alta y te contamos los siguientes pasos por email. Si no
           ves nada en unos días, mira en spam o escríbenos a
@@ -205,38 +283,72 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         </p>
         <a href="/" class="boton boton--principal alta__accion">Volver al inicio</a>
       </section>
-    </div>
+    </section>
   </main>
 </BaseLayout>
 
 <style>
-  .alta {
-    padding-block: clamp(2.25rem, 1.4rem + 3vw, 3.5rem) clamp(3rem, 2rem + 4vw, 5rem);
+  .alta__portada {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--linea);
+    isolation: isolate;
+  }
+
+  .alta__portada::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 0 54%;
+    border-left: 1px solid var(--linea);
+    background-image:
+      linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size: 42px 42px;
+    content: "";
+  }
+
+  .alta__portada-interior {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(19rem, 0.9fr);
+    gap: clamp(3rem, 6vw, 7rem);
+    align-items: end;
+    min-height: clamp(27rem, 47vw, 35rem);
+    padding-block: clamp(4rem, 5vw, 6rem);
+  }
+
+  .alta__presentacion {
+    max-width: 43rem;
   }
 
   .alta__titulo {
+    max-width: 14ch;
     margin-top: 0.8rem;
-    font-size: var(--paso-3);
+    font-size: var(--paso-4);
   }
 
   .alta__entrada {
-    margin-top: 1.1rem;
+    max-width: 39rem;
+    margin-top: 1.25rem;
   }
 
   .alta__ventajas {
-    display: grid;
-    gap: 0;
-    margin-top: 2rem;
-    border-top: 1px solid var(--linea);
+    border-top: 2px solid var(--tinta);
+    background: var(--bancada);
   }
 
   .ventaja {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: 2rem 2rem minmax(0, 1fr);
     align-items: center;
-    gap: 0.9rem;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--linea);
+    gap: 0.75rem;
+    min-height: 4.6rem;
+    padding: 0.8rem 0.9rem;
+    border-bottom: 1px solid var(--linea-fuerte);
+  }
+
+  .ventaja__numero {
+    color: var(--filamento-tinta);
+    font-size: 0.7rem;
   }
 
   .ventaja__icono {
@@ -258,38 +370,210 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   .ventaja__texto {
     font-size: 0.95rem;
     color: var(--tinta-media);
+    line-height: 1.45;
+  }
+
+  .alta__registro {
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+    background-image:
+      linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size: 42px 42px;
   }
 
   .alta__formulario {
-    margin-top: clamp(2rem, 1.4rem + 2vw, 3rem);
+    display: grid;
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 49rem);
+    justify-content: space-between;
+    gap: clamp(2rem, 3.5vw, 4.5rem);
+    align-items: start;
   }
 
-  .alta__paso {
+  .alta__guia {
+    position: sticky;
+    top: 6.5rem;
+    min-width: 0;
+  }
+
+  .alta__avance {
+    margin-top: 1.35rem;
+  }
+
+  .alta__avance-datos {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
     color: var(--tinta-suave);
   }
 
+  .alta__barra {
+    height: 4px;
+    overflow: hidden;
+    background: var(--bancada-honda);
+  }
+
+  .alta__barra-relleno {
+    width: 0;
+    height: 100%;
+    background: var(--filamento);
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .alta__pasos {
+    margin-top: 1.6rem;
+    border-top: 1px solid var(--linea-fuerte);
+  }
+
+  .alta__indicador {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: baseline;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--linea);
+    color: var(--tinta-suave);
+    transition: color 0.16s ease, padding-left 0.16s ease;
+  }
+
+  .alta__indicador-numero {
+    font-size: 0.73rem;
+    color: inherit;
+  }
+
+  .alta__indicador-titulo {
+    font-size: 0.9rem;
+    font-weight: 560;
+    line-height: 1.3;
+  }
+
+  .alta__indicador[data-completo] {
+    color: var(--verde);
+  }
+
+  .alta__indicador[aria-current="step"] {
+    padding-left: 0.65rem;
+    border-left: 3px solid var(--filamento);
+    color: var(--tinta);
+    font-weight: 680;
+  }
+
+  .alta__garantia {
+    margin-top: 1.5rem;
+    color: var(--tinta-suave);
+    font-size: 0.76rem;
+    line-height: 1.55;
+  }
+
+  .alta__panel {
+    min-width: 0;
+    padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border: 1px solid var(--linea-fuerte);
+    border-top: 4px solid var(--cianotipo);
+    border-radius: 0 0 var(--r-2) var(--r-2);
+    background: var(--pieza);
+  }
+
+  .alta__panel [data-step-panel] {
+    min-width: 0;
+  }
+
+  .alta__paso {
+    margin-bottom: 0.75rem;
+  }
+
   .alta__seccion {
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
-    font-size: var(--paso-2);
+    max-width: 17ch;
+    margin-bottom: 1.35rem;
+    font-size: clamp(1.8rem, 1.45rem + 1.5vw, 2.7rem);
   }
 
   .alta__ayuda {
-    margin-top: -0.9rem;
+    max-width: 42rem;
+    margin-top: -0.35rem;
     margin-bottom: 1.5rem;
     color: var(--tinta-media);
-    font-size: 0.95rem;
     line-height: 1.6;
   }
 
   .alta__campos {
     display: grid;
-    gap: 1.6rem;
+    gap: 1.9rem;
+  }
+
+  .alta__grupo {
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  .alta__panel .campo__nombre {
+    margin-bottom: 0.45rem;
+    font-family: var(--fuente-dato);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .alta__panel .campo__ayuda {
+    margin-bottom: 0.7rem;
+  }
+
+  .alta__panel .entrada {
+    min-height: 3.1rem;
+    padding: 0.82rem 0.95rem;
+    background: var(--pieza);
   }
 
   .alta__opciones {
     display: grid;
-    gap: 0.55rem;
+    gap: 0.7rem;
+  }
+
+  .alta__panel .opcion {
+    position: relative;
+    min-height: 4.5rem;
+    padding: 0.95rem 5rem 0.95rem 1rem;
+    border-color: var(--linea-fuerte);
+  }
+
+  .alta__panel .opcion:hover {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .alta__panel .opcion[aria-pressed="true"] {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+    box-shadow: inset 4px 0 0 var(--filamento);
+  }
+
+  .alta__panel .opcion[aria-pressed="true"]::after {
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    translate: 0 -50%;
+    color: var(--cianotipo);
+    font-family: var(--fuente-dato);
+    font-size: 0.66rem;
+    font-weight: 600;
+    content: "✓ Elegido";
+  }
+
+  .alta__panel .opcion--pastilla {
+    min-height: 2.75rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .alta__panel .opcion--pastilla[aria-pressed="true"] {
+    padding-right: 2.1rem;
+  }
+
+  .alta__panel .opcion--pastilla[aria-pressed="true"]::after {
+    right: 0.7rem;
+    content: "✓";
   }
 
   .alta__dupla {
@@ -298,31 +582,254 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     gap: 0.9rem;
   }
 
-  .alta__pie {
-    margin-top: 2.25rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--linea);
-  }
-
-  .alta__pie--doble {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .alta__pie--doble .boton:last-child {
-    flex: 1;
-    justify-content: center;
+  .alta__privacidad {
+    margin-top: 1.5rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-2);
+    background: var(--bancada);
+    color: var(--tinta-suave);
+    font-size: 0.88rem;
+    line-height: 1.55;
   }
 
   .alta__error {
-    margin-top: 1rem;
+    margin-top: 1.25rem;
+    padding: 0.95rem 1rem 0.95rem 1.15rem;
+    border: 1px solid var(--alerta);
+    border-left: 4px solid var(--alerta);
+    background: var(--pieza);
     color: var(--alerta);
-    font-size: 0.9rem;
+    font-weight: 560;
+    line-height: 1.5;
   }
 
-  @media (max-width: 460px) {
+  .alta__pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 2.5rem clamp(-2.75rem, -1rem - 2.1vw, -1.5rem)
+      clamp(-2.75rem, -1rem - 2.1vw, -1.5rem);
+    padding: 1.25rem clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border-top: 1px solid var(--linea-fuerte);
+    border-radius: 0 0 var(--r-2) var(--r-2);
+    background: var(--bancada);
+  }
+
+  .alta__requisito {
+    max-width: 27rem;
+    color: var(--tinta-suave);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .alta__acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    flex: 0 0 auto;
+  }
+
+  .alta__acciones .boton {
+    min-width: 9.5rem;
+    justify-content: center;
+  }
+
+  .alta__acciones--doble .boton--secundario {
+    min-width: auto;
+  }
+
+  .alta__exito {
+    max-width: 760px;
+    padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border: 1px solid var(--linea-fuerte);
+    border-top: 4px solid var(--cianotipo);
+    border-radius: 0 0 var(--r-2) var(--r-2);
+    background: var(--pieza);
+  }
+
+  .alta__exito .alta__titulo {
+    font-size: var(--paso-3);
+  }
+
+  .alta__texto {
+    max-width: 42rem;
+    margin-top: 1rem;
+    color: var(--tinta-media);
+    line-height: 1.6;
+  }
+
+  .alta__accion {
+    margin-top: 1.75rem;
+  }
+
+  @media (max-width: 880px) {
+    .alta__portada::before {
+      inset: 54% 0 0;
+      border-top: 1px solid var(--linea);
+      border-left: 0;
+    }
+
+    .alta__portada-interior {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      min-height: 0;
+      padding-block: clamp(3rem, 8vw, 4.5rem);
+    }
+
+    .alta__presentacion,
+    .alta__ventajas {
+      max-width: 700px;
+    }
+
+    .alta__formulario {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+      gap: 1.25rem;
+    }
+
+    .alta__guia {
+      position: static;
+    }
+
+    .alta__avance {
+      margin-top: 0.9rem;
+    }
+
+    .alta__pasos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.9rem;
+      border-top: 0;
+    }
+
+    .alta__indicador {
+      display: block;
+      padding: 0.45rem 0 0;
+      border-top: 2px solid var(--linea);
+      border-bottom: 0;
+    }
+
+    .alta__indicador[aria-current="step"] {
+      padding: 0.45rem 0 0;
+      border-top-color: var(--filamento);
+      border-left: 0;
+    }
+
+    .alta__indicador[data-completo] {
+      border-top-color: var(--verde);
+    }
+
+    .alta__indicador-titulo {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.76rem;
+    }
+
+    .alta__garantia {
+      display: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .alta__portada-interior {
+      gap: 2rem;
+      padding-block: 2.5rem 3rem;
+    }
+
+    .alta__titulo {
+      font-size: clamp(2.15rem, 10.5vw, 3rem);
+    }
+
+    .ventaja {
+      grid-template-columns: 1.7rem 2rem minmax(0, 1fr);
+      padding-inline: 0;
+    }
+
+    .alta__registro {
+      padding-block: 1.5rem 3rem;
+      background-size: 32px 32px;
+    }
+
+    .alta__formulario {
+      gap: 0.9rem;
+    }
+
+    .alta__avance-datos {
+      font-size: 0.76rem;
+    }
+
+    .alta__indicador-titulo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .alta__panel {
+      padding: 1.25rem 1.1rem;
+    }
+
+    .alta__seccion {
+      margin-bottom: 1.2rem;
+      font-size: clamp(1.8rem, 8.5vw, 2.3rem);
+    }
+
+    .alta__campos {
+      gap: 1.65rem;
+    }
+
     .alta__dupla {
       grid-template-columns: 1fr;
+      gap: 1.65rem;
+    }
+
+    .alta__panel .opcion {
+      min-height: 4.5rem;
+    }
+
+    .alta__panel .opcion--pastilla {
+      min-height: 2.75rem;
+    }
+
+    .alta__pie {
+      flex-direction: column;
+      align-items: stretch;
+      margin: 2.25rem -1.1rem -1.25rem;
+      padding: 1.1rem;
+    }
+
+    .alta__requisito {
+      text-align: center;
+    }
+
+    .alta__acciones,
+    .alta__acciones .boton {
+      width: 100%;
+    }
+
+    .alta__acciones .boton {
+      min-width: 0;
+    }
+
+    .alta__acciones--doble .boton--secundario {
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    .alta__acciones--doble .boton--principal {
+      flex: 1;
+    }
+
+    .alta__exito {
+      margin-inline: var(--canal);
+      padding: 1.25rem 1.1rem;
     }
   }
 </style>
@@ -333,49 +840,59 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   /* --- Bloques de color por material ------------------------------------ */
 
   .material-colores {
-    padding: 1.15rem 1.25rem 1.25rem;
-    border: 1px solid var(--linea);
+    min-inline-size: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--linea-fuerte);
+    border-left: 3px solid var(--filamento);
     border-radius: var(--r-2);
     background: var(--pieza);
   }
 
   .material-colores + .material-colores {
-    margin-top: 0.85rem;
+    margin-top: 1rem;
   }
 
   .material-colores__titulo {
-    margin-bottom: 0.85rem;
+    padding-inline: 0.35rem;
+    margin-bottom: 0.9rem;
     font-family: var(--fuente-dato);
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.06em;
+    color: var(--cianotipo);
   }
 
   .material-colores__muestras {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem 0.15rem;
-    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr));
+    gap: 0.45rem;
+    margin-bottom: 1.25rem;
   }
 
   .muestra {
+    position: relative;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0.35rem;
-    width: 58px;
-    padding: 0.3rem 0.15rem;
-    border: 0;
+    min-width: 0;
+    min-height: 4.5rem;
+    padding: 0.45rem 0.25rem;
+    border: 1px solid transparent;
     border-radius: var(--r-2);
     background: none;
     cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
   }
 
   .muestra:hover {
+    border-color: var(--linea-fuerte);
     background: var(--bancada);
   }
 
   .muestra__punto {
+    position: relative;
     width: 26px;
     height: 26px;
     border: 1px solid var(--linea-fuerte);
@@ -385,6 +902,28 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 
   .muestra[aria-pressed="true"] .muestra__punto {
     box-shadow: 0 0 0 2px var(--pieza), 0 0 0 4px var(--cianotipo);
+  }
+
+  .muestra[aria-pressed="true"] {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .muestra[aria-pressed="true"]::after {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.35rem;
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--cianotipo);
+    color: var(--pieza);
+    font-family: var(--fuente-dato);
+    font-size: 0.65rem;
+    line-height: 1;
+    content: "✓";
   }
 
   .muestra__nombre {
@@ -398,23 +937,28 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     color: var(--tinta);
     font-weight: 600;
   }
-</style>
 
-<style>
-  /* --- Confirmación ------------------------------------------------------ */
-
-  .alta__exito {
-    padding-block: clamp(2rem, 1.4rem + 2vw, 3rem);
+  .material-colores__otros {
+    display: block;
   }
 
-  .alta__texto {
-    margin-top: 1rem;
+  .material-colores__otros-nombre {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-family: var(--fuente-dato);
+    font-size: 0.76rem;
+    font-weight: 600;
     color: var(--tinta-media);
-    line-height: 1.6;
   }
 
-  .alta__accion {
-    margin-top: 1.75rem;
+  @media (max-width: 560px) {
+    .material-colores {
+      padding: 1rem 0.8rem;
+    }
+
+    .material-colores__muestras {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 </style>
 
@@ -449,6 +993,14 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   const zonaColores = document.querySelector("[data-colors-container]");
   const botonesSiguiente = Array.from(document.querySelectorAll("[data-next]"));
   const botonesAtras = Array.from(document.querySelectorAll("[data-prev]"));
+  const pasoActual = document.querySelector("[data-signup-current]");
+  const textoAvance = document.querySelector("[data-signup-progress-text]");
+  const barraAvance = document.querySelector("[data-signup-progress]");
+  const rellenoAvance = document.querySelector("[data-signup-progress-fill]");
+  const indicadoresPaso = Array.from(
+    document.querySelectorAll("[data-signup-progress-step]"),
+  );
+  const tituloExito = document.querySelector("[data-success-title]");
 
   // material -> { colores: Set<string>, otros: string }
   const colores = new Map();
@@ -501,12 +1053,37 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     if (enviar instanceof HTMLButtonElement) enviar.disabled = !paso3Valido();
   };
 
-  const irAlPaso = (numero) => {
+  const actualizarProgreso = (numero) => {
+    const porcentaje = Math.round(((numero - 1) / 3) * 100);
+    if (pasoActual) pasoActual.textContent = String(numero);
+    if (textoAvance) textoAvance.textContent = String(porcentaje);
+    if (rellenoAvance) rellenoAvance.style.width = `${porcentaje}%`;
+    if (barraAvance) barraAvance.setAttribute("aria-valuenow", String(porcentaje));
+    indicadoresPaso.forEach((indicador) => {
+      const indice = Number(indicador.dataset.signupProgressStep);
+      indicador.toggleAttribute("data-completo", indice < numero);
+      if (indice === numero) indicador.setAttribute("aria-current", "step");
+      else indicador.removeAttribute("aria-current");
+    });
+  };
+
+  const irAlPaso = (numero, enfocar = true) => {
     if (numero === 2) dibujarColores();
     paneles.forEach((panel) => {
       panel.hidden = panel.dataset.stepPanel !== String(numero);
     });
-    formulario?.scrollIntoView({ behavior: "smooth", block: "start" });
+    actualizarProgreso(numero);
+    if (enfocar) {
+      formulario?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      document
+        .querySelector(`[data-step-panel="${numero}"] [data-step-title]`)
+        ?.focus?.({ preventScroll: true });
+    }
     actualizarBotones();
   };
 
@@ -561,10 +1138,10 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     elegidos.forEach((material) => {
       if (!colores.has(material)) colores.set(material, { colores: new Set(), otros: "" });
 
-      const bloque = document.createElement("div");
+      const bloque = document.createElement("fieldset");
       bloque.className = "material-colores";
 
-      const titulo = document.createElement("p");
+      const titulo = document.createElement("legend");
       titulo.className = "material-colores__titulo";
       titulo.textContent = material;
       bloque.appendChild(titulo);
@@ -577,14 +1154,20 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       const otros = document.createElement("input");
       otros.type = "text";
       otros.className = "entrada";
-      otros.placeholder = "Otros colores de este material (opcional)";
+      otros.placeholder = "Ej.: verde oliva, cobre…";
       otros.value = colores.get(material).otros;
       otros.addEventListener("input", () => {
         const estado = colores.get(material);
         if (estado) estado.otros = otros.value;
         actualizarBotones();
       });
-      bloque.appendChild(otros);
+      const grupoOtros = document.createElement("label");
+      grupoOtros.className = "material-colores__otros";
+      const nombreOtros = document.createElement("span");
+      nombreOtros.className = "material-colores__otros-nombre";
+      nombreOtros.textContent = "Otros colores (opcional)";
+      grupoOtros.append(nombreOtros, otros);
+      bloque.appendChild(grupoOtros);
 
       zonaColores.appendChild(bloque);
     });
@@ -635,6 +1218,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     enviar.disabled = true;
     enviar.textContent = "Enviando…";
     error.hidden = true;
+    formulario.setAttribute("aria-busy", "true");
 
     const datos = new FormData(formulario);
     datos.append("materials", materialesElegidos().join(", "));
@@ -669,18 +1253,28 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         headers: { Accept: "application/json" },
       });
       if (!respuesta.ok) throw new Error("Error al enviar");
+      formulario.removeAttribute("aria-busy");
       formulario.hidden = true;
       exito.hidden = false;
-      window.scrollTo({ top: 0 });
+      exito.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      tituloExito?.focus?.({ preventScroll: true });
     } catch (fallo) {
       enviar.disabled = false;
+      formulario.removeAttribute("aria-busy");
       enviar.innerHTML =
         'Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>';
       error.textContent =
         "No se ha podido enviar el alta. Compruébalo y vuelve a intentarlo.";
       error.hidden = false;
+      error.focus();
     }
   });
 
+  actualizarProgreso(1);
   actualizarBotones();
 </script>
