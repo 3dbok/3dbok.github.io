@@ -294,80 +294,235 @@ const materiales = [
   /* --- Portada -------------------------------------------------------- */
 
   .portada {
-    padding-block: clamp(2.5rem, 1rem + 5vw, 5rem) clamp(2rem, 1rem + 4vw, 4rem);
+    position: relative;
+    overflow: hidden;
     border-bottom: 1px solid var(--linea);
   }
 
+  .portada::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 0 55%;
+    border-left: 1px solid var(--linea);
+    background-image: linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.46;
+    pointer-events: none;
+  }
+
   .portada__interior {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-columns: minmax(0, 0.92fr) minmax(24rem, 1.08fr);
     align-items: center;
-    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+    gap: clamp(2.5rem, 1rem + 4.5vw, 5.5rem);
+    min-height: clamp(40rem, calc(100svh - 67px), 47rem);
+    padding-block: clamp(3.5rem, 2rem + 5vw, 6rem);
+  }
+
+  .portada__texto {
+    position: relative;
+    z-index: 1;
   }
 
   .portada__titular {
     margin-top: 1.1rem;
-    max-width: 15ch;
+    max-width: 14ch;
+    font-size: clamp(3rem, 4.15vw, 4.35rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
   }
 
   .portada__entrada {
-    margin-top: 1.35rem;
-    max-width: 46ch;
+    margin-top: 1.6rem;
+    max-width: 47ch;
   }
 
   .portada__acciones {
     display: flex;
     flex-wrap: wrap;
     gap: 0.7rem;
-    margin-top: 2rem;
+    margin-top: 2.2rem;
   }
 
   .portada__garantias {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.4rem;
-    margin-top: 2.25rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--linea);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 1.2rem;
+    margin-top: 2.4rem;
+    counter-reset: garantia;
     color: var(--tinta-suave);
   }
 
   .portada__garantias li {
-    position: relative;
-    padding-left: 0.95rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--linea);
+    counter-increment: garantia;
+    line-height: 1.45;
   }
 
   .portada__garantias li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.62em;
-    width: 5px;
-    height: 5px;
-    border-radius: 1px;
-    background: var(--filamento);
+    content: "0" counter(garantia);
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--filamento-tinta);
+    font-weight: 600;
   }
 
   .portada__pieza {
-    justify-self: center;
+    position: relative;
+    z-index: 1;
+    justify-self: end;
+    width: min(100%, 43rem);
   }
 
-  @media (max-width: 940px) {
-    .portada__interior {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
+  .portada__pieza::before {
+    content: "";
+    position: absolute;
+    inset: 7% -3% 14% 8%;
+    z-index: -1;
+    border: 1px solid var(--linea-fuerte);
+    border-left: 3px solid var(--filamento);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .portada__texto > * {
+      animation: entrar-portada 540ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .portada__texto {
-      order: 2;
+    .portada__texto > :nth-child(2) {
+      animation-delay: 70ms;
+    }
+
+    .portada__texto > :nth-child(3) {
+      animation-delay: 130ms;
+    }
+
+    .portada__texto > :nth-child(4) {
+      animation-delay: 190ms;
+    }
+
+    .portada__texto > :nth-child(5) {
+      animation-delay: 250ms;
     }
 
     .portada__pieza {
-      order: 1;
+      animation: entrar-pieza 680ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+
+  @keyframes entrar-portada {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes entrar-pieza {
+    from {
+      opacity: 0;
+      transform: translate3d(18px, 10px, 0) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  @media (max-width: 940px) {
+    .portada::before {
+      inset: 56% 0 0;
+      border-top: 1px solid var(--linea);
+      border-left: 0;
+      opacity: 0.34;
+    }
+
+    .portada__interior {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.6rem;
+      min-height: 0;
+      padding-block: clamp(2.75rem, 1.5rem + 6vw, 4.25rem);
+    }
+
+    .portada__texto {
+      display: contents;
+    }
+
+    .portada__texto > .etiqueta {
+      grid-row: 1;
     }
 
     .portada__titular {
-      max-width: 18ch;
+      grid-row: 2;
+      margin-top: -0.65rem;
+      max-width: 15ch;
+      font-size: clamp(3.25rem, 8vw, 4.35rem);
+    }
+
+    .portada__entrada {
+      grid-row: 3;
+      margin-top: -0.5rem;
+    }
+
+    .portada__acciones {
+      grid-row: 4;
+      margin-top: 0;
+    }
+
+    .portada__pieza {
+      grid-row: 5;
+      justify-self: center;
+      width: min(100%, 36rem);
+    }
+
+    .portada__garantias {
+      grid-row: 6;
+      margin-top: 0.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .portada__titular {
+      max-width: 12ch;
+      font-size: clamp(2.55rem, 12vw, 3.15rem);
+    }
+
+    .portada__acciones {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    }
+
+    .portada__acciones .boton {
+      justify-content: center;
+      padding-inline: 0.85rem;
+    }
+
+    .portada__pieza::before {
+      inset: 7% 0 14% 6%;
+    }
+
+    .portada__garantias {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+
+    .portada__garantias li {
+      display: grid;
+      grid-template-columns: 2.25rem minmax(0, 1fr);
+      align-items: baseline;
+      padding-block: 0.7rem;
+    }
+
+    .portada__garantias li::before {
+      margin: 0;
     }
   }
 
@@ -461,29 +616,55 @@ const materiales = [
   }
 
   @media (min-width: 900px) {
+    .proceso__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--linea);
+      border-bottom: 1px solid var(--linea);
+    }
+
     .paso {
-      --pad: 2.25rem;
-      grid-template-columns: 3.5rem minmax(0, 21rem) minmax(0, 1fr);
-      align-items: start;
+      --pad: 2rem;
+      display: block;
+      min-height: 20rem;
+      padding: var(--pad) clamp(1.5rem, 2.4vw, 2.5rem) 2.25rem;
+      border: 0;
+    }
+
+    .paso + .paso {
+      border-left: 1px solid var(--linea);
+    }
+
+    .paso::before {
+      left: 0;
+      top: -1px;
+      bottom: auto;
+      width: 3.5rem;
+      height: 2px;
+      opacity: 1;
+    }
+
+    .paso:last-child::before {
+      display: block;
+    }
+
+    .paso__indice {
+      display: block;
+      margin-bottom: clamp(2.75rem, 4vw, 4.25rem);
+      padding: 0;
+      font-size: var(--paso-2);
+      line-height: 1;
     }
 
     .paso__cuerpo {
-      display: contents;
-    }
-
-    .paso__titulo {
-      grid-column: 2;
+      display: block;
     }
 
     .paso__texto {
-      grid-column: 3;
-      grid-row: 1;
-      margin-top: 0;
+      margin-top: 0.8rem;
     }
 
     .paso__nota {
-      grid-column: 3;
-      margin-top: 0.75rem;
+      margin-top: 1.2rem;
     }
   }
 
@@ -502,29 +683,50 @@ const materiales = [
 
   .encargos__lista {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0;
+    border-top: 2px solid var(--tinta);
+    counter-reset: encargo;
   }
 
   .encargo {
-    padding: 1.6rem 1.75rem 1.75rem 0;
-    border-top: 2px solid var(--tinta);
+    position: relative;
+    min-height: 13.5rem;
+    padding: clamp(1.75rem, 2.8vw, 2.75rem) clamp(1.5rem, 3.2vw, 3.25rem)
+      clamp(1.75rem, 2.8vw, 2.75rem) clamp(3.5rem, 5vw, 5rem);
+    counter-increment: encargo;
   }
 
-  .encargo + .encargo {
-    padding-left: 1.75rem;
+  .encargo::before {
+    content: "0" counter(encargo);
+    position: absolute;
+    top: clamp(1.9rem, 3vw, 2.9rem);
+    left: clamp(0.25rem, 1.2vw, 1rem);
+    color: var(--filamento-tinta);
+    font-family: var(--fuente-dato);
+    font-size: 0.74rem;
+    font-weight: 600;
+  }
+
+  .encargo:nth-child(even) {
+    border-left: 1px solid var(--linea);
+  }
+
+  .encargo:nth-child(n + 3) {
+    border-top: 1px solid var(--linea);
   }
 
   .encargo__titulo {
-    font-size: var(--paso-0);
-    font-stretch: 104%;
+    font-size: var(--paso-1);
+    font-stretch: 108%;
     font-weight: 700;
-    max-width: 18ch;
+    max-width: 23ch;
   }
 
   .encargo__texto {
-    margin-top: 0.6rem;
-    font-size: 0.94rem;
+    margin-top: 0.8rem;
+    max-width: 42ch;
+    font-size: 0.96rem;
     line-height: 1.58;
     color: var(--tinta-media);
   }
@@ -534,21 +736,28 @@ const materiales = [
     color: var(--tinta-suave);
   }
 
-  @media (min-width: 700px) {
-    .encargo + .encargo {
-      border-left: 1px solid var(--linea);
-    }
-  }
-
   @media (max-width: 699px) {
-    .encargo {
-      padding-right: 0;
+    .encargos__lista {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .encargo + .encargo {
-      padding-left: 0;
-      border-top-width: 1px;
-      border-top-color: var(--linea);
+    .encargo {
+      min-height: 0;
+      padding: 1.5rem 0 1.6rem 2.75rem;
+      border-top: 1px solid var(--linea);
+    }
+
+    .encargo:first-child {
+      border-top: 0;
+    }
+
+    .encargo:nth-child(even) {
+      border-left: 0;
+    }
+
+    .encargo::before {
+      top: 1.65rem;
+      left: 0;
     }
   }
 
@@ -655,34 +864,44 @@ const materiales = [
 
   /* --- Quién imprime --------------------------------------------------- */
 
-  /* Columnas de ancho tope, no elásticas: con un solo maker dado de alta la
-     fila no se estira a lo ancho de la página. */
+  /* La red inicial es breve: cada maker ocupa una ficha editorial completa
+     para que un único taller parezca una elección consciente, no un hueco. */
   .quienes__lista {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 25rem));
-    gap: 2rem 3rem;
-    padding-top: 1.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
     border-top: 2px solid var(--tinta);
+    border-bottom: 1px solid var(--linea);
   }
 
   .taller-maker {
     display: grid;
-    grid-template-columns: 88px minmax(0, 1fr);
-    gap: 1.25rem;
+    grid-template-columns: 116px minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
     align-items: start;
+    padding-block: clamp(1.75rem, 3vw, 2.75rem);
   }
 
   .taller-maker__foto {
-    width: 88px;
-    height: 88px;
+    width: 116px;
+    height: 116px;
     border: 1px solid var(--linea);
     border-radius: var(--r-2);
     background: var(--pieza);
     object-fit: cover;
   }
 
+  .taller-maker > div {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.72fr) minmax(18rem, 1.28fr);
+    gap: 0.2rem clamp(2rem, 4vw, 5rem);
+    align-items: start;
+  }
+
   .taller-maker__nombre {
-    font-size: var(--paso-1);
+    grid-column: 1;
+    grid-row: 1;
+    font-size: var(--paso-2);
   }
 
   .taller-maker__nombre a {
@@ -697,26 +916,35 @@ const materiales = [
   }
 
   .taller-maker__sitio {
+    grid-column: 1;
+    grid-row: 2;
     margin-top: 0.2rem;
     color: var(--tinta-suave);
   }
 
   .taller-maker__bio {
-    margin-top: 0.75rem;
-    font-size: 0.93rem;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    max-width: 48ch;
+    margin-top: 0;
+    font-size: 0.98rem;
     line-height: 1.58;
     color: var(--tinta-media);
   }
 
   .taller-maker__chips {
+    grid-column: 2;
+    grid-row: 3;
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    margin-top: 0.9rem;
+    margin-top: 1rem;
   }
 
   .taller-maker__equipo {
-    margin-top: 0.6rem;
+    grid-column: 1;
+    grid-row: 3;
+    margin-top: 1rem;
     color: var(--tinta-suave);
   }
 
@@ -733,10 +961,29 @@ const materiales = [
     transform: translateX(3px);
   }
 
-  @media (max-width: 420px) {
+  @media (max-width: 780px) {
+    .taller-maker > div {
+      display: block;
+    }
+
+    .taller-maker__bio {
+      margin-top: 0.75rem;
+    }
+
+    .taller-maker__equipo {
+      margin-top: 0.6rem;
+    }
+  }
+
+  @media (max-width: 480px) {
     .taller-maker {
       grid-template-columns: minmax(0, 1fr);
       gap: 0.9rem;
+    }
+
+    .taller-maker__foto {
+      width: 96px;
+      height: 96px;
     }
   }
 
