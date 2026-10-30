@@ -1561,18 +1561,34 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
 
       geometria = new STLLoader().parse(datos);
       geometria.computeVertexNormals();
+      // Se centran los vértices y no la malla: la posición de una malla no se
+      // escala ni gira con ella, así que una pieza modelada lejos del origen
+      // quedaría descolocada en cuanto se escala.
+      geometria.center();
+      geometria.computeBoundingBox();
+      geometria.computeBoundingSphere();
 
+      const medidas = geometria.boundingBox.getSize(new THREE.Vector3());
+      const escala = 72 / (Math.max(medidas.x, medidas.y, medidas.z) || 1);
       const malla = new THREE.Mesh(
         geometria,
         new THREE.MeshStandardMaterial({ color: 0xe8dfcd, roughness: 0.5, metalness: 0.05 }),
       );
-
-      const caja = new THREE.Box3().setFromObject(malla);
-      const medidas = caja.getSize(new THREE.Vector3());
-      malla.position.sub(caja.getCenter(new THREE.Vector3()));
-      malla.scale.setScalar(72 / (Math.max(medidas.x, medidas.y, medidas.z) || 1));
+      malla.scale.setScalar(escala);
       malla.rotation.x = -Math.PI / 2;
       escena.add(malla);
+
+      // La cámara se aleja lo justo para que la pieza quepa entera, también en
+      // un lienzo estrecho donde el ángulo horizontal es el que manda.
+      const aspecto = lienzoStl.clientWidth / (lienzoStl.clientHeight || 1) || 1;
+      const mitadVertical = THREE.MathUtils.degToRad(camara.fov / 2);
+      const mitadHorizontal = Math.atan(Math.tan(mitadVertical) * aspecto);
+      const radio = geometria.boundingSphere.radius * escala;
+      const distancia = (radio / Math.sin(Math.min(mitadVertical, mitadHorizontal))) * 1.1;
+      camara.position.set(90, 70, 110).setLength(distancia);
+      camara.near = distancia / 100;
+      camara.far = distancia * 10;
+      camara.updateProjectionMatrix();
 
       controles.target.set(0, 0, 0);
       controles.update();

@@ -5,8 +5,8 @@ import MaterialChip from "../components/MaterialChip.astro";
 import productores from "../data/productores.json";
 import { tonosDePared } from "../lib/capas.js";
 
-// Los makers que ya están dados de alta. Somos pocos y se dice: es más
-// honesto que una cuadrícula de caras de archivo.
+// Los makers que ya están dados de alta, con nombre y taller: es más honesto
+// que una cuadrícula de caras de archivo.
 const makers = productores.slice(0, 3);
 
 const pasos = [
@@ -451,12 +451,8 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
     <!-- Quién imprime -------------------------------------------------- -->
     <section class="seccion quienes">
       <div class="envoltura">
-        <div class="rotulo rotulo--partido">
+        <div class="rotulo">
           <h2>Detrás de cada pieza hay alguien con su máquina</h2>
-          <p class="entradilla rotulo__apunte">
-            Acabamos de empezar, así que de momento somos pocos y salimos con
-            nombre. Puedes ver el taller de cada uno antes de encargar nada.
-          </p>
         </div>
 
         <ul class="quienes__lista">
@@ -514,12 +510,12 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
           <li class="ficha ficha--hueco">
             <div class="ficha__hueco-placa" aria-hidden="true"></div>
             <div class="ficha__cuerpo">
-              <h3 class="ficha__nombre">Este hueco es para tu impresora</h3>
+              <h3 class="ficha__nombre">¿Quieres unirte a la comunidad maker?</h3>
               <p class="ficha__bio">
-                Si imprimes en Málaga o alrededores, los próximos encargos
-                pueden ser tuyos.
+                Si tienes una impresora 3D en Málaga o alrededores, date de alta
+                y empieza a recibir encargos de gente de tu zona.
               </p>
-              <a class="ficha__enlace" href="/maker">Quiero ser maker</a>
+              <a class="ficha__enlace" href="/maker">Unirme como maker</a>
             </div>
           </li>
         </ul>

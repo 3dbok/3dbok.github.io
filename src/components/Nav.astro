@@ -65,7 +65,11 @@ const activo = (href) => ruta === href || ruta.startsWith(`${href}/`);
     min-height: 66px;
   }
 
+  /* En flex y no en línea: así el logo no se apoya en la línea base del
+     texto y queda centrado en la barra. */
   .cabecera__marca {
+    display: flex;
+    align-items: center;
     text-decoration: none;
   }
 

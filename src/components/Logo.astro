@@ -1,60 +1,24 @@
 ---
-// La marca es la pieza: tres capas apiladas, la de arriba todavía caliente.
+// La marca: la elipse de resources/logo.png con "3dbok" en la tipografía de
+// titulares de la web (Archivo expandida, 780) pasada a trazos. Los colores
+// van dentro del propio SVG; la versión clara es para fondos oscuros.
 const { tono = "tinta" } = Astro.props;
+const logo = tono === "claro" ? "/img/marca/logo-claro.svg" : "/img/marca/logo.svg";
 ---
 
 <span class:list={["marca", `marca--${tono}`]}>
-  <svg class="marca__signo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
-    <rect width="32" height="32" rx="7.5" class="marca__placa" />
-    <rect x="6.5" y="20" width="19" height="4" rx="1.2" class="marca__capa" />
-    <rect x="8.5" y="14" width="15" height="4" rx="1.2" class="marca__capa" />
-    <rect x="10.5" y="8" width="11" height="4" rx="1.2" class="marca__capa marca__capa--caliente" />
-  </svg>
-  <span class="marca__palabra">3dbok</span>
+  <img class="marca__logo" src={logo} width="80" height="40" alt="" />
 </span>
 
 <style>
   .marca {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
   }
 
-  .marca__signo {
-    flex: 0 0 auto;
-  }
-
-  .marca__placa {
-    fill: var(--cianotipo);
-  }
-
-  .marca__capa {
-    fill: var(--pieza);
-  }
-
-  .marca__capa--caliente {
-    fill: var(--filamento);
-  }
-
-  .marca__palabra {
-    font-family: var(--fuente-titulo);
-    font-size: 1.32rem;
-    font-stretch: 118%;
-    font-weight: 780;
-    letter-spacing: -0.035em;
-    line-height: 1;
-    color: var(--tinta);
-  }
-
-  .marca--claro .marca__placa {
-    fill: var(--pieza);
-  }
-
-  .marca--claro .marca__capa {
-    fill: var(--tinta);
-  }
-
-  .marca--claro .marca__palabra {
-    color: var(--pieza);
+  .marca__logo {
+    display: block;
+    width: 80px;
+    height: 40px;
   }
 </style>
