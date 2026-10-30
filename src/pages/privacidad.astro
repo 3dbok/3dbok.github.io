@@ -1,0 +1,102 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Privacidad"
+  descripcion="Cómo trata 3dbok los datos personales de clientes y makers."
+>
+  <main class="legal">
+    <article class="envoltura--angosta legal__contenido">
+      <p class="etiqueta etiqueta--marca">Privacidad</p>
+      <h1>Cómo tratamos tus datos</h1>
+      <p class="legal__actualizacion dato">Última actualización: 20 de octubre de 2026</p>
+
+      <p>
+        3dbok es responsable de los datos que envías desde esta web. Puedes
+        contactar con nosotros en <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
+      </p>
+
+      <h2>Qué datos recogemos y para qué</h2>
+      <p>
+        Al solicitar una pieza recogemos tus datos de contacto y los detalles
+        necesarios para valorar el diseño, la impresión y la entrega. Los usamos
+        para responder a tu solicitud, preparar una propuesta y gestionar los
+        pasos previos a un posible encargo. La base jurídica es aplicar medidas
+        precontractuales solicitadas por ti.
+      </p>
+      <p>
+        Si eliges un STL, el archivo se procesa solo en tu dispositivo para
+        mostrar una previsualización: 3dbok no lo recibe ni lo almacena desde
+        este formulario. Sí recibimos la indicación de que has seleccionado un
+        archivo, para pedírtelo después por email.
+      </p>
+      <p>
+        Para evitar que pierdas lo escrito, la web guarda las respuestas sin el
+        STL en el almacenamiento de sesión del navegador y deja de recuperarlas
+        pasadas dos horas. Tras un envío correcto, conserva el resumen de
+        confirmación durante 30 minutos.
+      </p>
+
+      <h2>Quién puede acceder</h2>
+      <p>
+        Formspree procesa el formulario por cuenta de 3dbok. Cuando sea necesario
+        para valorar o realizar el encargo, podremos comunicar los datos mínimos
+        imprescindibles al diseñador o maker correspondiente. No vendemos tus
+        datos ni los usamos para publicidad ajena a tu solicitud.
+      </p>
+      <p>
+        Formspree presta el servicio mediante infraestructura en Estados Unidos
+        y declara utilizar las cláusulas contractuales tipo de la Comisión
+        Europea como garantía para las transferencias internacionales.
+      </p>
+
+      <h2>Cuánto tiempo los conservamos</h2>
+      <p>
+        Conservaremos la solicitud y las comunicaciones mientras sean necesarias
+        para atenderla y, después, durante los plazos exigidos para cumplir
+        obligaciones legales. El plan gratuito de Formspree conserva el historial
+        de envíos durante 30 días.
+      </p>
+
+      <h2>Tus derechos</h2>
+      <p>
+        Puedes pedir acceso, rectificación, supresión, oposición, limitación o
+        portabilidad escribiendo a <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
+        También puedes presentar una reclamación ante la Agencia Española de
+        Protección de Datos.
+      </p>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .legal {
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .legal__contenido {
+    max-width: 48rem;
+  }
+
+  .legal h1 {
+    margin-top: 0.75rem;
+    font-size: var(--paso-3);
+  }
+
+  .legal__actualizacion {
+    margin-top: 0.5rem;
+    color: var(--tinta-suave);
+  }
+
+  .legal h2 {
+    margin-top: 2rem;
+    font-size: var(--paso-1);
+  }
+
+  .legal p:not(.etiqueta) {
+    margin-top: 0.8rem;
+    color: var(--tinta-media);
+    line-height: 1.7;
+  }
+</style>

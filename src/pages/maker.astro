@@ -1,305 +1,1477 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { printerBenefitIcons } from "../lib/icons";
 
-const benefits = [
-  { icon: printerBenefitIcons.commission, text: "Solo pagas comisión al completar pedidos" },
-  { icon: printerBenefitIcons.location, text: "Pedidos filtrados por tu zona" },
-  { icon: printerBenefitIcons.choice, text: "Tú eliges qué pedidos aceptar" },
+const ventajas = [
+  { titulo: "Sin cuota mensual.", texto: "Solo pagas comisión cuando entregas un pedido." },
+  { titulo: "Encargos de tu zona.", texto: "Te llegan filtrados por cercanía." },
+  { titulo: "Tú decides.", texto: "Aceptas solo los encargos que te encajan." },
 ];
 
-const materials = ["PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"];
-const nozzleSizes = ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"];
-const experiences = [
+const PASOS_ALTA = ["Equipo y experiencia", "Colores disponibles", "Datos de contacto"];
+
+const MATERIALES = ["PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"];
+const BOQUILLAS = ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"];
+const EXPERIENCIAS = [
   "Menos de 6 meses",
   "Entre 6 meses y 2 años",
   "Más de 2 años",
 ];
 
-const inputStyle = "width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;";
 const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 ---
 
-<BaseLayout>
-  <form data-signup-form data-endpoint={FORMSPREE_MAKERS_ENDPOINT} style="max-width: 560px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;">
-    <p style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-brand-primary); font-weight: 700; margin-bottom: 0.75rem;">
-      Para makers
-    </p>
-    <h1 style="font-size: 24px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem;">
-      Convierte tu impresora 3D en un ingreso extra
-    </h1>
-    <p style="font-size: 15px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2rem;">
-      Recibe pedidos de tu zona, tú decides cuáles aceptar. Sin cuotas mensuales,
-      solo una comisión cuando completas un pedido.
-    </p>
-
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 2.5rem;">
-      {benefits.map((b) => (
-        <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.85rem; text-align: center;">
-          <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--color-brand-soft); color: var(--color-brand-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              style="width: 16px; height: 16px;"
-            >
-              {b.icon.map((path) => <path d={path} />)}
-            </svg>
-          </div>
-          <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0; line-height: 1.4;">
-            {b.text}
+<BaseLayout
+  title="Darme de alta como maker"
+  descripcion="Da de alta tu impresora 3D en 3dbok: recibes encargos de tu zona, eliges cuáles aceptas y solo pagas comisión cuando entregas."
+>
+  <main class="alta">
+    <section class="alta__portada en-cianotipo">
+      <div class="envoltura alta__portada-interior">
+        <header class="alta__presentacion">
+          <p class="etiqueta">Para makers</p>
+          <h1 class="alta__titulo">Que tu impresora trabaje también para otros</h1>
+          <p class="alta__entrada">
+            Te llegan encargos de gente de tu zona y decides cuáles coges. Sin
+            cuota mensual: solo una comisión cuando entregas la pieza.
           </p>
-        </div>
-      ))}
-    </div>
+          <a href="#alta-maker" class="boton boton--arena alta__empezar">Empezar el alta</a>
+        </header>
 
-    <div style="display: flex; flex-direction: column; gap: 1.1rem;">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-            Nombre
-          </label>
-          <input data-signup-input="name" name="name" type="text" placeholder="Tu nombre" style={inputStyle} />
-        </div>
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-            Ciudad
-          </label>
-          <input data-signup-input="city" name="city" type="text" placeholder="Málaga" style={inputStyle} />
-        </div>
+        <!-- Ejemplo de cómo llega un encargo: un correo con lo justo para decidir. -->
+        <figure class="aviso">
+          <div class="aviso__correo" aria-hidden="true">
+            <p class="aviso__cabecera">
+              <span class="aviso__punto"></span>
+              Encargo nuevo cerca de ti
+              <span class="aviso__distancia">a 3 km</span>
+            </p>
+            <p class="aviso__pieza">Rueda de carro de la compra</p>
+            <dl class="aviso__datos">
+              <div><dt>Material</dt><dd>PETG negro</dd></div>
+              <div><dt>Medidas</dt><dd class="dato">Ø62 × 18 mm</dd></div>
+              <div><dt>Boceto</dt><dd>Aprobado por el cliente</dd></div>
+            </dl>
+            <p class="aviso__pie">Respondes al correo si lo quieres. Si no, lo dejas pasar.</p>
+          </div>
+          <figcaption class="aviso__leyenda">Así te llega un encargo (ejemplo).</figcaption>
+        </figure>
       </div>
 
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-          Email
-        </label>
-        <input data-signup-input="email" name="email" type="email" placeholder="tu@email.com" style={inputStyle} />
+      <div class="envoltura alta__ventajas" id="ventajas">
+        <h2 class="alta__ventajas-titulo">¿Qué te ofrecemos?</h2>
+        <ul class="alta__ventajas-lista">
+          {
+            ventajas.map((ventaja) => (
+              <li>
+                <strong>{ventaja.titulo}</strong> {ventaja.texto}
+              </li>
+            ))
+          }
+        </ul>
       </div>
+    </section>
 
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-          Modelo de impresora
-        </label>
-        <input data-signup-input="printerModel" name="printerModel" type="text" placeholder="Ej: Bambu Lab P1S, Prusa MK4..." style={inputStyle} />
-      </div>
+    <section class="alta__registro">
+      <form
+        id="alta-maker"
+        class="envoltura alta__formulario"
+        data-signup-form
+        data-endpoint={FORMSPREE_MAKERS_ENDPOINT}
+      >
+        <aside class="alta__guia" aria-label="Progreso del alta de maker">
+          <div class="alta__cabeza-guia">
+            <!-- Una pieza que se imprime a la vez que el alta: una capa por paso. -->
+            <svg class="pila" viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" rx="7.5" class="pila__placa"></rect>
+              <rect x="6.5" y="20" width="19" height="4" rx="1.2" class="pila__capa pila__capa--1"></rect>
+              <rect x="8.5" y="14" width="15" height="4" rx="1.2" class="pila__capa pila__capa--2"></rect>
+              <rect x="10.5" y="8" width="11" height="4" rx="1.2" class="pila__capa pila__capa--3"></rect>
+            </svg>
+            <div>
+              <p class="alta__guia-titulo">Tu alta, capa a capa</p>
+              <p class="alta__avance-datos">
+                Paso <span data-signup-current>1</span> de 3, <span data-signup-progress-text>0</span> % hecho
+              </p>
+            </div>
+          </div>
+          <div
+            class="alta__barra"
+            role="progressbar"
+            aria-label="Progreso del alta"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-signup-progress
+          >
+            <div class="alta__barra-relleno" data-signup-progress-fill></div>
+          </div>
 
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-          ¿Con qué materiales trabajas?
-        </label>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          {materials.map((m) => (
-            <button
-              data-material={m}
-              type="button"
-              style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
-            >
-              {m}
-            </button>
-          ))}
+          <ol class="alta__pasos">
+            {
+              PASOS_ALTA.map((titulo, indice) => (
+                <li
+                  class="alta__indicador"
+                  data-signup-progress-step={indice + 1}
+                  aria-current={indice === 0 ? "step" : undefined}
+                >
+                  <span class="alta__indicador-numero" aria-hidden="true">{indice + 1}</span>
+                  <span class="alta__indicador-titulo">{titulo}</span>
+                </li>
+              ))
+            }
+          </ol>
+
+          <p class="alta__garantia">
+            Revisamos cada alta antes de publicar el perfil del maker.
+          </p>
+        </aside>
+
+        <div class="alta__panel">
+          <!-- Paso 1: impresora, materiales y experiencia -->
+          <div data-step-panel="1">
+            <p class="etiqueta alta__paso">Paso 1 de 3</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">
+              Tu impresora y tu experiencia
+            </h2>
+
+            <div class="alta__campos">
+              <div class="campo">
+                <label class="campo__nombre" for="alta-modelo">Modelo de impresora</label>
+                <input
+                  class="entrada"
+                  id="alta-modelo"
+                  data-signup-input="printerModel"
+                  name="printerModel"
+                  type="text"
+                  placeholder="Bambu Lab P1S, Prusa MK4, Ender 3…"
+                />
+              </div>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">Con qué materiales trabajas</legend>
+                <p class="campo__ayuda">Puedes marcar varios.</p>
+                <div class="fila-opciones">
+                  {
+                    MATERIALES.map((material) => (
+                      <button
+                        class="opcion opcion--pastilla"
+                        type="button"
+                        data-material={material}
+                        aria-pressed="false"
+                      >
+                        {material}
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="campo alta__grupo" data-nozzle-container hidden>
+                <legend class="campo__nombre">Qué boquillas tienes</legend>
+                <p class="campo__ayuda">Marca todos los tamaños disponibles.</p>
+                <div class="fila-opciones">
+                  {
+                    BOQUILLAS.map((boquilla) => (
+                      <button
+                        class="opcion opcion--pastilla"
+                        type="button"
+                        data-nozzle={boquilla}
+                        aria-pressed="false"
+                      >
+                        {boquilla}
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">Cuánto llevas imprimiendo en 3D</legend>
+                <div class="alta__opciones">
+                  {
+                    EXPERIENCIAS.map((experiencia) => (
+                      <button
+                        class="opcion"
+                        type="button"
+                        data-experience={experiencia}
+                        aria-pressed="false"
+                      >
+                        <span class="opcion__titulo">{experiencia}</span>
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="alta__pie">
+              <p class="alta__requisito">
+                Completa equipo, materiales, boquillas y experiencia para continuar.
+              </p>
+              <div class="alta__acciones">
+                <button class="boton boton--principal" data-next="1" type="button" disabled>
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: colores disponibles por material -->
+          <div data-step-panel="2" hidden>
+            <p class="etiqueta alta__paso">Paso 2 de 3</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">Qué colores tienes</h2>
+            <p class="alta__ayuda">
+              Marca los que tengas de cada material. Si tienes alguno que no
+              aparece, escríbelo abajo.
+            </p>
+
+            <div data-colors-container></div>
+
+            <div class="alta__pie">
+              <p class="alta__requisito">Elige al menos un color por material.</p>
+              <div class="alta__acciones alta__acciones--doble">
+                <button class="boton boton--secundario" data-prev="2" type="button">Atrás</button>
+                <button class="boton boton--principal" data-next="2" type="button" disabled>
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: datos de contacto -->
+          <div data-step-panel="3" hidden>
+            <p class="etiqueta alta__paso">Paso 3 de 3</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">Tus datos</h2>
+            <p class="alta__ayuda">
+              Los usaremos para revisar tu alta y contarte los siguientes pasos.
+            </p>
+
+            <div class="alta__campos">
+              <div class="alta__dupla">
+                <div class="campo">
+                  <label class="campo__nombre" for="alta-nombre">Nombre</label>
+                  <input class="entrada" id="alta-nombre" data-signup-input="name" name="name" type="text" autocomplete="name" placeholder="Tu nombre" />
+                </div>
+                <div class="campo">
+                  <label class="campo__nombre" for="alta-ciudad">Ciudad</label>
+                  <input class="entrada" id="alta-ciudad" data-signup-input="city" name="city" type="text" placeholder="Málaga" />
+                </div>
+              </div>
+
+              <div class="campo">
+                <label class="campo__nombre" for="alta-email">Email</label>
+                <input class="entrada" id="alta-email" data-signup-input="email" name="email" type="email" autocomplete="email" placeholder="tu@email.com" />
+              </div>
+            </div>
+
+            <p class="alta__privacidad">
+              Trataremos estos datos para revisar el alta y responderte. Formspree
+              procesa el formulario por cuenta de 3dbok. Consulta la
+              <a href="/privacidad">política de privacidad</a>.
+            </p>
+
+            <p class="alta__error" data-signup-error hidden role="alert" tabindex="-1"></p>
+
+            <div class="alta__pie">
+              <p class="alta__requisito">Necesitamos nombre, ciudad y un email válido.</p>
+              <div class="alta__acciones alta__acciones--doble">
+                <button class="boton boton--secundario" data-prev="3" type="button">Atrás</button>
+                <button class="boton boton--principal" data-signup-submit type="submit" disabled>
+                  Darme de alta
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </form>
 
-      <div data-nozzle-container hidden>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-          ¿Qué tamaños de boquilla tienes?
-        </label>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          {nozzleSizes.map((n) => (
-            <button
-              data-nozzle={n}
-              type="button"
-              style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-          ¿Cuánta experiencia tienes imprimiendo en 3D?
-        </label>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          {experiences.map((experience) => (
-            <button
-              data-experience={experience}
-              type="button"
-              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; cursor: pointer; font-size: 13px; text-align: left; color: var(--color-text-primary);"
-            >
-              {experience}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    <button
-      data-signup-submit
-      type="submit"
-      disabled
-      style="width: 100%; margin-top: 2rem; background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 13px; font-size: 15px; font-weight: 500; cursor: not-allowed;"
-    >
-      Registrarme como maker →
-    </button>
-
-  </form>
-
-  <main data-signup-success hidden style="max-width: 480px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
-    <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-brand-soft); color: var(--color-brand-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
-      <span style="font-size: 28px;">✓</span>
-    </div>
-    <h1 style="font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem;">
-      ¡Registro recibido!
-    </h1>
-    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2rem;">
-      Te contactaremos próximamente por email explicando los siguientes pasos.
-
-      Si no recibes un email en los próximos días, 
-      por favor revisa tu carpeta de spam o contáctanos a <a href="mailto:contacto@3dbok.com" style="color: var(--color-brand-primary); text-decoration: underline;">contacto@3dbok.com</a>
-    </p>
-    <a
-      href="/"
-      style="background: var(--color-brand-primary); color: white; border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none;"
-    >
-      Volver al inicio
-    </a>
+      <section class="envoltura alta__exito" data-signup-success hidden>
+        <p class="etiqueta">Alta recibida</p>
+        <h2 class="alta__titulo" data-success-title tabindex="-1">Te escribimos en unos días</h2>
+        <p class="alta__texto">
+          Repasamos tu alta y te contamos los siguientes pasos por email. Si no
+          ves nada en unos días, mira en spam o escríbenos a
+          <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
+        </p>
+        <a href="/" class="boton boton--principal alta__accion">Volver al inicio</a>
+      </section>
+    </section>
   </main>
-
-  <script>
-    const form = document.querySelector("[data-signup-form]");
-    const success = document.querySelector("[data-signup-success]");
-    const submit = document.querySelector("[data-signup-submit]");
-    const inputs = Array.from(document.querySelectorAll("[data-signup-input]"));
-    const materialButtons = Array.from(document.querySelectorAll("[data-material]"));
-    const nozzleContainer = document.querySelector("[data-nozzle-container]");
-    const nozzleButtons = Array.from(document.querySelectorAll("[data-nozzle]"));
-    const experienceButtons = Array.from(document.querySelectorAll("[data-experience]"));
-
-    const selectedStyle = (button) => {
-      button.style.background = "var(--color-brand-soft)";
-      button.style.border = "2px solid var(--color-brand-primary)";
-    };
-
-    const defaultButtonStyle = (button) => {
-      button.style.background = "var(--color-background-secondary)";
-      button.style.border = "0.5px solid var(--color-border-tertiary)";
-    };
-
-    const defaultExperienceStyle = (button) => {
-      button.style.background = "var(--color-background-primary)";
-      button.style.border = "0.5px solid var(--color-border-tertiary)";
-    };
-
-    const getValue = (key) => {
-      const input = document.querySelector(`[data-signup-input="${key}"]`);
-      return input instanceof HTMLInputElement ? input.value : "";
-    };
-
-    const updateSubmit = () => {
-      if (!submit) return;
-      const canSubmit = Boolean(
-        getValue("name") &&
-        getValue("email").includes("@") &&
-        getValue("city") &&
-        getValue("printerModel")
-      );
-      submit.disabled = !canSubmit;
-      submit.style.background = canSubmit ? "var(--color-brand-primary)" : "var(--color-background-secondary)";
-      submit.style.color = canSubmit ? "white" : "var(--color-text-secondary)";
-      submit.style.cursor = canSubmit ? "pointer" : "not-allowed";
-    };
-
-    const checkNozzleVisibility = () => {
-      if (!nozzleContainer) return;
-      
-      const selectedMaterials = materialButtons
-        .filter((btn) => btn.dataset.selected === "true")
-        .map((btn) => btn.dataset.material);
-
-      const requiresNozzle = selectedMaterials.some((mat) => mat !== "Resina");
-      nozzleContainer.hidden = !requiresNozzle;
-    };
-
-    inputs.forEach((input) => input.addEventListener("input", updateSubmit));
-
-    materialButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const selected = button.dataset.selected === "true";
-        button.dataset.selected = selected ? "false" : "true";
-        if (selected) defaultButtonStyle(button);
-        else selectedStyle(button);
-        
-        checkNozzleVisibility();
-      });
-    });
-
-    nozzleButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const selected = button.dataset.selected === "true";
-        button.dataset.selected = selected ? "false" : "true";
-        if (selected) defaultButtonStyle(button);
-        else selectedStyle(button);
-      });
-    });
-
-    experienceButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        experienceButtons.forEach((item) => {
-          item.dataset.selected = "false";
-          defaultExperienceStyle(item);
-        });
-        button.dataset.selected = "true";
-        selectedStyle(button);
-      });
-    });
-
-    form?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!submit || submit.disabled || !form || !success) return;
-
-      submit.disabled = true;
-      submit.textContent = "Enviando…";
-
-      const datos = new FormData(form);
-      
-      datos.append("materials", materialButtons
-        .filter((button) => button.dataset.selected === "true")
-        .map((button) => button.dataset.material || "")
-        .filter(Boolean)
-        .join(", "));
-        
-      datos.append("nozzleSizes", nozzleButtons
-        .filter((button) => button.dataset.selected === "true" && !nozzleContainer.hidden)
-        .map((button) => button.dataset.nozzle || "")
-        .filter(Boolean)
-        .join(", "));
-
-      datos.append("experience", experienceButtons.find((button) => button.dataset.selected === "true")?.dataset.experience || "");
-      datos.append("tipo", "maker");
-
-      try {
-        const res = await fetch(form.dataset.endpoint || "", {
-          method: "POST",
-          body: datos,
-          headers: { Accept: "application/json" },
-        });
-        if (!res.ok) throw new Error("Error al enviar");
-        form.hidden = true;
-        success.hidden = false;
-        window.scrollTo(0, 0);
-      } catch (err) {
-        submit.disabled = false;
-        submit.textContent = "No se pudo enviar. Inténtalo de nuevo";
-        submit.style.background = "#A23B3B";
-        submit.style.color = "white";
-        submit.style.cursor = "pointer";
-      }
-    });
-  </script>
 </BaseLayout>
+
+<style>
+  /* --- Portada -------------------------------------------------------- */
+
+  .alta__portada {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .alta__portada::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgb(252 252 249 / 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(252 252 249 / 0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent);
+    pointer-events: none;
+  }
+
+  .alta__portada-interior {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: center;
+    padding-block: clamp(3.5rem, 2rem + 5vw, 6rem) clamp(2.5rem, 4vw, 4rem);
+  }
+
+  .alta__titulo {
+    max-width: 13ch;
+    margin-top: 0.9rem;
+    font-size: clamp(2.4rem, 1.4rem + 3.2vw, 4.2rem);
+    font-stretch: 125%;
+    font-weight: 820;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  .alta__entrada {
+    max-width: 42ch;
+    margin-top: 1.4rem;
+    font-size: var(--paso-1);
+    line-height: 1.55;
+    color: rgb(252 252 249 / 0.84);
+  }
+
+  .alta__empezar {
+    margin-top: 2rem;
+  }
+
+  /* El aviso de encargo: un correo de muestra que entra como entraría en
+     la bandeja de un maker. */
+  .aviso {
+    margin: 0;
+    justify-self: end;
+    width: min(100%, 26rem);
+  }
+
+  .aviso__correo {
+    padding: 1.25rem 1.35rem 1.1rem;
+    border-radius: var(--r-3);
+    background: var(--pieza);
+    color: var(--tinta);
+    box-shadow: 0 24px 50px -28px rgb(23 26 51 / 0.7);
+  }
+
+  .aviso__cabecera {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--linea);
+    font-size: 0.88rem;
+    font-weight: 650;
+    color: var(--cianotipo-hondo);
+  }
+
+  .aviso__punto {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--filamento);
+  }
+
+  .aviso__distancia {
+    margin-left: auto;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--cianotipo-lavado);
+    font-size: 0.78rem;
+  }
+
+  .aviso__pieza {
+    margin-top: 0.9rem;
+    font-family: var(--fuente-titulo);
+    font-size: var(--paso-2);
+    font-stretch: 112%;
+    font-weight: 720;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .aviso__datos {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+
+  .aviso__datos div {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 0.75rem;
+    font-size: 0.92rem;
+  }
+
+  .aviso__datos dt {
+    color: var(--tinta-suave);
+  }
+
+  .aviso__datos dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .aviso__pie {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--linea);
+    font-size: 0.88rem;
+    color: var(--tinta-media);
+  }
+
+  .aviso__leyenda {
+    margin-top: 0.75rem;
+    font-size: 0.84rem;
+    color: rgb(252 252 249 / 0.72);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .aviso__correo {
+      animation: llegar-aviso 0.8s var(--curva-muelle) 0.35s both;
+    }
+
+    .aviso__punto {
+      animation: latir 1.8s ease-in-out 1.2s 3;
+    }
+
+    .alta__presentacion > * {
+      animation: subir 600ms var(--curva-salida) both;
+    }
+
+    .alta__presentacion > :nth-child(2) {
+      animation-delay: 60ms;
+    }
+
+    .alta__presentacion > :nth-child(3) {
+      animation-delay: 120ms;
+    }
+
+    .alta__presentacion > :nth-child(4) {
+      animation-delay: 180ms;
+    }
+  }
+
+  @keyframes llegar-aviso {
+    from {
+      opacity: 0;
+      transform: translateY(28px) rotate(2.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes latir {
+    50% {
+      box-shadow: 0 0 0 6px rgb(229 89 47 / 0.25);
+    }
+  }
+
+  @keyframes subir {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .alta__ventajas {
+    position: relative;
+  }
+
+  .alta__ventajas-titulo {
+    margin: 0 0 0.9rem;
+    font-size: var(--paso-2);
+  }
+
+  .alta__ventajas-lista {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--linea-clara);
+    font-size: 0.93rem;
+    line-height: 1.5;
+    color: rgb(252 252 249 / 0.76);
+  }
+
+  .alta__ventajas-lista li {
+    padding: 1.1rem 1.5rem 0 0;
+  }
+
+  .alta__ventajas-lista li + li {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--linea-clara);
+  }
+
+  .alta__ventajas strong {
+    display: block;
+    font-weight: 650;
+    color: var(--pieza);
+  }
+
+  /* --- Registro ------------------------------------------------------- */
+
+  .alta__registro {
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  }
+
+  .alta__formulario {
+    display: grid;
+    grid-template-columns: minmax(13rem, 17rem) minmax(0, 49rem);
+    justify-content: space-between;
+    gap: clamp(2rem, 3.5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .alta__guia {
+    position: sticky;
+    top: 6.5rem;
+    min-width: 0;
+  }
+
+  .alta__cabeza-guia {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .pila {
+    flex: 0 0 auto;
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .pila__placa {
+    fill: var(--bancada-honda);
+    transition: fill 0.4s ease;
+  }
+
+  .pila__capa {
+    fill: var(--linea-fuerte);
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transition: fill 0.4s ease;
+  }
+
+  /* La capa del paso en curso está "caliente"; las de los pasos hechos ya
+     se han enfriado. Con las tres, el logo queda impreso. */
+  .alta__formulario:has([data-signup-progress-step="1"][aria-current="step"]) .pila__capa--1,
+  .alta__formulario:has([data-signup-progress-step="2"][aria-current="step"]) .pila__capa--2,
+  .alta__formulario:has([data-signup-progress-step="3"][aria-current="step"]) .pila__capa--3 {
+    fill: var(--filamento);
+  }
+
+  .alta__formulario:has([data-signup-progress-step="1"][data-completo]) .pila__capa--1,
+  .alta__formulario:has([data-signup-progress-step="2"][data-completo]) .pila__capa--2,
+  .alta__formulario:has([data-signup-progress-step="3"][data-completo]) .pila__capa--3 {
+    fill: var(--pieza);
+  }
+
+  .alta__formulario:has([data-signup-progress-step="1"][data-completo]) .pila__placa {
+    fill: var(--cianotipo);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .alta__formulario:has([data-signup-progress-step="2"][aria-current="step"]) .pila__capa--2,
+    .alta__formulario:has([data-signup-progress-step="3"][aria-current="step"]) .pila__capa--3 {
+      animation: depositar-capa 0.5s var(--curva-muelle);
+    }
+  }
+
+  @keyframes depositar-capa {
+    from {
+      transform: scaleX(0.2);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  .alta__guia-titulo {
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-stretch: 110%;
+  }
+
+  .alta__avance-datos {
+    margin-top: 0.1rem;
+    font-size: 0.88rem;
+    color: var(--tinta-suave);
+  }
+
+  .alta__barra {
+    height: 4px;
+    margin-top: 1.1rem;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--bancada-honda);
+  }
+
+  .alta__barra-relleno {
+    width: 0;
+    height: 100%;
+    background: var(--cianotipo);
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .alta__pasos {
+    margin-top: 1.4rem;
+  }
+
+  .alta__indicador {
+    display: grid;
+    grid-template-columns: 1.9rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.6rem 0;
+    color: var(--tinta-suave);
+    transition: color 0.16s ease;
+  }
+
+  .alta__indicador-numero {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 50%;
+    font-family: var(--fuente-dato);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .alta__indicador-titulo {
+    font-size: 0.95rem;
+    font-weight: 560;
+    line-height: 1.3;
+  }
+
+  .alta__indicador[data-completo] {
+    color: var(--tinta);
+  }
+
+  .alta__indicador[data-completo] .alta__indicador-numero {
+    border-color: var(--verde);
+    background: var(--verde);
+    color: transparent;
+    position: relative;
+  }
+
+  .alta__indicador[data-completo] .alta__indicador-numero::after {
+    content: "✓";
+    position: absolute;
+    color: var(--pieza);
+    font-family: var(--fuente-texto);
+    font-size: 0.9rem;
+  }
+
+  .alta__indicador[aria-current="step"] {
+    color: var(--tinta);
+    font-weight: 680;
+  }
+
+  .alta__indicador[aria-current="step"] .alta__indicador-numero {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo);
+    color: var(--pieza);
+  }
+
+  .alta__garantia {
+    margin-top: 1.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--linea);
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--tinta-suave);
+  }
+
+  .alta__panel {
+    min-width: 0;
+    padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
+    background: var(--pieza);
+  }
+
+  .alta__panel [data-step-panel] {
+    min-width: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .alta__panel [data-step-panel]:not([hidden]) {
+      animation: subir 420ms var(--curva-salida) both;
+    }
+  }
+
+  .alta__paso {
+    margin-bottom: 0.6rem;
+  }
+
+  .alta__seccion {
+    max-width: 17ch;
+    margin-bottom: 1.35rem;
+    font-size: clamp(1.8rem, 1.45rem + 1.5vw, 2.6rem);
+  }
+
+  .alta__ayuda {
+    max-width: 42rem;
+    margin-top: -0.35rem;
+    margin-bottom: 1.5rem;
+    color: var(--tinta-media);
+    line-height: 1.6;
+  }
+
+  .alta__campos {
+    display: grid;
+    gap: 1.9rem;
+  }
+
+  .alta__grupo {
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  .alta__panel .campo__nombre {
+    margin-bottom: 0.45rem;
+    font-size: 1rem;
+    font-weight: 650;
+  }
+
+  .alta__panel .campo__ayuda {
+    margin-bottom: 0.7rem;
+  }
+
+  .alta__panel .entrada {
+    min-height: 3.1rem;
+    padding: 0.82rem 0.95rem;
+    background: var(--pieza);
+  }
+
+  .alta__opciones {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .alta__panel .opcion {
+    position: relative;
+    min-height: 3.6rem;
+    padding: 0.85rem 5rem 0.85rem 1rem;
+    border-color: var(--linea-fuerte);
+  }
+
+  .alta__panel .opcion:hover {
+    border-color: var(--cianotipo);
+  }
+
+  .alta__panel .opcion[aria-pressed="true"] {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .alta__panel .opcion[aria-pressed="true"]::after {
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    translate: 0 -50%;
+    color: var(--cianotipo-hondo);
+    font-size: 0.82rem;
+    font-weight: 650;
+    content: "✓ Elegido";
+  }
+
+  .alta__panel .opcion--pastilla {
+    min-height: 2.6rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .alta__panel .opcion--pastilla[aria-pressed="true"] {
+    padding-right: 2.1rem;
+    background: var(--cianotipo);
+    color: var(--pieza);
+  }
+
+  .alta__panel .opcion--pastilla[aria-pressed="true"]::after {
+    right: 0.75rem;
+    color: var(--pieza);
+    content: "✓";
+  }
+
+  .alta__dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+  }
+
+  .alta__privacidad {
+    margin-top: 1.5rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--r-2);
+    background: var(--bancada);
+    color: var(--tinta-suave);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .alta__error {
+    margin-top: 1.25rem;
+    padding: 0.95rem 1rem 0.95rem 1.15rem;
+    border: 1px solid var(--alerta);
+    border-left: 4px solid var(--alerta);
+    background: var(--pieza);
+    color: var(--alerta);
+    font-weight: 560;
+    line-height: 1.5;
+  }
+
+  .alta__pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--linea);
+  }
+
+  .alta__requisito {
+    max-width: 27rem;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--tinta-suave);
+  }
+
+  .alta__acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    flex: 0 0 auto;
+  }
+
+  .alta__acciones .boton {
+    min-width: 9.5rem;
+    justify-content: center;
+  }
+
+  .alta__acciones--doble .boton--secundario {
+    min-width: auto;
+  }
+
+  .alta__exito {
+    max-width: 760px;
+    padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
+    background: var(--pieza);
+  }
+
+  .alta__exito .alta__titulo {
+    font-size: var(--paso-3);
+  }
+
+  .alta__texto {
+    max-width: 42rem;
+    margin-top: 1rem;
+    color: var(--tinta-media);
+    line-height: 1.6;
+  }
+
+  .alta__accion {
+    margin-top: 1.75rem;
+  }
+
+  @media (max-width: 880px) {
+    .alta__portada-interior {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+
+    .aviso {
+      justify-self: start;
+    }
+
+    .alta__formulario {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 760px;
+      gap: 1.25rem;
+    }
+
+    .alta__guia {
+      position: static;
+    }
+
+    .alta__pasos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 1rem;
+    }
+
+    .alta__indicador {
+      grid-template-columns: 1.9rem minmax(0, 1fr);
+      gap: 0.5rem;
+      padding: 0;
+    }
+
+    .alta__indicador-titulo {
+      font-size: 0.82rem;
+    }
+
+    .alta__garantia {
+      display: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .alta__ventajas-lista {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .alta__ventajas-lista li,
+    .alta__ventajas-lista li + li {
+      padding: 0.85rem 0;
+      border-left: 0;
+    }
+
+    .alta__ventajas-lista li + li {
+      border-top: 1px solid var(--linea-clara);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .alta__registro {
+      padding-block: 1.5rem 3rem;
+    }
+
+    .alta__indicador-titulo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .alta__pasos {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .alta__panel {
+      padding: 1.25rem 1.1rem;
+    }
+
+    .alta__seccion {
+      margin-bottom: 1.2rem;
+      font-size: clamp(1.8rem, 8.5vw, 2.3rem);
+    }
+
+    .alta__campos {
+      gap: 1.65rem;
+    }
+
+    .alta__dupla {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.65rem;
+    }
+
+    .alta__pie {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .alta__requisito {
+      text-align: center;
+    }
+
+    .alta__acciones,
+    .alta__acciones .boton {
+      width: 100%;
+    }
+
+    .alta__acciones .boton {
+      min-width: 0;
+    }
+
+    .alta__acciones--doble .boton--secundario {
+      width: auto;
+      flex: 0 0 auto;
+    }
+
+    .alta__acciones--doble .boton--principal {
+      flex: 1;
+    }
+
+    .alta__exito {
+      margin-inline: var(--canal);
+      padding: 1.25rem 1.1rem;
+    }
+  }
+</style>
+
+<!-- Los bloques de color los construye el script paso a paso, así que sus
+     estilos no pueden llevar el ámbito de la página: no lo heredarían. -->
+<style is:global>
+  /* --- Bloques de color por material ------------------------------------ */
+
+  .material-colores {
+    min-inline-size: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--linea);
+    border-left: 3px solid var(--cianotipo);
+    border-radius: var(--r-2);
+    background: var(--pieza);
+  }
+
+  .material-colores + .material-colores {
+    margin-top: 1rem;
+  }
+
+  .material-colores__titulo {
+    padding-inline: 0.35rem;
+    margin-bottom: 0.9rem;
+    font-size: 1rem;
+    font-weight: 700;
+    font-stretch: 110%;
+    color: var(--cianotipo-hondo);
+  }
+
+  .material-colores__muestras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr));
+    gap: 0.45rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .muestra {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-width: 0;
+    min-height: 4.5rem;
+    padding: 0.45rem 0.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--r-2);
+    background: none;
+    cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .muestra:hover {
+    border-color: var(--linea-fuerte);
+    background: var(--bancada);
+  }
+
+  .muestra__punto {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 50%;
+    transition: box-shadow 0.14s ease;
+  }
+
+  .muestra[aria-pressed="true"] .muestra__punto {
+    box-shadow: 0 0 0 2px var(--pieza), 0 0 0 4px var(--cianotipo);
+  }
+
+  .muestra[aria-pressed="true"] {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .muestra[aria-pressed="true"]::after {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.35rem;
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--cianotipo);
+    color: var(--pieza);
+    font-family: var(--fuente-dato);
+    font-size: 0.65rem;
+    line-height: 1;
+    content: "✓";
+  }
+
+  .muestra__nombre {
+    font-size: 0.68rem;
+    line-height: 1.2;
+    color: var(--tinta-suave);
+    text-align: center;
+  }
+
+  .muestra[aria-pressed="true"] .muestra__nombre {
+    color: var(--tinta);
+    font-weight: 600;
+  }
+
+  .material-colores__otros {
+    display: block;
+  }
+
+  .material-colores__otros-nombre {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--tinta-media);
+  }
+
+  @media (max-width: 560px) {
+    .material-colores {
+      padding: 1rem 0.8rem;
+    }
+
+    .material-colores__muestras {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<script>
+  const paleta = [
+    { nombre: "Negro", hex: "#1c1c1c" },
+    { nombre: "Blanco", hex: "#f5f5f5" },
+    { nombre: "Gris", hex: "#9e9e9e" },
+    { nombre: "Rojo", hex: "#d32f2f" },
+    { nombre: "Naranja", hex: "#ef6c00" },
+    { nombre: "Amarillo", hex: "#fbc02d" },
+    { nombre: "Verde", hex: "#2e7d32" },
+    { nombre: "Azul", hex: "#1565c0" },
+    { nombre: "Morado", hex: "#7b1fa2" },
+    { nombre: "Rosa", hex: "#ec407a" },
+    { nombre: "Marrón", hex: "#6d4c41" },
+    { nombre: "Dorado", hex: "#c9a227" },
+    { nombre: "Plata", hex: "#bdbdbd" },
+    { nombre: "Transparente", transparente: true },
+  ];
+
+  const formulario = document.querySelector("[data-signup-form]");
+  const exito = document.querySelector("[data-signup-success]");
+  const error = document.querySelector("[data-signup-error]");
+  const enviar = document.querySelector("[data-signup-submit]");
+  const entradas = Array.from(document.querySelectorAll("[data-signup-input]"));
+  const botonesMaterial = Array.from(document.querySelectorAll("[data-material]"));
+  const zonaBoquillas = document.querySelector("[data-nozzle-container]");
+  const botonesBoquilla = Array.from(document.querySelectorAll("[data-nozzle]"));
+  const botonesExperiencia = Array.from(document.querySelectorAll("[data-experience]"));
+  const paneles = Array.from(document.querySelectorAll("[data-step-panel]"));
+  const zonaColores = document.querySelector("[data-colors-container]");
+  const botonesSiguiente = Array.from(document.querySelectorAll("[data-next]"));
+  const botonesAtras = Array.from(document.querySelectorAll("[data-prev]"));
+  const pasoActual = document.querySelector("[data-signup-current]");
+  const textoAvance = document.querySelector("[data-signup-progress-text]");
+  const barraAvance = document.querySelector("[data-signup-progress]");
+  const rellenoAvance = document.querySelector("[data-signup-progress-fill]");
+  const indicadoresPaso = Array.from(
+    document.querySelectorAll("[data-signup-progress-step]"),
+  );
+  const tituloExito = document.querySelector("[data-success-title]");
+
+  // material -> { colores: Set<string>, otros: string }
+  const colores = new Map();
+
+  const marcado = (boton) => boton.getAttribute("aria-pressed") === "true";
+  const alternar = (boton) =>
+    boton.setAttribute("aria-pressed", String(!marcado(boton)));
+
+  const valor = (clave) => {
+    const campo = document.querySelector(`[data-signup-input="${clave}"]`);
+    return campo instanceof HTMLInputElement ? campo.value.trim() : "";
+  };
+
+  const materialesElegidos = () =>
+    botonesMaterial.filter(marcado).map((boton) => boton.dataset.material || "");
+
+  const revisarBoquillas = () => {
+    if (!zonaBoquillas) return;
+    zonaBoquillas.hidden = !materialesElegidos().some((material) => material !== "Resina");
+  };
+
+  const paso1Valido = () => {
+    const boquillasOk =
+      zonaBoquillas && !zonaBoquillas.hidden ? botonesBoquilla.some(marcado) : true;
+    return Boolean(
+      valor("printerModel") &&
+        materialesElegidos().length > 0 &&
+        boquillasOk &&
+        botonesExperiencia.some(marcado),
+    );
+  };
+
+  const paso2Valido = () => {
+    const elegidos = materialesElegidos();
+    if (elegidos.length === 0) return false;
+    return elegidos.every((material) => {
+      const datos = colores.get(material);
+      return Boolean(datos && (datos.colores.size > 0 || datos.otros.trim()));
+    });
+  };
+
+  const paso3Valido = () =>
+    Boolean(valor("name") && valor("email").includes("@") && valor("city"));
+
+  const actualizarBotones = () => {
+    const siguiente1 = document.querySelector('[data-next="1"]');
+    const siguiente2 = document.querySelector('[data-next="2"]');
+    if (siguiente1 instanceof HTMLButtonElement) siguiente1.disabled = !paso1Valido();
+    if (siguiente2 instanceof HTMLButtonElement) siguiente2.disabled = !paso2Valido();
+    if (enviar instanceof HTMLButtonElement) enviar.disabled = !paso3Valido();
+  };
+
+  const actualizarProgreso = (numero) => {
+    const porcentaje = Math.round(((numero - 1) / 3) * 100);
+    if (pasoActual) pasoActual.textContent = String(numero);
+    if (textoAvance) textoAvance.textContent = String(porcentaje);
+    if (rellenoAvance) rellenoAvance.style.width = `${porcentaje}%`;
+    if (barraAvance) barraAvance.setAttribute("aria-valuenow", String(porcentaje));
+    indicadoresPaso.forEach((indicador) => {
+      const indice = Number(indicador.dataset.signupProgressStep);
+      indicador.toggleAttribute("data-completo", indice < numero);
+      if (indice === numero) indicador.setAttribute("aria-current", "step");
+      else indicador.removeAttribute("aria-current");
+    });
+  };
+
+  const irAlPaso = (numero, enfocar = true) => {
+    if (numero === 2) dibujarColores();
+    paneles.forEach((panel) => {
+      panel.hidden = panel.dataset.stepPanel !== String(numero);
+    });
+    actualizarProgreso(numero);
+    if (enfocar) {
+      formulario?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      document
+        .querySelector(`[data-step-panel="${numero}"] [data-step-title]`)
+        ?.focus?.({ preventScroll: true });
+    }
+    actualizarBotones();
+  };
+
+  const crearMuestra = (material, color) => {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "muestra";
+    boton.setAttribute("aria-pressed", "false");
+
+    const punto = document.createElement("span");
+    punto.className = "muestra__punto";
+    if (color.transparente) {
+      punto.style.backgroundImage =
+        "conic-gradient(#cfcfcf 90deg, transparent 90deg 180deg, #cfcfcf 180deg 270deg, transparent 270deg)";
+      punto.style.backgroundSize = "8px 8px";
+    } else {
+      punto.style.backgroundColor = color.hex;
+    }
+
+    const nombre = document.createElement("span");
+    nombre.className = "muestra__nombre";
+    nombre.textContent = color.nombre;
+
+    boton.append(punto, nombre);
+
+    const estado = colores.get(material);
+    if (estado?.colores.has(color.nombre)) boton.setAttribute("aria-pressed", "true");
+
+    boton.addEventListener("click", () => {
+      const actual = colores.get(material);
+      if (!actual) return;
+      if (actual.colores.has(color.nombre)) actual.colores.delete(color.nombre);
+      else actual.colores.add(color.nombre);
+      alternar(boton);
+      actualizarBotones();
+    });
+
+    return boton;
+  };
+
+  const dibujarColores = () => {
+    if (!zonaColores) return;
+    const elegidos = materialesElegidos();
+
+    // Se olvida el estado de los materiales que ya no están marcados.
+    Array.from(colores.keys()).forEach((material) => {
+      if (!elegidos.includes(material)) colores.delete(material);
+    });
+
+    zonaColores.replaceChildren();
+
+    elegidos.forEach((material) => {
+      if (!colores.has(material)) colores.set(material, { colores: new Set(), otros: "" });
+
+      const bloque = document.createElement("fieldset");
+      bloque.className = "material-colores";
+
+      const titulo = document.createElement("legend");
+      titulo.className = "material-colores__titulo";
+      titulo.textContent = material;
+      bloque.appendChild(titulo);
+
+      const muestras = document.createElement("div");
+      muestras.className = "material-colores__muestras";
+      paleta.forEach((color) => muestras.appendChild(crearMuestra(material, color)));
+      bloque.appendChild(muestras);
+
+      const otros = document.createElement("input");
+      otros.type = "text";
+      otros.className = "entrada";
+      otros.placeholder = "Ej.: verde oliva, cobre…";
+      otros.value = colores.get(material).otros;
+      otros.addEventListener("input", () => {
+        const estado = colores.get(material);
+        if (estado) estado.otros = otros.value;
+        actualizarBotones();
+      });
+      const grupoOtros = document.createElement("label");
+      grupoOtros.className = "material-colores__otros";
+      const nombreOtros = document.createElement("span");
+      nombreOtros.className = "material-colores__otros-nombre";
+      nombreOtros.textContent = "Otros colores (opcional)";
+      grupoOtros.append(nombreOtros, otros);
+      bloque.appendChild(grupoOtros);
+
+      zonaColores.appendChild(bloque);
+    });
+  };
+
+  entradas.forEach((entrada) => entrada.addEventListener("input", actualizarBotones));
+
+  botonesMaterial.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      alternar(boton);
+      revisarBoquillas();
+      actualizarBotones();
+    });
+  });
+
+  botonesBoquilla.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      alternar(boton);
+      actualizarBotones();
+    });
+  });
+
+  botonesExperiencia.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      botonesExperiencia.forEach((otro) => otro.setAttribute("aria-pressed", "false"));
+      boton.setAttribute("aria-pressed", "true");
+      actualizarBotones();
+    });
+  });
+
+  botonesSiguiente.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const numero = Number(boton.dataset.next);
+      if (numero === 1 && paso1Valido()) irAlPaso(2);
+      if (numero === 2 && paso2Valido()) irAlPaso(3);
+    });
+  });
+
+  botonesAtras.forEach((boton) => {
+    boton.addEventListener("click", () => irAlPaso(Number(boton.dataset.prev) - 1));
+  });
+
+  formulario?.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (!(enviar instanceof HTMLButtonElement) || enviar.disabled) return;
+    if (!formulario || !exito || !error || !paso3Valido()) return;
+
+    enviar.disabled = true;
+    enviar.textContent = "Enviando…";
+    error.hidden = true;
+    formulario.setAttribute("aria-busy", "true");
+
+    const datos = new FormData(formulario);
+    datos.append("materials", materialesElegidos().join(", "));
+    datos.append(
+      "nozzleSizes",
+      zonaBoquillas && !zonaBoquillas.hidden
+        ? botonesBoquilla.filter(marcado).map((boton) => boton.dataset.nozzle).join(", ")
+        : "",
+    );
+    datos.append(
+      "experience",
+      botonesExperiencia.find(marcado)?.dataset.experience || "",
+    );
+    datos.append(
+      "colors",
+      materialesElegidos()
+        .map((material) => {
+          const estado = colores.get(material);
+          if (!estado) return `${material}: `;
+          const partes = Array.from(estado.colores);
+          if (estado.otros.trim()) partes.push(estado.otros.trim());
+          return `${material}: ${partes.join(", ")}`;
+        })
+        .join(" | "),
+    );
+    datos.append("tipo", "maker");
+
+    try {
+      const respuesta = await fetch(formulario.dataset.endpoint || "", {
+        method: "POST",
+        body: datos,
+        headers: { Accept: "application/json" },
+      });
+      if (!respuesta.ok) throw new Error("Error al enviar");
+      formulario.removeAttribute("aria-busy");
+      formulario.hidden = true;
+      exito.hidden = false;
+      exito.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      tituloExito?.focus?.({ preventScroll: true });
+    } catch (fallo) {
+      enviar.disabled = false;
+      formulario.removeAttribute("aria-busy");
+      enviar.textContent = "Darme de alta";
+      error.textContent =
+        "No se ha podido enviar el alta. Compruébalo y vuelve a intentarlo.";
+      error.hidden = false;
+      error.focus();
+    }
+  });
+
+  actualizarProgreso(1);
+  actualizarBotones();
+</script>

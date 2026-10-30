@@ -1,0 +1,116 @@
+---
+import Logo from "./Logo.astro";
+
+const anio = new Date().getFullYear();
+---
+
+<footer class="pie en-tinta">
+  <div class="envoltura pie__interior">
+    <div class="pie__marca">
+      <a href="/" class="pie__logo" aria-label="3dbok, ir al inicio">
+        <Logo tono="claro" />
+      </a>
+      <p class="pie__lema">
+        Encargas una pieza, un maker de tu zona la imprime. Empezamos en Málaga.
+      </p>
+    </div>
+
+    <nav class="pie__columna" aria-label="Encargos">
+      <p class="etiqueta">Encargar</p>
+      <a href="/briefing">Pedir una pieza</a>
+      <a href="/productores">Ver makers</a>
+      <a href="/#como-funciona">Cómo funciona</a>
+    </nav>
+
+    <nav class="pie__columna" aria-label="Makers">
+      <p class="etiqueta">Imprimir</p>
+      <a href="/maker">Darme de alta</a>
+      <a href="/maker#ventajas">Ventajas para makers</a>
+    </nav>
+
+    <div class="pie__columna">
+      <p class="etiqueta">Contacto</p>
+      <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>
+      <a href="/privacidad">Privacidad</a>
+      <p class="pie__nota">Respondemos en 48 h laborables</p>
+    </div>
+  </div>
+
+  <div class="envoltura pie__cierre">
+    <p>© {anio} 3dbok, Málaga</p>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    padding-top: clamp(2.75rem, 1.6rem + 4vw, 4.5rem);
+    padding-bottom: 1.75rem;
+  }
+
+  .pie__interior {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 2rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .pie__marca {
+    max-width: 24rem;
+  }
+
+  .pie__logo {
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .pie__lema {
+    margin-top: 0.9rem;
+    color: rgba(252, 252, 249, 0.66);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .pie__columna {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .pie__columna a {
+    color: rgba(252, 252, 249, 0.82);
+    font-size: 0.94rem;
+    text-decoration: none;
+    transition: color 0.16s ease;
+  }
+
+  .pie__columna a:hover {
+    color: var(--pieza);
+    text-decoration: underline;
+  }
+
+  .pie__nota {
+    color: rgba(252, 252, 249, 0.45);
+  }
+
+  .pie__cierre {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--linea-clara);
+    color: rgba(252, 252, 249, 0.55);
+    font-size: 0.86rem;
+  }
+
+  @media (max-width: 860px) {
+    .pie__interior {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pie__marca {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

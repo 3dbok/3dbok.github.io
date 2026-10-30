@@ -1,0 +1,24 @@
+---
+// La marca: la elipse de resources/logo.png con "3dbok" en la tipografía de
+// titulares de la web (Archivo expandida, 780) pasada a trazos. Los colores
+// van dentro del propio SVG; la versión clara es para fondos oscuros.
+const { tono = "tinta" } = Astro.props;
+const logo = tono === "claro" ? "/img/marca/logo-claro.svg" : "/img/marca/logo.svg";
+---
+
+<span class:list={["marca", `marca--${tono}`]}>
+  <img class="marca__logo" src={logo} width="80" height="40" alt="" />
+</span>
+
+<style>
+  .marca {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .marca__logo {
+    display: block;
+    width: 80px;
+    height: 40px;
+  }
+</style>

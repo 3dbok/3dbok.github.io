@@ -1,19 +1,19 @@
 [
   {
-    "id": "p-001",
+    "id": "ignacio_printing",
     "slug": "ignacio",
     "nombre": "Ignacio",
-    "ubicacion": "Malaga, España",
+    "ubicacion": "Málaga, España",
     "foto": "/img/productores/bot.png",
     "bio": "Mi nombre es Ignacio, llevo desde 2024 en el mundo de la impresión 3d. Al principio me ceñia solo a imprimir pero desde el último año he empezado a diseñar productos originales",
     "especialidades": ["Figuras Industriales", "Repuestos", "Decoración"],
     "materiales": ["PLA"],
     "impresoras": ["Bambu Lab A1 Mini"],
-    "tamNozzle" : ["0.2mm, 0.4mm"],
+    "tamNozzle": ["0.2 mm", "0.4 mm"],
     "tiempoRespuestaHoras": 48,
     "productos": [
       {
-        "id": "prod-003",
+        "id": "prod-001",
         "nombre": "Figura articulada 15cm",
         "foto": "/img/productos/lampara.jpg",
         "material": "PLA",

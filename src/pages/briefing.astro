@@ -1,663 +1,1609 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import productores from "../data/productores.json";
+import {
+  MATERIALES_PEDIDO,
+  PASOS_PEDIDO,
+  PRESUPUESTOS_PEDIDO,
+  TAMANOS_PEDIDO,
+} from "../lib/pedidoShared.js";
 
-const STEPS = [
-  { id: "description", title: "Cuéntanos tu idea" },
-  { id: "references", title: "¿Tienes referencias visuales?" },
-  { id: "size", title: "¿Qué tamaño necesitas?" },
-  { id: "details", title: "Últimos detalles" },
-  { id: "contact", title: "¿Cómo te contactamos?" },
-];
-
-const SIZES = [
-  { id: "xs", label: "Pequeño", desc: "Como una moneda", example: "< 5 cm" },
-  { id: "s", label: "Compacto", desc: "Como un móvil", example: "5–15 cm" },
-  { id: "m", label: "Mediano", desc: "Como un libro", example: "15–30 cm" },
-  { id: "l", label: "Grande", desc: "Como una mochila", example: "> 30 cm" },
-];
-
-const MATERIALS = [
-  { id: "any", label: "Sin preferencia", desc: "El maker elige lo mejor" },
-  { id: "pla", label: "PLA", desc: "Ecológico, acabado suave" },
-  { id: "resin", label: "Resina", desc: "Máximo detalle, acabado liso" },
-  { id: "petg", label: "PETG", desc: "Más resistente, funcional" },
-];
-
-const budgets = ["< 20€", "20–50€", "50–100€", "Sin límite claro"];
+const FORMSPREE_PEDIDOS_ENDPOINT =
+  import.meta.env.PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT ?? "https://formspree.io/f/xpqgngdj";
 ---
 
-<BaseLayout>
-  <main style="max-width: 620px; margin: 0 auto; padding: 2rem 1.5rem 4rem;">
-    <button
-      data-back
-      type="button"
-      style="background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 2rem;"
+<BaseLayout
+  title="Pedir una pieza"
+  descripcion="Describe la pieza que necesitas en cinco pasos. Revisaremos tu solicitud antes de que nadie empiece a diseñar o imprimir."
+>
+  <main class="brief">
+    <form
+      class="envoltura brief__formulario"
+      data-order-form
+      data-endpoint={FORMSPREE_PEDIDOS_ENDPOINT}
+      novalidate
     >
-      ← Volver al inicio
-    </button>
+      <aside class="brief__guia" aria-label="Progreso de la solicitud">
+        <button class="brief__volver dato" data-back type="button">
+          ← Volver al inicio
+        </button>
 
-    <div style="margin-bottom: 2rem;">
-      <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
-        <span>Paso <span data-step-current>1</span> de {STEPS.length}</span>
-        <span><span data-progress-text>0</span>% completado</span>
-      </div>
-      <div style="height: 4px; background: var(--color-border-tertiary); border-radius: 2px; overflow: hidden;">
-        <div data-progress-fill style={`height: 100%; width: ${(1 / STEPS.length) * 100}%; background: var(--color-brand-primary); border-radius: 2px; transition: width 0.3s ease;`}></div>
-      </div>
-    </div>
-
-    <h1 data-step-title style="font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.75rem;">
-      {STEPS[0].title}
-    </h1>
-
-    <section data-step="0">
-      <div>
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1rem;">
-          Escríbelo como se lo contarías a un amigo. Cuanto más detalle, mejor resultado.
-        </p>
-        <textarea
-          data-field="description"
-          placeholder="Ej: Quiero una miniatura de un dragón negro de unos 10cm, con alas desplegadas y postura amenazante. Es para mi campaña de D&D y quiero que parezca imponente..."
-          rows="6"
-          style="width: 100%; box-sizing: border-box; padding: 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); resize: vertical; line-height: 1.6; font-family: inherit;"
-        ></textarea>
-        <p data-description-count style="font-size: 12px; color: var(--color-text-secondary); margin-top: 6px;">
-          0 caracteres (mínimo 15)
-        </p>
-      </div>
-    </section>
-
-    <section data-step="1" hidden>
-      <div>
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem;">
-          ¿Ya tienes un diseño 3D listo (.STL, .OBJ) o necesitas que un diseñador lo cree para ti?
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
-          {[
-            { val: false, label: "Necesito que un diseñador lo cree", sub: "Te enviamos un boceto para aprobar" },
-            { val: true, label: "Tengo mi propio archivo de diseño", sub: "Lo envías y buscamos un maker directamente" },
-          ].map((opt) => (
-            <button
-              data-choice="hasDesign"
-              data-value={String(opt.val)}
-              type="button"
-              class="wizard-option"
-              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; cursor: pointer; text-align: left;"
-            >
-              <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px;">
-                {opt.label}
-              </div>
-              <div style="font-size: 13px; color: var(--color-text-secondary);">{opt.sub}</div>
-            </button>
-          ))}
+        <div class="brief__avance">
+          <div class="brief__avance-datos dato">
+            <span>Paso <span data-step-current>1</span> de {PASOS_PEDIDO.length}</span>
+            <span><span data-progress-text>0</span> % completado</span>
+          </div>
+          <div
+            class="brief__barra"
+            role="progressbar"
+            aria-label="Progreso del pedido"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-progress-bar
+          >
+            <div class="brief__barra-relleno" data-progress-fill></div>
+          </div>
         </div>
 
-        <div data-design-upload hidden>
-          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            Formatos aceptados: .STL
-          </p>
-          <input
-            data-design-file
-            type="file"
-            accept=".stl,.obj,.3mf,.step,.stp"
-            style="display: none;"
-          />
-          <button
-            data-design-upload-button
-            type="button"
-            style="border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 1rem 1.5rem; background: var(--color-background-secondary); cursor: pointer; color: var(--color-text-secondary); font-size: 14px; width: 100%;"
-          >
-            Subir archivo de diseño →
+        <ol class="brief__pasos">
+          {
+            PASOS_PEDIDO.map((paso, indice) => (
+              <li
+                class="brief__paso"
+                data-progress-step={indice}
+                aria-current={indice === 0 ? "step" : undefined}
+              >
+                <span class="brief__paso-numero dato">
+                  {String(indice + 1).padStart(2, "0")}
+                </span>
+                <span class="brief__paso-titulo">{paso.titulo}</span>
+              </li>
+            ))
+          }
+        </ol>
+
+        <p class="brief__garantia dato">
+          Tus respuestas se guardan durante esta sesión. Puedes volver atrás sin perderlas.
+        </p>
+      </aside>
+
+      <div class="brief__panel">
+        <p class="etiqueta etiqueta--marca brief__etiqueta">Solicitud de impresión</p>
+
+        <p class="brief__elegido" data-selected-product hidden></p>
+        <p class="brief__recuperado dato" data-draft-notice role="status" hidden></p>
+
+        <h1 class="brief__titulo" data-step-title tabindex="-1">
+          {PASOS_PEDIDO[0].titulo}
+        </h1>
+
+      <section data-step="0">
+        <p class="brief__ayuda" id="description-help">
+          Escríbelo como se lo contarías a un amigo. Cuanto más detalle nos des,
+          menos vueltas dará la propuesta.
+        </p>
+        <label class="solo-lectores" for="brief-descripcion">Describe la pieza</label>
+        <textarea
+          class="entrada"
+          id="brief-descripcion"
+          data-field="description"
+          rows="7"
+          required
+          minlength="15"
+          maxlength="2000"
+          aria-describedby="description-help description-count"
+          placeholder="Por ejemplo: quiero una miniatura de un dragón negro de unos 10 cm, con las alas desplegadas y postura amenazante. Es para mi partida de rol y quiero que imponga…"
+        ></textarea>
+        <p class="brief__contador dato" id="description-count" data-description-count>
+          0 de 2000 caracteres · mínimo 15
+        </p>
+      </section>
+
+      <section data-step="1" hidden>
+        <p class="brief__ayuda" id="design-help">
+          Si tienes un STL, puedes previsualizarlo aquí. El archivo no se envía
+          ni se guarda: si lo seleccionas, te lo pediremos después por email.
+        </p>
+        <fieldset class="brief__grupo" data-choice-group="hasDesign" aria-describedby="design-help">
+          <legend class="solo-lectores">Estado del diseño</legend>
+          <div class="brief__opciones">
+            {
+              [
+                {
+                  valor: false,
+                  etiqueta: "Solo tengo la idea",
+                  nota: "Te ayudaremos a concretar el diseño antes de imprimir",
+                },
+                {
+                  valor: true,
+                  etiqueta: "Ya tengo el diseño",
+                  nota: "Puedes comprobar el STL aquí; te lo pediremos por email",
+                },
+              ].map((opcion) => (
+                <button
+                  class="opcion"
+                  type="button"
+                  data-choice="hasDesign"
+                  data-value={String(opcion.valor)}
+                  aria-pressed="false"
+                >
+                  <span class="opcion__titulo">{opcion.etiqueta}</span>
+                  <span class="opcion__nota">{opcion.nota}</span>
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="brief__subida" data-design-upload hidden>
+          <input data-design-file type="file" accept=".stl" hidden />
+          <button class="brief__soltar" type="button" data-design-upload-button>
+            <span class="brief__soltar-titulo">Elegir STL para previsualizar</span>
+            <span class="brief__soltar-nota dato">No se sube ni se guarda</span>
           </button>
-          <div data-stl-preview style="margin-top: 12px;" hidden>
-            <div
-              data-stl-container
-              style="height: 280px; width: 100%; overflow: hidden; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: var(--color-background-tertiary);"
-            ></div>
-            <p data-stl-message style="font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 0;">
-              Arrastra para rotar, rueda para acercar.
+          <div class="brief__archivo-acciones" data-design-file-actions hidden>
+            <p class="brief__archivo-estado dato" data-design-file-status role="status" aria-live="polite"></p>
+            <button class="brief__quitar dato" type="button" data-design-remove>
+              Quitar archivo
+            </button>
+          </div>
+          <div class="brief__vista" data-stl-preview hidden>
+            <div class="brief__lienzo" data-stl-container></div>
+            <p class="brief__ayuda-corta dato" data-stl-message aria-live="polite">
+              Arrastra para girar la pieza, rueda para acercar.
             </p>
           </div>
         </div>
+      </section>
 
-        <div style="margin-top: 1.5rem;">
-          <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            ¿Tienes imágenes de referencia? (opcional)
-          </p>
-          <input
-            data-reference-files
-            type="file"
-            accept="image/*"
-            multiple
-            style="font-size: 13px; color: var(--color-text-secondary);"
-          />
-          <p data-reference-count style="font-size: 12px; color: var(--color-brand-primary); margin-top: 6px;" hidden></p>
-        </div>
-      </div>
-    </section>
-
-    <section data-step="2" hidden>
-      <p data-selected-product hidden style="font-size: 14px; color: var(--color-text-primary); background: var(--color-brand-soft); border: 0.5px solid var(--color-brand-primary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; margin-bottom: 1rem;"></p>
-      <div>
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem;">
-          Una referencia aproximada es suficiente. El diseñador lo ajustará.
+      <section data-step="2" hidden>
+        <p class="brief__ayuda" id="size-help">
+          Con una referencia aproximada basta. Ajustaremos las medidas exactas
+          contigo antes de producir la pieza.
         </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
-          {SIZES.map((s) => (
-            <button
-              data-choice="size"
-              data-value={s.id}
-              type="button"
-              class="wizard-option"
-              style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; cursor: pointer; text-align: left;"
+        <fieldset class="brief__grupo" data-choice-group="size" aria-describedby="size-help">
+          <legend class="solo-lectores">Tamaño aproximado</legend>
+          <div class="brief__rejilla">
+            {
+              TAMANOS_PEDIDO.map((tamano) => (
+                <button
+                  class="opcion"
+                  type="button"
+                  data-choice="size"
+                  data-value={tamano.id}
+                  aria-pressed="false"
+                >
+                  <span class="opcion__titulo">{tamano.etiqueta}</span>
+                  <span class="opcion__nota">{tamano.nota}</span>
+                  <span class="opcion__medida">{tamano.medida}</span>
+                </button>
+              ))
+            }
+          </div>
+        </fieldset>
+      </section>
+
+      <section data-step="3" hidden>
+        <div class="brief__campos">
+          <div class="campo">
+            <label class="campo__nombre" for="brief-maker">Quién lo imprime</label>
+            <p class="campo__ayuda" id="maker-help">
+              Puedes elegir un maker concreto o dejar que te propongamos el más
+              adecuado para tu pieza.
+            </p>
+            <select
+              class="entrada"
+              id="brief-maker"
+              data-field="makerId"
+              aria-describedby="maker-help"
             >
-              <div style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
-                {s.label}
-              </div>
-              <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">{s.desc}</div>
-              <div style="font-size: 11px; color: var(--color-brand-dark); font-weight: 700;">{s.example}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section data-step="3" hidden>
-      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        <div>
-          <label for="briefing-maker" style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
-            Maker que realizar&aacute; el encargo
-          </label>
-          <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            Puedes elegir uno o dejar que te recomendemos el m&aacute;s adecuado.
-          </p>
-          <select
-            id="briefing-maker"
-            data-field="makerId"
-            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
-          >
-            <option value="recommended">Recomendado (sin maker concreto)</option>
-            {productores.map((productor) => (
-              <option
-                value={productor.id}
-                data-slug={productor.slug}
-                data-products={JSON.stringify(productor.productos.map(({ id, nombre }) => ({ id, nombre })))}
-              >
-                {productor.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-            Material preferido
-          </label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            {MATERIALS.map((m) => (
-              <button
-                data-choice="material"
-                data-value={m.id}
-                type="button"
-                class="wizard-option"
-                style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem; cursor: pointer; text-align: left;"
-              >
-                <div style="font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px;">
-                  {m.label}
-                </div>
-                <div style="font-size: 11px; color: var(--color-text-secondary);">{m.desc}</div>
-              </button>
-            ))}
+              <option value="recommended">Que 3dbok elija por mí</option>
+              {
+                productores.map((productor) => (
+                  <option
+                    value={productor.id}
+                    data-slug={productor.slug}
+                    data-products={JSON.stringify(
+                      productor.productos.map(({ id, nombre }) => ({ id, nombre })),
+                    )}
+                  >
+                    {productor.nombre} — {productor.ubicacion}
+                  </option>
+                ))
+              }
+            </select>
           </div>
-        </div>
 
-        <div style="margin-bottom: 1rem;">
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-            Color preferido
-          </label>
-          <input
-            data-field="color"
-            type="text"
-            placeholder="Ej: Negro mate, rojo sangre, madera natural..."
-            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
-          />
-        </div>
+          <fieldset class="brief__grupo campo" data-choice-group="material">
+            <legend class="campo__nombre">Material</legend>
+            <div class="brief__rejilla">
+              {
+                MATERIALES_PEDIDO.map((material) => (
+                  <button
+                    class="opcion"
+                    type="button"
+                    data-choice="material"
+                    data-value={material.id}
+                    aria-pressed="false"
+                  >
+                    <span class="opcion__titulo">{material.etiqueta}</span>
+                    <span class="opcion__nota">{material.nota}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </fieldset>
 
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 8px;">
-            ¿Cuándo lo necesitas?
-          </label>
-          <input
-            data-field="deadline"
-            type="date"
-            style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
-          />
-        </div>
-
-        <div>
-          <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 4px;">
-            Presupuesto aproximado (opcional)
-          </label>
-          <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px;">
-            Solo para orientar al diseñador. Sin compromiso.
-          </p>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            {budgets.map((budget) => (
-              <button
-                data-choice="budget"
-                data-value={budget}
-                type="button"
-                class="wizard-option wizard-pill"
-                style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 14px; cursor: pointer; font-size: 13px; color: var(--color-text-primary);"
-              >
-                {budget}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section data-step="4" hidden>
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
-        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 0.5rem;">
-          Para enviarte el boceto del diseñador y las actualizaciones de tu pedido.
-        </p>
-
-        {[
-          { key: "name", label: "Nombre", placeholder: "Tu nombre", type: "text" },
-          { key: "email", label: "Email", placeholder: "tu@email.com", type: "email" },
-          { key: "phone", label: "Teléfono (opcional)", placeholder: "+34 600 000 000", type: "tel" },
-        ].map((f) => (
-          <div>
-            <label style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 6px;">
-              {f.label}
-            </label>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-color">Color</label>
+            <p class="campo__ayuda" id="color-help">
+              Descríbelo con tus palabras. Si te da igual, déjalo en blanco.
+            </p>
             <input
-              data-field={f.key}
-              type={f.type}
-              placeholder={f.placeholder}
-              style="width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit;"
+              class="entrada"
+              id="brief-color"
+              data-field="color"
+              type="text"
+              maxlength="100"
+              aria-describedby="color-help"
+              placeholder="Negro mate, rojo sangre, madera natural…"
             />
           </div>
-        ))}
 
-        <div style="background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 0.5rem;">
-          <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
-            🔒 Tus datos se usan únicamente para gestionar tu pedido. No compartimos información con terceros.
+          <div class="campo">
+            <label class="campo__nombre" for="brief-fecha">Para cuándo lo necesitas</label>
+            <p class="campo__ayuda" id="deadline-help">La fecha más próxima es dentro de 7 días.</p>
+            <input
+              class="entrada"
+              id="brief-fecha"
+              data-field="deadline"
+              type="date"
+              aria-describedby="deadline-help"
+            />
+          </div>
+
+          <fieldset
+            class="brief__grupo campo"
+            data-choice-group="budget"
+            aria-describedby="budget-help"
+          >
+            <legend class="campo__nombre">Presupuesto aproximado</legend>
+            <p class="campo__ayuda" id="budget-help">
+              Solo nos orienta. No es un compromiso ni un precio final.
+            </p>
+            <div class="fila-opciones">
+              {
+                PRESUPUESTOS_PEDIDO.map((presupuesto) => (
+                  <button
+                    class="opcion opcion--pastilla"
+                    type="button"
+                    data-choice="budget"
+                    data-value={presupuesto}
+                    aria-pressed="false"
+                  >
+                    {presupuesto}
+                  </button>
+                ))
+              }
+            </div>
+          </fieldset>
+        </div>
+      </section>
+
+      <section data-step="4" hidden>
+        <p class="brief__ayuda">
+          Usaremos estos datos para responder a la solicitud y coordinar los
+          siguientes pasos contigo.
+        </p>
+        <div class="brief__campos">
+          <div class="campo">
+            <label class="campo__nombre" for="brief-nombre">Nombre</label>
+            <input
+              class="entrada"
+              id="brief-nombre"
+              data-field="name"
+              type="text"
+              autocomplete="name"
+              required
+              minlength="2"
+              maxlength="100"
+              placeholder="Tu nombre"
+            />
+          </div>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-email">Email</label>
+            <input
+              class="entrada"
+              id="brief-email"
+              data-field="email"
+              type="email"
+              autocomplete="email"
+              required
+              maxlength="254"
+              inputmode="email"
+              placeholder="tu@email.com"
+            />
+          </div>
+          <div class="campo">
+            <label class="campo__nombre" for="brief-tel">
+              Teléfono <span class="campo__opcional">(opcional)</span>
+            </label>
+            <input
+              class="entrada"
+              id="brief-tel"
+              data-field="phone"
+              type="tel"
+              autocomplete="tel"
+              maxlength="30"
+              placeholder="+34 600 000 000"
+            />
+          </div>
+        </div>
+
+        <p class="brief__privacidad">
+          Trataremos los datos para responder a tu solicitud. Formspree procesa
+          el formulario por cuenta de 3dbok y podremos compartir la información
+          necesaria con el diseñador o maker que la valore. Consulta la
+          <a href="/privacidad">política de privacidad</a>.
+        </p>
+      </section>
+
+      <p class="brief__error" data-form-error role="alert" tabindex="-1" hidden></p>
+
+        <div class="brief__pie">
+          <p class="brief__nota dato" data-footer-note>
+            Sin compromiso hasta que apruebes la propuesta
           </p>
+          <button class="boton boton--principal" data-next type="submit">
+            Continuar <span class="boton__flecha" aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
+    </form>
+
+    <section class="envoltura--angosta brief__confirmacion-local" data-inline-confirmation hidden>
+      <p class="etiqueta etiqueta--marca">Solicitud recibida</p>
+      <h1 class="brief__titulo" data-inline-confirmation-title tabindex="-1">Ya la tenemos</h1>
+      <p class="brief__ayuda">
+        El envío ha terminado correctamente. Este navegador no ha podido guardar
+        el resumen, así que conserva la referencia
+        <strong class="dato" data-inline-order-id></strong> por si necesitas escribirnos.
+      </p>
+      <a href="/" class="boton boton--secundario">Volver al inicio</a>
     </section>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);">
-      <div data-footer-note style="font-size: 13px; color: var(--color-text-secondary);">
-        Sin compromiso hasta el pago
-      </div>
-
-      <button
-        data-next
-        type="button"
-        disabled
-        style="background: var(--color-background-secondary); color: var(--color-text-secondary); border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 15px; font-weight: 500; cursor: not-allowed; transition: all 0.15s;"
-      >
-        Continuar →
-      </button>
-    </div>
   </main>
-
-  <style>
-    .wizard-option.is-selected {
-      background: var(--color-brand-soft) !important;
-      border: 2px solid var(--color-brand-primary) !important;
-    }
-  </style>
-
-  <script>
-    const steps = [
-      { id: "description", title: "Cuéntanos tu idea" },
-      { id: "references", title: "¿Tienes referencias visuales?" },
-      { id: "size", title: "¿Qué tamaño necesitas?" },
-      { id: "details", title: "Últimos detalles" },
-      { id: "contact", title: "¿Cómo te contactamos?" },
-    ];
-
-    let step = 0;
-    let entryStep = 0;
-    let submitting = false;
-    let stlDispose = null;
-    const form = {
-      description: "",
-      hasDesign: null,
-      designFile: null,
-      designFileObject: null,
-      references: [],
-      size: "",
-      color: "",
-      material: "any",
-      deadline: "",
-      budget: "",
-      name: "",
-      email: "",
-      phone: "",
-      makerId: "recommended",
-      productId: "",
-    };
-
-    const sections = Array.from(document.querySelectorAll("[data-step]"));
-    const backButton = document.querySelector("[data-back]");
-    const nextButton = document.querySelector("[data-next]");
-    const title = document.querySelector("[data-step-title]");
-    const currentStep = document.querySelector("[data-step-current]");
-    const progressText = document.querySelector("[data-progress-text]");
-    const progressFill = document.querySelector("[data-progress-fill]");
-    const footerNote = document.querySelector("[data-footer-note]");
-    const designUpload = document.querySelector("[data-design-upload]");
-    const designFileInput = document.querySelector("[data-design-file]");
-    const designUploadButton = document.querySelector("[data-design-upload-button]");
-    const referenceInput = document.querySelector("[data-reference-files]");
-    const referenceCount = document.querySelector("[data-reference-count]");
-    const descriptionCount = document.querySelector("[data-description-count]");
-    const selectedProduct = document.querySelector("[data-selected-product]");
-    const stlPreview = document.querySelector("[data-stl-preview]");
-    const stlContainer = document.querySelector("[data-stl-container]");
-    const stlMessage = document.querySelector("[data-stl-message]");
-
-    const canProceed = () => {
-      if (step === 0) return form.description.length >= 15;
-      if (step === 1) return form.hasDesign !== null;
-      if (step === 2) return Boolean(form.size);
-      if (step === 3) return true;
-      if (step === 4) return form.name.length > 1 && form.email.includes("@");
-      return true;
-    };
-
-    const updateNextButton = () => {
-      if (!nextButton) return;
-      const enabled = canProceed() && !submitting;
-      nextButton.disabled = !enabled;
-      nextButton.textContent = step < steps.length - 1
-        ? "Continuar →"
-        : (submitting ? "Enviando..." : "Enviar pedido →");
-      nextButton.style.background = enabled ? "var(--color-brand-primary)" : "var(--color-background-secondary)";
-      nextButton.style.color = enabled ? "white" : "var(--color-text-secondary)";
-      nextButton.style.cursor = enabled ? "pointer" : "not-allowed";
-    };
-
-    const updateStep = () => {
-      sections.forEach((section) => {
-        section.hidden = section.dataset.step !== String(step);
-      });
-      if (backButton) backButton.textContent = step === entryStep && entryStep === 3 ? "← Volver al trabajo" : (step === 0 ? "← Volver al inicio" : "← Paso anterior");
-      if (title) title.textContent = steps[step].title;
-      if (currentStep) currentStep.textContent = String(step + 1);
-      if (progressText) progressText.textContent = String(Math.round((step / (steps.length - 1)) * 100));
-      if (progressFill) progressFill.style.width = `${((step + 1) / steps.length) * 100}%`;
-      if (footerNote) footerNote.textContent = step < steps.length - 1 ? "Sin compromiso hasta el pago" : "";
-      updateNextButton();
-    };
-
-    const updateChoice = (group, value) => {
-      document.querySelectorAll(`[data-choice="${group}"]`).forEach((button) => {
-        button.classList.toggle("is-selected", button.dataset.value === String(value));
-      });
-    };
-
-    const updateField = (key, value) => {
-      form[key] = value;
-      if (key === "description" && descriptionCount) {
-        descriptionCount.textContent = `${form.description.length} caracteres ${form.description.length < 15 ? "(mínimo 15)" : ""}`;
-        descriptionCount.style.color = form.description.length < 15 ? "var(--color-text-secondary)" : "var(--color-brand-primary)";
-      }
-      updateNextButton();
-    };
-
-    document.querySelectorAll("[data-choice]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const group = button.dataset.choice;
-        const rawValue = button.dataset.value || "";
-        const value = group === "hasDesign" ? rawValue === "true" : rawValue;
-        form[group] = value;
-        updateChoice(group, rawValue);
-
-        if (group === "hasDesign" && designUpload) {
-          designUpload.hidden = value !== true;
-          if (value !== true) {
-            form.designFile = null;
-            form.designFileObject = null;
-            disposeStlPreview();
-          }
-        }
-
-        updateNextButton();
-      });
-    });
-
-    document.querySelectorAll("[data-field]").forEach((field) => {
-      field.addEventListener("input", () => {
-        if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) {
-          updateField(field.dataset.field, field.value);
-        }
-      });
-    });
-
-
-    const makerSelect = document.querySelector('[data-field="makerId"]');
-    if (makerSelect instanceof HTMLSelectElement) {
-      const requestedMakerId = new URLSearchParams(window.location.search).get("maker");
-      const makerExists = Array.from(makerSelect.options).some(
-        (option) => option.value === requestedMakerId && option.value !== "recommended",
-      );
-      makerSelect.value = makerExists ? requestedMakerId : "recommended";
-      form.makerId = makerSelect.value;
-
-      const requestedProductId = new URLSearchParams(window.location.search).get("product");
-      const selectedMaker = makerSelect.selectedOptions[0];
-      let makerProducts = [];
-      try {
-        makerProducts = JSON.parse(selectedMaker?.dataset.products || "[]");
-      } catch {}
-      const requestedProduct = makerProducts.find((product) => product.id === requestedProductId);
-      if (requestedProduct) {
-        form.productId = requestedProduct.id;
-        step = 3;
-        entryStep = 3;
-        makerSelect.disabled = true;
-        if (selectedProduct) {
-          selectedProduct.textContent = `Trabajo seleccionado: ${requestedProduct.nombre}`;
-          selectedProduct.hidden = false;
-        }
-      }
-    }
-    backButton?.addEventListener("click", () => {
-      if (step === entryStep) {
-        if (entryStep === 3 && makerSelect instanceof HTMLSelectElement) {
-          const makerSlug = makerSelect.selectedOptions[0]?.dataset.slug;
-          window.location.href = makerSlug ? `/productores/${makerSlug}` : "/productores";
-          return;
-        }
-        window.location.href = "/";
-        return;
-      }
-      step -= 1;
-      updateStep();
-      window.scrollTo(0, 0);
-    });
-
-    nextButton?.addEventListener("click", async () => {
-      if (!canProceed() || submitting) return;
-      if (step < steps.length - 1) {
-        step += 1;
-        updateStep();
-        window.scrollTo(0, 0);
-        return;
-      }
-
-      submitting = true;
-      updateNextButton();
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      const orderId = `F3D-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-      const { designFileObject, ...orderForm } = form;
-      sessionStorage.setItem("fabrica3d-order", JSON.stringify({ ...orderForm, orderId }));
-      window.location.href = "/confirmacion";
-    });
-
-    designUploadButton?.addEventListener("click", () => {
-      if (designFileInput instanceof HTMLInputElement) designFileInput.click();
-    });
-
-    designFileInput?.addEventListener("change", () => {
-      if (!(designFileInput instanceof HTMLInputElement)) return;
-      const file = designFileInput.files?.[0] || null;
-      form.designFile = file?.name || null;
-      form.designFileObject = file;
-      if (designUploadButton) {
-        designUploadButton.textContent = form.designFile ? `✓ ${form.designFile}` : "Subir archivo de diseño →";
-        designUploadButton.style.color = form.designFile ? "var(--color-brand-primary)" : "var(--color-text-secondary)";
-      }
-      if (file?.name?.toLowerCase().endsWith(".stl")) renderStlPreview(file);
-      else disposeStlPreview();
-    });
-
-    referenceInput?.addEventListener("change", () => {
-      if (!(referenceInput instanceof HTMLInputElement)) return;
-      form.references = Array.from(referenceInput.files || []).map((file) => file.name);
-      if (!referenceCount) return;
-      if (form.references.length > 0) {
-        referenceCount.textContent = `✓ ${form.references.length} imagen(es) seleccionada(s)`;
-        referenceCount.hidden = false;
-      } else {
-        referenceCount.hidden = true;
-      }
-    });
-
-    const deadlineInput = document.querySelector('[data-field="deadline"]');
-    if (deadlineInput instanceof HTMLInputElement) {
-      deadlineInput.min = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
-    }
-
-    updateChoice("material", "any");
-    updateStep();
-
-    function disposeStlPreview() {
-      if (stlDispose) stlDispose();
-      stlDispose = null;
-      if (stlContainer) stlContainer.innerHTML = "";
-      if (stlPreview) stlPreview.hidden = true;
-      if (stlMessage) {
-        stlMessage.textContent = "Arrastra para rotar, rueda para acercar.";
-        stlMessage.style.color = "var(--color-text-secondary)";
-      }
-    }
-
-    async function renderStlPreview(file) {
-      disposeStlPreview();
-      if (!stlPreview || !stlContainer || !stlMessage) return;
-      stlPreview.hidden = false;
-
-      let disposed = false;
-      let frameId = 0;
-      let renderer;
-      let controls;
-      let resizeObserver;
-      let geometry;
-      let scene;
-      let camera;
-
-      stlDispose = () => {
-        disposed = true;
-        cancelAnimationFrame(frameId);
-        resizeObserver?.disconnect();
-        controls?.dispose();
-        geometry?.dispose();
-        scene?.traverse((object) => {
-          if (object.material) object.material.dispose();
-        });
-        renderer?.dispose();
-        renderer?.domElement?.remove();
-      };
-
-      const resize = () => {
-        if (!renderer || !camera || !stlContainer.clientWidth || !stlContainer.clientHeight) return;
-        camera.aspect = stlContainer.clientWidth / stlContainer.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight, false);
-        renderer.render(scene, camera);
-      };
-
-      try {
-        const [THREE, { OrbitControls }, { STLLoader }, buffer] = await Promise.all([
-          import("three"),
-          import("three/examples/jsm/controls/OrbitControls.js"),
-          import("three/examples/jsm/loaders/STLLoader.js"),
-          file.arrayBuffer(),
-        ]);
-        if (disposed) return;
-
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf8f8fa);
-
-        camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-        camera.position.set(90, 70, 110);
-
-        const keyLight = new THREE.DirectionalLight(0xffffff, 2.3);
-        keyLight.position.set(80, 120, 90);
-        scene.add(keyLight);
-        scene.add(new THREE.HemisphereLight(0xffffff, 0xdbd4a0, 1.6));
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.setSize(stlContainer.clientWidth, stlContainer.clientHeight, false);
-        stlContainer.appendChild(renderer.domElement);
-
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
-
-        resizeObserver = new ResizeObserver(resize);
-        resizeObserver.observe(stlContainer);
-
-        const loader = new STLLoader();
-        geometry = loader.parse(buffer);
-        geometry.computeVertexNormals();
-        geometry.computeBoundingBox();
-
-        const material = new THREE.MeshStandardMaterial({
-          color: 0x4959b8,
-          roughness: 0.45,
-          metalness: 0.08,
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-
-        const box = new THREE.Box3().setFromObject(mesh);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        mesh.position.sub(center);
-
-        const maxAxis = Math.max(size.x, size.y, size.z) || 1;
-        const scale = 72 / maxAxis;
-        mesh.scale.setScalar(scale);
-        mesh.rotation.x = -Math.PI / 2;
-        scene.add(mesh);
-
-        controls.target.set(0, 0, 0);
-        controls.update();
-        stlMessage.textContent = "Arrastra para rotar, rueda para acercar.";
-        stlMessage.style.color = "var(--color-text-secondary)";
-
-        const animate = () => {
-          frameId = requestAnimationFrame(animate);
-          controls.update();
-          renderer.render(scene, camera);
-        };
-        resize();
-        animate();
-      } catch (err) {
-        stlMessage.textContent = "No se pudo previsualizar este STL.";
-        stlMessage.style.color = "#A23B3B";
-      }
-    }
-  </script>
 </BaseLayout>
+
+<style>
+  .brief {
+    padding-block: clamp(1.5rem, 0.9rem + 2vw, 2.75rem) clamp(3.5rem, 2rem + 4vw, 5.5rem);
+    background-image:
+      linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size: 42px 42px;
+    background-position: center top;
+  }
+
+  .brief__formulario {
+    display: grid;
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 49rem);
+    justify-content: space-between;
+    gap: clamp(2rem, 3.5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .brief__guia {
+    position: sticky;
+    top: 6.5rem;
+    min-width: 0;
+  }
+
+  .brief__volver {
+    min-height: 2.75rem;
+    padding: 0.35rem 0;
+    border: 0;
+    background: none;
+    color: var(--tinta-suave);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .brief__volver:hover,
+  .brief__quitar:hover {
+    color: var(--tinta);
+    text-decoration: underline;
+  }
+
+  .brief__avance {
+    margin-top: 1.75rem;
+  }
+
+  .brief__avance-datos {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--tinta-suave);
+  }
+
+  .brief__barra {
+    height: 4px;
+    background: var(--bancada-honda);
+    overflow: hidden;
+  }
+
+  .brief__barra-relleno {
+    height: 100%;
+    width: 0;
+    background: var(--filamento);
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .brief__pasos {
+    margin-top: 1.6rem;
+    border-top: 1px solid var(--linea-fuerte);
+  }
+
+  .brief__paso {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0.65rem;
+    align-items: baseline;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--linea);
+    color: var(--tinta-suave);
+    transition: color 0.16s ease, padding-left 0.16s ease;
+  }
+
+  .brief__paso-numero {
+    font-size: 0.73rem;
+    color: inherit;
+  }
+
+  .brief__paso-titulo {
+    font-size: 0.9rem;
+    font-weight: 560;
+    line-height: 1.3;
+  }
+
+  .brief__paso[data-completo] {
+    color: var(--verde);
+  }
+
+  .brief__paso[aria-current="step"] {
+    padding-left: 0.65rem;
+    border-left: 3px solid var(--filamento);
+    color: var(--tinta);
+    font-weight: 680;
+  }
+
+  .brief__garantia {
+    margin-top: 1.5rem;
+    color: var(--tinta-suave);
+    font-size: 0.76rem;
+    line-height: 1.55;
+  }
+
+  .brief__panel {
+    min-width: 0;
+    padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border: 1px solid var(--linea-fuerte);
+    border-top: 4px solid var(--cianotipo);
+    border-radius: 0 0 var(--r-2) var(--r-2);
+    background: var(--pieza);
+  }
+
+  .brief__etiqueta {
+    margin-bottom: 0.85rem;
+  }
+
+  .brief__titulo {
+    max-width: 13ch;
+    margin-bottom: 1.4rem;
+    font-size: clamp(2rem, 1.55rem + 2vw, 3.15rem);
+  }
+
+  .brief__ayuda {
+    max-width: 42rem;
+    margin-bottom: 1.4rem;
+    color: var(--tinta-media);
+    line-height: 1.6;
+  }
+
+  .brief__panel > section {
+    min-width: 0;
+  }
+
+  .brief__panel .entrada {
+    min-height: 3.1rem;
+    padding: 0.82rem 0.95rem;
+    background-color: var(--pieza);
+  }
+
+  .brief__panel textarea.entrada {
+    min-height: 13rem;
+  }
+
+  .brief__contador {
+    margin-top: 0.55rem;
+    color: var(--tinta-suave);
+  }
+
+  .brief__contador[data-completo] {
+    color: var(--verde);
+  }
+
+  .brief__grupo {
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  .brief__grupo[aria-invalid="true"] .opcion,
+  .entrada[aria-invalid="true"] {
+    border-color: var(--alerta);
+    box-shadow: inset 4px 0 0 var(--alerta);
+  }
+
+  .brief__opciones {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .brief__rejilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+    gap: 0.75rem;
+  }
+
+  .brief__campos {
+    display: grid;
+    gap: 1.85rem;
+  }
+
+  .brief__panel .campo__nombre {
+    margin-bottom: 0.45rem;
+    font-family: var(--fuente-dato);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .brief__panel .campo__ayuda {
+    max-width: 39rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .campo__opcional {
+    color: var(--tinta-suave);
+    font-weight: 400;
+  }
+
+  .brief__elegido,
+  .brief__recuperado {
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.25rem;
+    border-left: 3px solid var(--filamento);
+    background: var(--bancada);
+    font-size: 0.93rem;
+  }
+
+  .brief__recuperado {
+    border-left-color: var(--cianotipo);
+    color: var(--tinta-media);
+  }
+
+  .brief__subida {
+    margin-top: 1.5rem;
+  }
+
+  .brief__soltar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+    min-height: 7.5rem;
+    padding: 1.5rem 1.25rem;
+    border: 1px dashed var(--linea-fuerte);
+    border-radius: var(--r-2);
+    background: var(--bancada);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .brief__soltar:hover {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .brief__soltar-titulo {
+    font-weight: 680;
+  }
+
+  .brief__soltar-nota,
+  .brief__archivo-estado {
+    color: var(--tinta-suave);
+  }
+
+  .brief__soltar[data-cargado] {
+    border-style: solid;
+    border-color: var(--verde);
+  }
+
+  .brief__archivo-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-top: 0.65rem;
+  }
+
+  .brief__quitar {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--tinta-suave);
+    cursor: pointer;
+  }
+
+  .brief__vista {
+    margin-top: 0.9rem;
+  }
+
+  .brief__lienzo {
+    height: 300px;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: var(--r-2);
+    background: var(--bancada-honda);
+    overflow: hidden;
+  }
+
+  .brief__ayuda-corta {
+    margin-top: 0.5rem;
+    color: var(--tinta-suave);
+  }
+
+  .brief__ayuda-corta[data-error],
+  .brief__error {
+    color: var(--alerta);
+  }
+
+  .brief__privacidad {
+    margin-top: 1.5rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-2);
+    background: var(--bancada);
+    font-size: 0.88rem;
+    color: var(--tinta-suave);
+    line-height: 1.55;
+  }
+
+  .brief__error {
+    margin-top: 1.25rem;
+    padding: 0.95rem 1rem 0.95rem 1.15rem;
+    border: 1px solid var(--alerta);
+    border-left: 4px solid var(--alerta);
+    background: var(--pieza);
+    font-weight: 560;
+    line-height: 1.5;
+  }
+
+  .brief__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 2.5rem clamp(-2.75rem, -1rem - 2.1vw, -1.5rem)
+      clamp(-2.75rem, -1rem - 2.1vw, -1.5rem);
+    padding: 1.25rem clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border-top: 1px solid var(--linea-fuerte);
+    border-radius: 0 0 var(--r-2) var(--r-2);
+    background: var(--bancada);
+  }
+
+  .brief__nota {
+    max-width: 26rem;
+    color: var(--tinta-suave);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .brief__panel .opcion {
+    position: relative;
+    min-height: 4.8rem;
+    padding: 1rem 4.9rem 1rem 1rem;
+    border-color: var(--linea-fuerte);
+    background: var(--pieza);
+  }
+
+  .brief__panel .opcion:hover {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+  }
+
+  .brief__panel .opcion[aria-pressed="true"] {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo-lavado);
+    box-shadow: inset 4px 0 0 var(--filamento);
+  }
+
+  .brief__panel .opcion[aria-pressed="true"]::after {
+    content: "✓ Elegido";
+    position: absolute;
+    top: 1rem;
+    right: 0.9rem;
+    font-family: var(--fuente-dato);
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: var(--cianotipo);
+  }
+
+  .brief__panel .opcion--pastilla {
+    min-height: 2.75rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .brief__panel .opcion--pastilla[aria-pressed="true"] {
+    padding-right: 2.15rem;
+  }
+
+  .brief__panel .opcion--pastilla[aria-pressed="true"]::after {
+    content: "✓";
+    top: 50%;
+    right: 0.75rem;
+    translate: 0 -50%;
+  }
+
+  .brief__panel .boton--principal {
+    min-width: 9.5rem;
+    justify-content: center;
+  }
+
+  .brief__confirmacion-local {
+    max-width: 760px;
+    padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
+    border: 1px solid var(--linea-fuerte);
+    border-top: 4px solid var(--cianotipo);
+    background: var(--pieza);
+  }
+
+  .brief__confirmacion-local .brief__titulo {
+    margin-bottom: 0.9rem;
+  }
+
+  @media (max-width: 880px) {
+    .brief__formulario {
+      grid-template-columns: 1fr;
+      max-width: 760px;
+      gap: 1.25rem;
+    }
+
+    .brief__guia {
+      position: static;
+    }
+
+    .brief__volver {
+      min-height: 2.75rem;
+    }
+
+    .brief__avance {
+      margin-top: 0.85rem;
+    }
+
+    .brief__pasos {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-top: 0.9rem;
+      border-top: 0;
+    }
+
+    .brief__paso {
+      display: block;
+      padding: 0.45rem 0 0;
+      border-top: 2px solid var(--linea);
+      border-bottom: 0;
+    }
+
+    .brief__paso[aria-current="step"] {
+      padding: 0.45rem 0 0;
+      border-top-color: var(--filamento);
+      border-left: 0;
+    }
+
+    .brief__paso[data-completo] {
+      border-top-color: var(--verde);
+    }
+
+    .brief__paso-titulo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .brief__garantia {
+      display: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .brief {
+      padding-block: 1rem 3rem;
+      background-size: 32px 32px;
+    }
+
+    .brief__formulario {
+      gap: 0.9rem;
+    }
+
+    .brief__avance-datos {
+      font-size: 0.76rem;
+    }
+
+    .brief__panel {
+      padding: 1.25rem 1.1rem;
+    }
+
+    .brief__titulo {
+      margin-bottom: 1.15rem;
+      font-size: clamp(1.85rem, 9vw, 2.35rem);
+    }
+
+    .brief__ayuda {
+      margin-bottom: 1.2rem;
+    }
+
+    .brief__panel textarea.entrada {
+      min-height: 12rem;
+    }
+
+    .brief__rejilla {
+      grid-template-columns: 1fr;
+    }
+
+    .brief__panel .opcion {
+      min-height: 4.5rem;
+    }
+
+    .brief__pie {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      margin: 2.25rem -1.1rem -1.25rem;
+      padding: 1.1rem;
+    }
+
+    .brief__pie .boton {
+      justify-content: center;
+    }
+
+    .brief__nota {
+      text-align: center;
+    }
+
+    .brief__lienzo {
+      height: 240px;
+    }
+
+    .brief__confirmacion-local {
+      margin-inline: var(--canal);
+      padding: 1.25rem 1.1rem;
+    }
+  }
+</style>
+
+<script>
+  import {
+    BORRADOR_TTL_MS,
+    MATERIALES_PEDIDO,
+    MAX_STL_PREVIEW_BYTES,
+    PASOS_PEDIDO,
+    PEDIDO_BORRADOR_STORAGE_KEY,
+    PEDIDO_CONFIRMACION_STORAGE_KEY,
+    PRESUPUESTOS_PEDIDO,
+    TAMANOS_PEDIDO,
+    crearCamposFormspreePedido,
+    crearIdentidadPedido,
+    esIdentidadPedidoValida,
+    mensajeErrorEnvioPedido,
+  } from "../lib/pedidoShared.js";
+
+  let paso = 0;
+  let enviando = false;
+  let descartarVista = null;
+  let origenMakerSlug = "";
+
+  const pedido = {
+    description: "",
+    hasDesign: null,
+    designFileName: "",
+    designFileSize: 0,
+    designFileObject: null,
+    size: "",
+    color: "",
+    material: "any",
+    deadline: "",
+    budget: "",
+    name: "",
+    email: "",
+    phone: "",
+    makerId: "recommended",
+    productId: "",
+    productName: "",
+    requestId: "",
+    orderId: "",
+  };
+
+  const formulario = document.querySelector("[data-order-form]");
+  const confirmacionLocal = document.querySelector("[data-inline-confirmation]");
+  const tituloConfirmacionLocal = document.querySelector("[data-inline-confirmation-title]");
+  const referenciaConfirmacionLocal = document.querySelector("[data-inline-order-id]");
+  const secciones = Array.from(document.querySelectorAll("[data-step]"));
+  const botonAtras = document.querySelector("[data-back]");
+  const botonSiguiente = document.querySelector("[data-next]");
+  const tituloPaso = document.querySelector("[data-step-title]");
+  const pasoActual = document.querySelector("[data-step-current]");
+  const textoAvance = document.querySelector("[data-progress-text]");
+  const barraAvance = document.querySelector("[data-progress-bar]");
+  const rellenoAvance = document.querySelector("[data-progress-fill]");
+  const indicadoresPaso = Array.from(document.querySelectorAll("[data-progress-step]"));
+  const notaPie = document.querySelector("[data-footer-note]");
+  const errorFormulario = document.querySelector("[data-form-error]");
+  const avisoBorrador = document.querySelector("[data-draft-notice]");
+  const zonaSubida = document.querySelector("[data-design-upload]");
+  const entradaArchivo = document.querySelector("[data-design-file]");
+  const botonSubir = document.querySelector("[data-design-upload-button]");
+  const accionesArchivo = document.querySelector("[data-design-file-actions]");
+  const estadoArchivo = document.querySelector("[data-design-file-status]");
+  const botonQuitarArchivo = document.querySelector("[data-design-remove]");
+  const contador = document.querySelector("[data-description-count]");
+  const trabajoElegido = document.querySelector("[data-selected-product]");
+  const vistaStl = document.querySelector("[data-stl-preview]");
+  const lienzoStl = document.querySelector("[data-stl-container]");
+  const mensajeStl = document.querySelector("[data-stl-message]");
+  const selectorMaker = document.querySelector('[data-field="makerId"]');
+  const campoFecha = document.querySelector('[data-field="deadline"]');
+  const contextoBorrador = `${window.location.pathname}${window.location.search}`;
+
+  const leerSesion = (clave) => {
+    try {
+      const valor = sessionStorage.getItem(clave);
+      return valor ? JSON.parse(valor) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const escribirSesion = (clave, valor) => {
+    try {
+      sessionStorage.setItem(clave, JSON.stringify(valor));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const borrarSesion = (clave) => {
+    try {
+      sessionStorage.removeItem(clave);
+    } catch {}
+  };
+
+  const mostrarError = (mensaje, objetivo) => {
+    if (errorFormulario) {
+      errorFormulario.textContent = mensaje;
+      errorFormulario.hidden = false;
+    }
+    if (objetivo !== errorFormulario) objetivo?.setAttribute?.("aria-invalid", "true");
+    objetivo?.focus?.();
+  };
+
+  const limpiarError = () => {
+    if (errorFormulario) {
+      errorFormulario.textContent = "";
+      errorFormulario.hidden = true;
+    }
+  };
+
+  const guardarBorrador = () => {
+    const { designFileObject, ...datos } = pedido;
+    escribirSesion(PEDIDO_BORRADOR_STORAGE_KEY, {
+      version: 1,
+      savedAt: Date.now(),
+      context: contextoBorrador,
+      hadFile: Boolean(designFileObject),
+      data: {
+        ...datos,
+        designFileName: "",
+        designFileSize: 0,
+      },
+    });
+  };
+
+  const restaurarBorrador = () => {
+    const borrador = leerSesion(PEDIDO_BORRADOR_STORAGE_KEY);
+    if (!borrador) return;
+    if (
+      borrador.version !== 1 ||
+      !Number.isFinite(borrador.savedAt) ||
+      Date.now() - borrador.savedAt > BORRADOR_TTL_MS ||
+      !borrador.data
+    ) {
+      borrarSesion(PEDIDO_BORRADOR_STORAGE_KEY);
+      return;
+    }
+    if (borrador.context !== contextoBorrador) return;
+
+    const datos = borrador.data;
+    const camposTexto = [
+      "description",
+      "color",
+      "deadline",
+      "name",
+      "email",
+      "phone",
+      "requestId",
+      "orderId",
+    ];
+    camposTexto.forEach((campo) => {
+      if (typeof datos[campo] === "string") pedido[campo] = datos[campo];
+    });
+
+    if (datos.hasDesign === true || datos.hasDesign === false) pedido.hasDesign = datos.hasDesign;
+    if (TAMANOS_PEDIDO.some(({ id }) => id === datos.size)) pedido.size = datos.size;
+    if (MATERIALES_PEDIDO.some(({ id }) => id === datos.material)) pedido.material = datos.material;
+    if (PRESUPUESTOS_PEDIDO.includes(datos.budget)) pedido.budget = datos.budget;
+    if (typeof datos.makerId === "string") pedido.makerId = datos.makerId;
+
+    if (avisoBorrador) {
+      avisoBorrador.textContent = borrador.hadFile
+        ? "Hemos recuperado tus respuestas. Por privacidad, tendrás que volver a elegir el STL si quieres previsualizarlo."
+        : "Hemos recuperado las respuestas de esta sesión.";
+      avisoBorrador.hidden = false;
+    }
+  };
+
+  const marcarElegido = (grupo, valor) => {
+    document.querySelectorAll(`[data-choice="${grupo}"]`).forEach((boton) => {
+      boton.setAttribute("aria-pressed", String(boton.dataset.value === String(valor)));
+      boton.removeAttribute("aria-invalid");
+    });
+    document.querySelector(`[data-choice-group="${grupo}"]`)?.removeAttribute("aria-invalid");
+  };
+
+  const sincronizarCampos = () => {
+    document.querySelectorAll("[data-field]").forEach((campo) => {
+      const nombre = campo.dataset.field;
+      if (nombre && nombre in pedido) campo.value = pedido[nombre] ?? "";
+    });
+    if (pedido.hasDesign !== null) marcarElegido("hasDesign", String(pedido.hasDesign));
+    if (pedido.size) marcarElegido("size", pedido.size);
+    marcarElegido("material", pedido.material);
+    if (pedido.budget) marcarElegido("budget", pedido.budget);
+    if (zonaSubida) zonaSubida.hidden = pedido.hasDesign !== true;
+  };
+
+  const actualizarContador = () => {
+    if (!contador) return;
+    const total = pedido.description.trim().length;
+    contador.textContent =
+      total >= 15
+        ? `${total} de 2000 caracteres`
+        : `${total} de 2000 caracteres · mínimo 15`;
+    contador.toggleAttribute("data-completo", total >= 15);
+  };
+
+  const actualizarBoton = () => {
+    if (!(botonSiguiente instanceof HTMLButtonElement)) return;
+    const ultimo = paso === PASOS_PEDIDO.length - 1;
+    botonSiguiente.disabled = enviando;
+    botonSiguiente.innerHTML = enviando
+      ? "Enviando…"
+      : `${ultimo ? "Enviar solicitud" : "Continuar"} <span class="boton__flecha" aria-hidden="true">→</span>`;
+  };
+
+  const actualizarPaso = (enfocar = false) => {
+    secciones.forEach((seccion) => {
+      seccion.hidden = seccion.dataset.step !== String(paso);
+    });
+
+    if (botonAtras) {
+      botonAtras.textContent =
+        paso === 0
+          ? origenMakerSlug
+            ? "← Volver al taller"
+            : "← Volver al inicio"
+          : "← Paso anterior";
+    }
+
+    if (tituloPaso) tituloPaso.textContent = PASOS_PEDIDO[paso].titulo;
+    if (pasoActual) pasoActual.textContent = String(paso + 1);
+
+    const porcentaje = Math.round((paso / PASOS_PEDIDO.length) * 100);
+    if (textoAvance) textoAvance.textContent = String(porcentaje);
+    if (rellenoAvance) rellenoAvance.style.width = `${porcentaje}%`;
+    if (barraAvance) barraAvance.setAttribute("aria-valuenow", String(porcentaje));
+    indicadoresPaso.forEach((indicador, indice) => {
+      indicador.toggleAttribute("data-completo", indice < paso);
+      if (indice === paso) indicador.setAttribute("aria-current", "step");
+      else indicador.removeAttribute("aria-current");
+    });
+
+    if (notaPie) {
+      notaPie.textContent =
+        paso === PASOS_PEDIDO.length - 1
+          ? "Solo confirmaremos la recepción cuando el envío termine"
+          : "Sin compromiso hasta que apruebes la propuesta";
+    }
+
+    actualizarBoton();
+    if (enfocar) {
+      window.scrollTo({
+        top: 0,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
+      tituloPaso?.focus?.({ preventScroll: true });
+    }
+  };
+
+  const fechaMinimaLocal = () => {
+    const fecha = new Date();
+    fecha.setDate(fecha.getDate() + 7);
+    const ano = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  };
+
+  const validarPaso = (indice, anunciar = true) => {
+    limpiarError();
+    document.querySelectorAll('[aria-invalid="true"]').forEach((nodo) => {
+      nodo.removeAttribute("aria-invalid");
+    });
+
+    let mensaje = "";
+    let objetivo = null;
+
+    if (indice === 0) {
+      objetivo = document.querySelector('[data-field="description"]');
+      if (pedido.description.trim().length < 15) {
+        mensaje = "Describe la pieza con al menos 15 caracteres para poder valorarla.";
+      } else if (pedido.description.trim().length > 2000) {
+        mensaje = "Acorta la descripción a un máximo de 2000 caracteres.";
+      }
+    } else if (indice === 1 && pedido.hasDesign === null) {
+      mensaje = "Indica si ya tienes el diseño o si partes solo de una idea.";
+      objetivo = document.querySelector('[data-choice="hasDesign"]');
+      document.querySelector('[data-choice-group="hasDesign"]')?.setAttribute("aria-invalid", "true");
+    } else if (indice === 2 && !pedido.size) {
+      mensaje = "Elige un tamaño aproximado para la pieza.";
+      objetivo = document.querySelector('[data-choice="size"]');
+      document.querySelector('[data-choice-group="size"]')?.setAttribute("aria-invalid", "true");
+    } else if (indice === 3 && pedido.deadline && pedido.deadline < fechaMinimaLocal()) {
+      mensaje = "Elige una fecha que deje al menos 7 días para valorar y producir la pieza.";
+      objetivo = campoFecha;
+    } else if (indice === 4) {
+      const campoNombre = document.querySelector('[data-field="name"]');
+      const campoEmail = document.querySelector('[data-field="email"]');
+      pedido.name = pedido.name.trim();
+      pedido.email = pedido.email.trim();
+      if (campoNombre instanceof HTMLInputElement) campoNombre.value = pedido.name;
+      if (campoEmail instanceof HTMLInputElement) campoEmail.value = pedido.email;
+      if (
+        !(campoNombre instanceof HTMLInputElement) ||
+        pedido.name.length < 2 ||
+        !campoNombre.validity.valid
+      ) {
+        mensaje = "Escribe tu nombre para que sepamos cómo dirigirnos a ti.";
+        objetivo = campoNombre;
+      } else if (!(campoEmail instanceof HTMLInputElement) || !campoEmail.validity.valid) {
+        mensaje = "Escribe una dirección de email válida para que podamos responderte.";
+        objetivo = campoEmail;
+      }
+    }
+
+    if (mensaje && anunciar) mostrarError(mensaje, objetivo);
+    return !mensaje;
+  };
+
+  const validarTodo = () => {
+    for (let indice = 0; indice < PASOS_PEDIDO.length; indice += 1) {
+      if (!validarPaso(indice, false)) {
+        paso = indice;
+        actualizarPaso(true);
+        window.setTimeout(() => validarPaso(indice, true), 0);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const limpiarArchivo = () => {
+    pedido.designFileName = "";
+    pedido.designFileSize = 0;
+    pedido.designFileObject = null;
+    if (entradaArchivo instanceof HTMLInputElement) entradaArchivo.value = "";
+    if (botonSubir) {
+      botonSubir.querySelector(".brief__soltar-titulo").textContent =
+        "Elegir STL para previsualizar";
+      botonSubir.querySelector(".brief__soltar-nota").textContent = "No se sube ni se guarda";
+      botonSubir.removeAttribute("data-cargado");
+    }
+    if (accionesArchivo) accionesArchivo.hidden = true;
+    if (estadoArchivo) estadoArchivo.textContent = "";
+    descartarVistaStl();
+    guardarBorrador();
+  };
+
+  restaurarBorrador();
+
+  if (selectorMaker instanceof HTMLSelectElement) {
+    const parametros = new URLSearchParams(window.location.search);
+    const makerPedido = parametros.get("maker");
+    const opcionMaker = Array.from(selectorMaker.options).find(
+      (opcion) => opcion.value === makerPedido && opcion.value !== "recommended",
+    );
+
+    const valorRestauradoValido = Array.from(selectorMaker.options).some(
+      (opcion) => opcion.value === pedido.makerId,
+    );
+    selectorMaker.value = opcionMaker?.value ?? (valorRestauradoValido ? pedido.makerId : "recommended");
+    pedido.makerId = selectorMaker.value;
+    origenMakerSlug = opcionMaker?.dataset.slug ?? "";
+
+    let trabajos = [];
+    try {
+      trabajos = JSON.parse(opcionMaker?.dataset.products || "[]");
+    } catch {}
+
+    const trabajo = trabajos.find((item) => item.id === parametros.get("product"));
+    if (trabajo) {
+      pedido.productId = trabajo.id;
+      pedido.productName = trabajo.nombre;
+      selectorMaker.disabled = true;
+      if (trabajoElegido) {
+        trabajoElegido.textContent = `Trabajo elegido: ${trabajo.nombre}. Completa los pasos para solicitar uno similar.`;
+        trabajoElegido.hidden = false;
+      }
+    }
+  }
+
+  sincronizarCampos();
+  actualizarContador();
+  if (campoFecha instanceof HTMLInputElement) campoFecha.min = fechaMinimaLocal();
+
+  document.querySelectorAll("[data-choice]").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const grupo = boton.dataset.choice;
+      const bruto = boton.dataset.value || "";
+      if (!grupo) return;
+      pedido[grupo] = grupo === "hasDesign" ? bruto === "true" : bruto;
+      marcarElegido(grupo, bruto);
+      limpiarError();
+
+      if (grupo === "hasDesign" && zonaSubida) {
+        const tieneDiseno = bruto === "true";
+        zonaSubida.hidden = !tieneDiseno;
+        if (!tieneDiseno) limpiarArchivo();
+      }
+
+      guardarBorrador();
+    });
+  });
+
+  document.querySelectorAll("[data-field]").forEach((campo) => {
+    campo.addEventListener("input", () => {
+      const nombre = campo.dataset.field;
+      if (!nombre) return;
+      pedido[nombre] = campo.value;
+      campo.removeAttribute("aria-invalid");
+      limpiarError();
+      if (nombre === "description") actualizarContador();
+      guardarBorrador();
+    });
+  });
+
+  botonAtras?.addEventListener("click", () => {
+    if (paso === 0) {
+      window.location.href = origenMakerSlug ? `/productores/${origenMakerSlug}` : "/";
+      return;
+    }
+    paso -= 1;
+    limpiarError();
+    actualizarPaso(true);
+  });
+
+  formulario?.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (enviando || !validarPaso(paso)) return;
+
+    if (paso < PASOS_PEDIDO.length - 1) {
+      paso += 1;
+      actualizarPaso(true);
+      return;
+    }
+
+    if (!validarTodo()) return;
+    if (!(formulario instanceof HTMLFormElement)) return;
+
+    if (!esIdentidadPedidoValida(pedido)) {
+      Object.assign(pedido, crearIdentidadPedido());
+      guardarBorrador();
+    }
+
+    const makerNombre =
+      selectorMaker instanceof HTMLSelectElement
+        ? selectorMaker.selectedOptions[0]?.textContent?.trim() || "Lo elegimos nosotros"
+        : "Lo elegimos nosotros";
+    const datos = new FormData();
+    const campos = crearCamposFormspreePedido(
+      pedido,
+      makerNombre,
+      Boolean(pedido.designFileObject),
+    );
+    Object.entries(campos).forEach(([nombre, valor]) => datos.append(nombre, valor));
+
+    enviando = true;
+    limpiarError();
+    actualizarBoton();
+    formulario.setAttribute("aria-busy", "true");
+
+    const controlador = new AbortController();
+    const temporizador = window.setTimeout(() => controlador.abort(), 20000);
+
+    try {
+      const respuesta = await fetch(formulario.dataset.endpoint, {
+        method: "POST",
+        body: datos,
+        headers: { Accept: "application/json" },
+        signal: controlador.signal,
+      });
+
+      if (!respuesta.ok) {
+        enviando = false;
+        actualizarBoton();
+        formulario.removeAttribute("aria-busy");
+        mostrarError(
+          mensajeErrorEnvioPedido({ status: respuesta.status }),
+          errorFormulario,
+        );
+        return;
+      }
+
+      const confirmacion = {
+        version: 2,
+        status: "submitted",
+        submittedAt: Date.now(),
+        orderId: pedido.orderId,
+        requestId: pedido.requestId,
+        email: pedido.email.trim(),
+        description: pedido.description.trim(),
+        hasDesign: pedido.hasDesign,
+        stlSelected: Boolean(pedido.designFileObject),
+        size: pedido.size,
+        material: pedido.material,
+        deadline: pedido.deadline,
+        budget: pedido.budget,
+        makerNombre,
+        productName: pedido.productName,
+      };
+      const guardada = escribirSesion(PEDIDO_CONFIRMACION_STORAGE_KEY, confirmacion);
+      borrarSesion(PEDIDO_BORRADOR_STORAGE_KEY);
+      if (guardada) {
+        window.location.href = "/confirmacion";
+      } else if (confirmacionLocal && formulario) {
+        descartarVistaStl();
+        formulario.removeAttribute("aria-busy");
+        formulario.hidden = true;
+        confirmacionLocal.hidden = false;
+        if (referenciaConfirmacionLocal) referenciaConfirmacionLocal.textContent = pedido.orderId;
+        window.scrollTo({ top: 0, behavior: "auto" });
+        tituloConfirmacionLocal?.focus?.();
+      }
+    } catch (error) {
+      enviando = false;
+      actualizarBoton();
+      formulario.removeAttribute("aria-busy");
+      mostrarError(
+        mensajeErrorEnvioPedido({
+          abortado: error?.name === "AbortError",
+          referencia: pedido.orderId,
+        }),
+        errorFormulario,
+      );
+    } finally {
+      window.clearTimeout(temporizador);
+    }
+  });
+
+  botonSubir?.addEventListener("click", () => {
+    if (entradaArchivo instanceof HTMLInputElement) entradaArchivo.click();
+  });
+
+  botonQuitarArchivo?.addEventListener("click", limpiarArchivo);
+
+  entradaArchivo?.addEventListener("change", () => {
+    if (!(entradaArchivo instanceof HTMLInputElement)) return;
+    const archivo = entradaArchivo.files?.[0] || null;
+    if (!archivo) {
+      limpiarArchivo();
+      return;
+    }
+
+    if (!archivo.name.toLowerCase().endsWith(".stl")) {
+      limpiarArchivo();
+      mostrarError("Elige un archivo con extensión .stl para previsualizarlo.", botonSubir);
+      return;
+    }
+
+    pedido.designFileName = archivo.name;
+    pedido.designFileSize = archivo.size;
+    pedido.designFileObject = archivo;
+    if (botonSubir) {
+      botonSubir.querySelector(".brief__soltar-titulo").textContent = archivo.name;
+      botonSubir.querySelector(".brief__soltar-nota").textContent = "Pulsa aquí para elegir otro";
+      botonSubir.setAttribute("data-cargado", "");
+    }
+    if (accionesArchivo) accionesArchivo.hidden = false;
+    if (estadoArchivo) {
+      estadoArchivo.textContent =
+        "Seleccionado solo para esta previsualización. No se enviará ni se guardará.";
+    }
+    limpiarError();
+    guardarBorrador();
+
+    if (archivo.size > MAX_STL_PREVIEW_BYTES) {
+      descartarVistaStl();
+      if (accionesArchivo) accionesArchivo.hidden = false;
+      if (estadoArchivo) {
+        estadoArchivo.textContent =
+          "El archivo es demasiado grande para previsualizarlo aquí. No se enviará; te lo pediremos por email.";
+      }
+      return;
+    }
+    dibujarStl(archivo);
+  });
+
+  actualizarPaso();
+  window.addEventListener("pagehide", () => descartarVistaStl(), { once: true });
+
+  function descartarVistaStl() {
+    if (descartarVista) descartarVista();
+    descartarVista = null;
+    if (lienzoStl) lienzoStl.innerHTML = "";
+    if (vistaStl) vistaStl.hidden = true;
+    if (mensajeStl) {
+      mensajeStl.textContent = "Arrastra para girar la pieza, rueda para acercar.";
+      mensajeStl.removeAttribute("data-error");
+    }
+  }
+
+  async function dibujarStl(archivo) {
+    descartarVistaStl();
+    if (!vistaStl || !lienzoStl || !mensajeStl) return;
+    vistaStl.hidden = false;
+
+    let descartado = false;
+    let fotograma = 0;
+    let renderizador;
+    let controles;
+    let observador;
+    let geometria;
+    let escena;
+    let camara;
+
+    descartarVista = () => {
+      descartado = true;
+      cancelAnimationFrame(fotograma);
+      observador?.disconnect();
+      controles?.dispose();
+      geometria?.dispose();
+      escena?.traverse((objeto) => {
+        const materiales = Array.isArray(objeto.material) ? objeto.material : [objeto.material];
+        materiales.filter(Boolean).forEach((material) => material.dispose?.());
+      });
+      renderizador?.dispose();
+      renderizador?.domElement?.remove();
+    };
+
+    const redimensionar = () => {
+      if (!renderizador || !camara || !lienzoStl.clientWidth || !lienzoStl.clientHeight) return;
+      camara.aspect = lienzoStl.clientWidth / lienzoStl.clientHeight;
+      camara.updateProjectionMatrix();
+      renderizador.setSize(lienzoStl.clientWidth, lienzoStl.clientHeight, false);
+      renderizador.render(escena, camara);
+    };
+
+    try {
+      const [THREE, { OrbitControls }, { STLLoader }, datos] = await Promise.all([
+        import("three"),
+        import("three/examples/jsm/controls/OrbitControls.js"),
+        import("three/examples/jsm/loaders/STLLoader.js"),
+        archivo.arrayBuffer(),
+      ]);
+      if (descartado) return;
+
+      escena = new THREE.Scene();
+      escena.background = new THREE.Color(0xdedbd2);
+
+      camara = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      camara.position.set(90, 70, 110);
+
+      const luzPrincipal = new THREE.DirectionalLight(0xffffff, 2.2);
+      luzPrincipal.position.set(80, 120, 90);
+      escena.add(luzPrincipal);
+      escena.add(new THREE.HemisphereLight(0xffffff, 0xb8ac91, 1.6));
+
+      renderizador = new THREE.WebGLRenderer({ antialias: true });
+      renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderizador.outputColorSpace = THREE.SRGBColorSpace;
+      renderizador.setSize(lienzoStl.clientWidth, lienzoStl.clientHeight, false);
+      renderizador.domElement.setAttribute("role", "img");
+      renderizador.domElement.setAttribute("aria-label", `Previsualización local de ${archivo.name}`);
+      lienzoStl.appendChild(renderizador.domElement);
+
+      controles = new OrbitControls(camara, renderizador.domElement);
+      controles.enableDamping = true;
+      controles.dampingFactor = 0.08;
+
+      observador = new ResizeObserver(redimensionar);
+      observador.observe(lienzoStl);
+
+      geometria = new STLLoader().parse(datos);
+      geometria.computeVertexNormals();
+      // Se centran los vértices y no la malla: la posición de una malla no se
+      // escala ni gira con ella, así que una pieza modelada lejos del origen
+      // quedaría descolocada en cuanto se escala.
+      geometria.center();
+      geometria.computeBoundingBox();
+      geometria.computeBoundingSphere();
+
+      const medidas = geometria.boundingBox.getSize(new THREE.Vector3());
+      const escala = 72 / (Math.max(medidas.x, medidas.y, medidas.z) || 1);
+      const malla = new THREE.Mesh(
+        geometria,
+        new THREE.MeshStandardMaterial({ color: 0xe8dfcd, roughness: 0.5, metalness: 0.05 }),
+      );
+      malla.scale.setScalar(escala);
+      malla.rotation.x = -Math.PI / 2;
+      escena.add(malla);
+
+      // La cámara se aleja lo justo para que la pieza quepa entera, también en
+      // un lienzo estrecho donde el ángulo horizontal es el que manda.
+      const aspecto = lienzoStl.clientWidth / (lienzoStl.clientHeight || 1) || 1;
+      const mitadVertical = THREE.MathUtils.degToRad(camara.fov / 2);
+      const mitadHorizontal = Math.atan(Math.tan(mitadVertical) * aspecto);
+      const radio = geometria.boundingSphere.radius * escala;
+      const distancia = (radio / Math.sin(Math.min(mitadVertical, mitadHorizontal))) * 1.1;
+      camara.position.set(90, 70, 110).setLength(distancia);
+      camara.near = distancia / 100;
+      camara.far = distancia * 10;
+      camara.updateProjectionMatrix();
+
+      controles.target.set(0, 0, 0);
+      controles.update();
+
+      const animar = () => {
+        fotograma = requestAnimationFrame(animar);
+        controles.update();
+        renderizador.render(escena, camara);
+      };
+      redimensionar();
+      animar();
+    } catch {
+      mensajeStl.textContent =
+        "No hemos podido previsualizar este STL. No se enviará; te lo pediremos por email.";
+      mensajeStl.setAttribute("data-error", "");
+    }
+  }
+</script>

@@ -2,19 +2,58 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout>
-  <main style="max-width: 520px; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
-    <h1 style="font-size: 24px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.75rem;">
-      Página no encontrada
-    </h1>
-    <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2rem;">
-      La página que buscas no existe o ha cambiado de dirección.
-    </p>
-    <a
-      href="/"
-      style="background: var(--color-brand-primary); color: white; border: none; border-radius: var(--border-radius-md); padding: 12px 28px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 12px 26px rgba(73, 89, 184, 0.2);"
-    >
-      Volver al inicio
-    </a>
+<BaseLayout title="Página no encontrada">
+  <main class="perdido">
+    <div class="envoltura--angosta">
+      <p class="etiqueta etiqueta--marca">Error 404</p>
+      <h1 class="perdido__titulo">Esta página no existe</h1>
+      <p class="perdido__texto">
+        O ha cambiado de sitio, o el enlace venía mal. Desde aquí puedes seguir:
+      </p>
+      <ul class="perdido__salidas">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/briefing">Pedir una pieza</a></li>
+        <li><a href="/productores">Ver los makers</a></li>
+        <li><a href="/maker">Darme de alta como maker</a></li>
+      </ul>
+    </div>
   </main>
 </BaseLayout>
+
+<style>
+  .perdido {
+    padding-block: clamp(3.5rem, 2rem + 6vw, 7rem);
+  }
+
+  .perdido__titulo {
+    margin-top: 0.8rem;
+    font-size: var(--paso-3);
+  }
+
+  .perdido__texto {
+    margin-top: 1rem;
+    color: var(--tinta-media);
+  }
+
+  .perdido__salidas {
+    margin-top: 1.75rem;
+    border-top: 1px solid var(--linea);
+  }
+
+  .perdido__salidas li {
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .perdido__salidas a {
+    display: block;
+    padding: 0.9rem 0;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .perdido__salidas a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--filamento);
+    text-decoration-thickness: 2px;
+  }
+</style>

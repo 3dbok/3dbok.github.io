@@ -1,0 +1,95 @@
+---
+/**
+ * Banco de pruebas de la portada: los modelos de boquerón uno al lado del
+ * otro para elegir cuál se queda en la home. No se enlaza desde ningún sitio
+ * y no se indexa.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PiezaEnCapas from "../components/PiezaEnCapas.astro";
+import { MODELOS } from "../lib/boquerones.js";
+---
+
+<BaseLayout
+  title="Modelos de boquerón"
+  descripcion="Comparativa interna de los modelos de boquerón para la portada de 3dbok."
+  noindex
+>
+  <section class="banco en-cianotipo">
+    <div class="envoltura">
+      <header class="banco__cabecera">
+        <p class="etiqueta">Banco de pruebas</p>
+        <h1>Cuatro boquerones para la portada</h1>
+        <p>
+          Cada uno se imprime en directo, como en la home. Pasa el puntero por encima para girar la
+          bancada; al articulado, además, se le mueve el cuerpo.
+        </p>
+      </header>
+
+      <ol class="banco__lista" role="list">
+        {
+          Object.entries(MODELOS).map(([clave, modelo]) => (
+            <li class="banco__modelo" data-zona-giro>
+              <h2>{modelo.nombre}</h2>
+              <p>{modelo.descripcion}</p>
+              <PiezaEnCapas modelo={clave} />
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .banco {
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  }
+
+  .banco__cabecera {
+    max-width: 44rem;
+    margin-bottom: clamp(2rem, 1rem + 3vw, 3.5rem);
+  }
+
+  .banco__cabecera h1 {
+    margin: 0.4rem 0 0.8rem;
+    font-size: clamp(2rem, 1.2rem + 2.6vw, 3.4rem);
+  }
+
+  .banco__cabecera p:last-child {
+    color: rgb(252 252 249 / 0.82);
+  }
+
+  .banco__lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .banco__modelo {
+    padding: clamp(1rem, 0.6rem + 1.5vw, 1.75rem);
+    border: 1px solid var(--linea-clara);
+    border-radius: var(--r-2);
+    background: rgb(23 26 51 / 0.12);
+    overflow: hidden; /* el tubo de la boquilla no se sale de la ficha */
+  }
+
+  .banco__modelo h2 {
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.3rem, 1rem + 1vw, 1.75rem);
+  }
+
+  .banco__modelo > p {
+    max-width: 34rem;
+    margin: 0 0 1.25rem;
+    color: rgb(252 252 249 / 0.78);
+  }
+
+  @media (max-width: 880px) {
+    .banco__lista {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

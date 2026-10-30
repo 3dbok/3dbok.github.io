@@ -1,0 +1,460 @@
+---
+/**
+ * La firma de la casa: un boquerón que se imprime de verdad al cargar la
+ * portada, tumbado sobre la bancada. La portada usa el modelo articulado;
+ * los demás (natural, tricolor y low poly) se pueden comparar en /boquerones.
+ *
+ * La geometría de cada modelo vive en `src/lib/boquerones.js`; aquí solo se
+ * apilan las capas, se proyectan sobre la bancada y se imprimen.
+ *
+ * Sin JavaScript se ve la pieza terminada. Con JavaScript, la boquilla la
+ * deposita capa a capa, la lectura de la máquina sube con ella y la bancada
+ * se puede girar con el puntero para verla desde otro ángulo. El modelo
+ * articulado, además, se menea al terminar y al pasarle el puntero.
+ *
+ * El boquerón no es un adorno: es el bicho de Málaga, de donde sale 3dbok.
+ */
+import { construirBoqueron, MODELOS } from "../lib/boquerones.js";
+
+const { modelo: elegido = "natural" } = Astro.props;
+const modelo = MODELOS[elegido] ? elegido : "natural";
+const prefijo = `boqueron-${modelo}`;
+const pieza = construirBoqueron(modelo, prefijo);
+
+const CAPAS = pieza.capas.length;
+const GIRO = -24; // grados de giro sobre la bancada
+const APLASTADO = 0.5; // coseno del ángulo de cámara: la vista isométrica
+
+const capas = pieza.capas.map((capa, i) => ({
+  ...capa,
+  i,
+  z: +(i * pieza.alturaCapa).toFixed(2),
+}));
+
+const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
+const alturaTotal = (CAPAS * pieza.mmCapa).toFixed(1);
+---
+
+<figure
+  class="taller"
+  data-taller
+  data-capas={CAPAS}
+  data-altura-capa={pieza.alturaCapa}
+  data-mm-capa={pieza.mmCapa}
+  data-giro={GIRO}
+  data-aplastado={APLASTADO}
+  data-juntas={pieza.juntas ? JSON.stringify(pieza.juntas) : undefined}
+>
+  <dl class="taller__lectura" aria-hidden="true">
+    <div>
+      <dt>Capa</dt>
+      <dd><span data-lectura-capa>{CAPAS}</span>/{CAPAS}</dd>
+    </div>
+    <div>
+      <dt>Altura</dt>
+      <dd><span data-lectura-z>{alturaTotal}</span> mm</dd>
+    </div>
+    <div>
+      <dt>Boquilla</dt>
+      <dd><span data-lectura-temp>210</span> °C</dd>
+    </div>
+  </dl>
+
+  <svg
+    class="taller__vista"
+    viewBox="-205 -175 410 262"
+    role="img"
+    aria-label={`Un boquerón ${MODELOS[modelo].nombre.toLowerCase()} imprimiéndose capa a capa sobre la bancada de una impresora 3D.`}
+  >
+    <defs>
+      <Fragment set:html={pieza.defs} />
+
+      <radialGradient id={`${prefijo}-apoyo`}>
+        <stop offset="0%" stop-color="rgb(23 26 51 / 0.42)"></stop>
+        <stop offset="55%" stop-color="rgb(23 26 51 / 0.16)"></stop>
+        <stop offset="100%" stop-color="rgb(23 26 51 / 0)"></stop>
+      </radialGradient>
+
+      <radialGradient id={`${prefijo}-brasa`}>
+        <stop offset="0%" stop-color="#ffb08f"></stop>
+        <stop offset="45%" stop-color="rgb(229 89 47 / 0.55)"></stop>
+        <stop offset="100%" stop-color="rgb(229 89 47 / 0)"></stop>
+      </radialGradient>
+
+      <pattern id={`${prefijo}-reticula`} width="22" height="22" patternUnits="userSpaceOnUse">
+        <path d="M22 0V22M0 22H22" class="taller__reticula"></path>
+      </pattern>
+    </defs>
+
+    <g data-bancada transform={proyeccion}>
+      <rect class="taller__bancada" x="-190" y="-110" width="380" height="220" rx="4"></rect>
+      <rect x="-190" y="-110" width="380" height="220" rx="4" fill={`url(#${prefijo}-reticula)`}></rect>
+      <ellipse rx="162" ry="56" fill={`url(#${prefijo}-apoyo)`}></ellipse>
+    </g>
+
+    {
+      capas.map((capa) => (
+        <g
+          class="capa-grupo"
+          data-capa={capa.i}
+          data-z={capa.z}
+          data-sx={capa.sx}
+          transform={`translate(0 ${-capa.z}) ${proyeccion}`}
+          set:html={capa.svg}
+        />
+      ))
+    }
+
+    <!-- Fusor: bloque calefactor, boquilla de latón y el tubo que lo alimenta. -->
+    <g class="boquilla" data-boquilla>
+      <path class="boquilla__tubo" d="M 0 -58 C 0 -110 40 -130 90 -150 S 160 -190 170 -260"></path>
+      <rect class="boquilla__disipador" x="-13" y="-58" width="26" height="22" rx="2"></rect>
+      <path class="boquilla__aletas" d="M -13 -52 H 13 M -13 -46 H 13 M -13 -40 H 13"></path>
+      <rect class="boquilla__bloque" x="-15" y="-36" width="30" height="18" rx="2"></rect>
+      <path class="boquilla__punta" d="M -7 -18 H 7 L 2.5 -6 H -2.5 Z"></path>
+      <circle class="boquilla__brasa" cy="-4" r="11" fill={`url(#${prefijo}-brasa)`}></circle>
+    </g>
+  </svg>
+
+  <figcaption class="taller__pie">
+    <span>{MODELOS[modelo].pie}</span>
+    <button class="taller__repetir" type="button" data-reimprimir hidden>
+      Volver a imprimir
+    </button>
+  </figcaption>
+</figure>
+
+<style>
+  .taller {
+    margin: 0;
+  }
+
+  .taller__vista {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: pan-y;
+  }
+
+  .taller__bancada {
+    fill: var(--cianotipo-hondo);
+    stroke: var(--cianotipo-claro);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .taller__reticula {
+    fill: none;
+    stroke: rgb(252 252 249 / 0.13);
+    stroke-width: 1;
+  }
+
+  /* Sin JavaScript la boquilla no tiene a dónde ir: se queda fuera. */
+  .boquilla {
+    display: none;
+  }
+
+  .taller.esta-viva .boquilla {
+    display: inline;
+  }
+
+  .boquilla__tubo {
+    fill: none;
+    stroke: rgb(252 252 249 / 0.5);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .boquilla__disipador {
+    fill: #c9cbd6;
+  }
+
+  .boquilla__aletas {
+    stroke: #8d90a6;
+    stroke-width: 1.4;
+  }
+
+  .boquilla__bloque {
+    fill: var(--tinta);
+  }
+
+  .boquilla__punta {
+    fill: #c9a24a;
+  }
+
+  .boquilla__brasa {
+    mix-blend-mode: screen;
+    transition: opacity 0.4s ease;
+  }
+
+  .taller.esta-parada .boquilla__brasa {
+    opacity: 0;
+  }
+
+  /* --- Lectura de máquina -------------------------------------------- */
+
+  .taller__lectura {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .taller__lectura div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.32rem 0.65rem;
+    border: 1px solid var(--linea-clara);
+    border-radius: var(--r-1);
+    background: rgb(23 26 51 / 0.16);
+  }
+
+  .taller__lectura dt {
+    font-size: 0.78rem;
+    color: rgb(252 252 249 / 0.7);
+  }
+
+  .taller__lectura dd {
+    margin: 0;
+    min-width: 4.6ch;
+    font-family: var(--fuente-dato);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--pieza);
+  }
+
+  .taller__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-top: 0.6rem;
+    font-size: 0.86rem;
+    color: rgb(252 252 249 / 0.74);
+  }
+
+  .taller__repetir {
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--linea-clara);
+    border-radius: var(--r-1);
+    background: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--pieza);
+    cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .taller__repetir:hover {
+    border-color: var(--arena);
+    background: rgb(252 252 249 / 0.08);
+  }
+
+  @media (max-width: 940px) {
+    .taller__vista {
+      max-width: 34rem;
+      margin-inline: auto;
+    }
+  }
+</style>
+
+<script>
+  const RADIANES = Math.PI / 180;
+  const DURACION_CAPA = 140; // ms por capa: la impresión entera dura unos 3 s
+  const reducir = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const punteroFino = window.matchMedia("(pointer: fine)");
+
+  for (const taller of document.querySelectorAll("[data-taller]")) {
+    const total = Number(taller.dataset.capas);
+    const alturaCapa = Number(taller.dataset.alturaCapa);
+    const mmCapa = Number(taller.dataset.mmCapa);
+    const giroBase = Number(taller.dataset.giro);
+    const aplastadoBase = Number(taller.dataset.aplastado);
+
+    const bancada = taller.querySelector("[data-bancada]");
+    const boquilla = taller.querySelector("[data-boquilla]");
+    const grupos = [...taller.querySelectorAll(".capa-grupo")];
+    const lecturaCapa = taller.querySelector("[data-lectura-capa]");
+    const lecturaZ = taller.querySelector("[data-lectura-z]");
+    const lecturaTemp = taller.querySelector("[data-lectura-temp]");
+    const repetir = taller.querySelector("[data-reimprimir]");
+
+    const vista = { giro: giroBase, aplastado: aplastadoBase };
+    const objetivo = { giro: giroBase, aplastado: aplastadoBase };
+    const punta = { x: 0, y: 0 };
+    let capasVisibles = total;
+    let fotograma = 0;
+    let inicio = 0;
+
+    const proyectar = () => {
+      const proyeccion = `scale(1 ${vista.aplastado.toFixed(3)}) rotate(${vista.giro.toFixed(2)})`;
+      bancada?.setAttribute("transform", proyeccion);
+      grupos.forEach((grupo) => {
+        grupo.setAttribute("transform", `translate(0 ${-Number(grupo.dataset.z)}) ${proyeccion}`);
+      });
+    };
+
+    const moverBoquilla = (x, y) => {
+      punta.x = x;
+      punta.y = y;
+      boquilla?.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+    };
+
+    // La boquilla recorre el eje largo del pez, de la cola al morro y vuelta,
+    // siempre apoyada sobre la última capa depositada.
+    const seguirCapa = (capa, fase) => {
+      const grupo = grupos[Math.min(capa, total - 1)];
+      const recorrido = Math.sin(fase) * 128 * Number(grupo.dataset.sx);
+      const angulo = vista.giro * RADIANES;
+      moverBoquilla(
+        Math.cos(angulo) * recorrido,
+        Math.sin(angulo) * recorrido * vista.aplastado - Number(grupo.dataset.z) - alturaCapa,
+      );
+    };
+
+    const leer = (capa, temperatura) => {
+      if (lecturaCapa) lecturaCapa.textContent = String(capa);
+      if (lecturaZ) lecturaZ.textContent = (capa * mmCapa).toFixed(1);
+      if (lecturaTemp) lecturaTemp.textContent = String(Math.round(temperatura));
+    };
+
+    const depositar = (grupo) => {
+      grupo.style.opacity = "1";
+      grupo.querySelectorAll(".capa__calor").forEach((calor) => {
+        calor.animate([{ opacity: 0.95 }, { opacity: 0.6, offset: 0.2 }, { opacity: 0 }], {
+          duration: 1300,
+          easing: "ease-out",
+          fill: "forwards",
+        });
+      });
+    };
+
+    // Solo el modelo articulado: cada pieza gira sobre la bisagra que la une
+    // a la anterior y arrastra a las de detrás, con una onda que corre del
+    // morro a la cola y se apaga sola.
+    const juntas = taller.dataset.juntas ? JSON.parse(taller.dataset.juntas) : [];
+    const segmentos = [...taller.querySelectorAll("[data-segmento]")];
+    let meneo = 0;
+
+    const doblar = (angulos) => {
+      const giros = angulos.map((angulo, j) => `rotate(${angulo.toFixed(2)} ${juntas[j]} 0)`);
+      segmentos.forEach((segmento) => {
+        segmento.setAttribute("transform", giros.slice(0, Number(segmento.dataset.segmento)).join(" "));
+      });
+    };
+
+    const menear = () => {
+      if (!juntas.length || meneo) return;
+      let comienzo = 0;
+      const paso = (ahora) => {
+        if (!comienzo) comienzo = ahora;
+        const t = (ahora - comienzo) / 1000;
+        const apagado = Math.max(0, 1 - t / 2.6);
+        doblar(juntas.map((_, j) => 6 * apagado * apagado * Math.sin(t * 9 - j * 0.75)));
+        meneo = apagado > 0 ? requestAnimationFrame(paso) : 0;
+      };
+      meneo = requestAnimationFrame(paso);
+    };
+
+    // Terminada la pieza, la boquilla se aparta hacia arriba y se enfría.
+    const aparcar = () => {
+      const destino = { x: 150, y: -total * alturaCapa - 60 };
+      let temperatura = 210;
+      const paso = () => {
+        moverBoquilla(punta.x + (destino.x - punta.x) * 0.08, punta.y + (destino.y - punta.y) * 0.08);
+        temperatura -= 2.5;
+        leer(total, Math.max(temperatura, 45));
+        if (temperatura > 45) fotograma = requestAnimationFrame(paso);
+      };
+      fotograma = requestAnimationFrame(paso);
+    };
+
+    const imprimir = (ahora) => {
+      if (!inicio) inicio = ahora;
+      const transcurrido = ahora - inicio;
+      const capa = Math.min(total, Math.floor(transcurrido / DURACION_CAPA) + 1);
+
+      while (capasVisibles < capa) {
+        depositar(grupos[capasVisibles]);
+        capasVisibles += 1;
+      }
+
+      seguirCapa(capasVisibles - 1, transcurrido / 52);
+      leer(capasVisibles, 210);
+
+      if (capasVisibles < total) {
+        fotograma = requestAnimationFrame(imprimir);
+        return;
+      }
+
+      taller.classList.add("esta-parada");
+      if (repetir) repetir.hidden = false;
+      aparcar();
+      menear();
+    };
+
+    const empezar = () => {
+      cancelAnimationFrame(fotograma);
+      cancelAnimationFrame(meneo);
+      meneo = 0;
+      if (juntas.length) doblar(juntas.map(() => 0));
+      grupos.forEach((grupo) => {
+        grupo.style.opacity = "0";
+        grupo.querySelectorAll(".capa__calor").forEach((calor) => {
+          calor.getAnimations().forEach((animacion) => animacion.cancel());
+        });
+      });
+      taller.classList.remove("esta-parada");
+      capasVisibles = 0;
+      inicio = 0;
+      fotograma = requestAnimationFrame(imprimir);
+    };
+
+    if (!reducir.matches) {
+      taller.classList.add("esta-viva");
+      empezar();
+      repetir?.addEventListener("click", () => {
+        repetir.hidden = true;
+        empezar();
+      });
+      taller.addEventListener("pointerenter", () => {
+        if (taller.classList.contains("esta-parada")) menear();
+      });
+    }
+
+    // Girar la bancada con el puntero: solo con ratón y sin movimiento
+    // reducido. La vista persigue al puntero con un poco de inercia.
+    if (punteroFino.matches && !reducir.matches) {
+      const zona = taller.closest("[data-zona-giro]") ?? taller;
+      let siguiendo = 0;
+
+      const seguir = () => {
+        vista.giro += (objetivo.giro - vista.giro) * 0.09;
+        vista.aplastado += (objetivo.aplastado - vista.aplastado) * 0.09;
+        proyectar();
+        const quieto =
+          Math.abs(objetivo.giro - vista.giro) < 0.05 &&
+          Math.abs(objetivo.aplastado - vista.aplastado) < 0.001;
+        siguiendo = quieto ? 0 : requestAnimationFrame(seguir);
+      };
+
+      zona.addEventListener("pointermove", (evento) => {
+        const caja = taller.getBoundingClientRect();
+        const dx = (evento.clientX - (caja.left + caja.width / 2)) / caja.width;
+        const dy = (evento.clientY - (caja.top + caja.height / 2)) / caja.height;
+        objetivo.giro = giroBase + Math.max(-1, Math.min(1, dx)) * 26;
+        objetivo.aplastado = aplastadoBase - Math.max(-1, Math.min(1, dy)) * 0.12;
+        if (!siguiendo) siguiendo = requestAnimationFrame(seguir);
+      });
+
+      zona.addEventListener("pointerleave", () => {
+        objetivo.giro = giroBase;
+        objetivo.aplastado = aplastadoBase;
+        if (!siguiendo) siguiendo = requestAnimationFrame(seguir);
+      });
+    }
+  }
+</script>

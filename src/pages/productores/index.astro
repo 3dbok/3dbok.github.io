@@ -6,56 +6,128 @@ import productores from "../../data/productores.json";
 import resenas from "../../data/resenas.json";
 import { calcularMediaValoracion } from "../../lib/productorShared.js";
 import "../../styles/ProductorPage.css";
+
+const ciudades = [...new Set(productores.map((productor) => productor.ubicacion))];
+const recuento =
+  productores.length === 1
+    ? `1 taller disponible · ${ciudades.join(", ")}`
+    : `${productores.length} talleres disponibles · ${ciudades.join(" · ")}`;
 ---
 
-<BaseLayout>
-  <div class="productor-page">
-    <header class="pp-header pp-header--directorio">
-      <div>
-        <p class="pp-eyebrow pp-mono">Directorio</p>
-        <h1 class="pp-nombre">Makers que forman parte de 3dbok</h1>
-        <p class="pp-bio" style="margin-top: 0.5rem;">
-          Detrás de cada maker, hay una persona. Puedes ver su perfil,
-          productos, materiales y opiniones de otros clientes.
-          <!-- Cada maker tiene su propio equipo, materiales y especialidad. Entra
-          en uno para ver su catálogo completo y las opiniones de otros clientes. -->
-        </p>
+<BaseLayout
+  title="Makers"
+  descripcion="Los makers dados de alta en 3dbok: quiénes son, dónde están, con qué materiales trabajan y qué han impreso ya."
+>
+  <main>
+    <header class="directorio__cabecera malla">
+      <div class="envoltura directorio__cabecera-interior">
+        <div class="directorio__presentacion">
+          <p class="etiqueta etiqueta--marca">Directorio de makers</p>
+          <h1 class="directorio__titulo">Quién imprime en 3dbok</h1>
+          <p class="entradilla directorio__entrada">
+            Detrás de cada maker hay una persona, un taller y una forma de
+            trabajar. Consulta sus materiales y trabajos antes de contarle qué
+            pieza necesitas.
+          </p>
+          <p class="directorio__recuento dato">{recuento}</p>
+        </div>
+
+        <aside class="directorio__guia" aria-label="Cómo elegir un maker">
+          <p class="etiqueta">Antes de encargar</p>
+          <ol class="directorio__pasos">
+            <li><span class="dato">01</span> Revisa sus trabajos publicados</li>
+            <li><span class="dato">02</span> Comprueba materiales y capacidad</li>
+            <li><span class="dato">03</span> Cuéntale tu pieza en el briefing</li>
+          </ol>
+        </aside>
       </div>
     </header>
 
-    <div class="dir-grid">
-      {productores.map((productor) => {
-        const { media, total } = calcularMediaValoracion(productor.id, resenas);
-        return (
-          <a class="dir-card" href={`/productores/${productor.slug}`}>
-            <img
-              class="dir-card-photo"
-              src={productor.foto}
-              alt={productor.nombre}
-            />
-            <div class="dir-card-body">
-              <h2 class="dir-card-nombre">{productor.nombre}</h2>
-              <p class="dir-card-ubicacion pp-mono">{productor.ubicacion}</p>
+    <section class="envoltura directorio__zona" aria-labelledby="talleres-titulo">
+      <div class="directorio__lista-cabecera">
+        <div>
+          <p class="etiqueta">Talleres disponibles</p>
+          <h2 id="talleres-titulo">Conoce quién hará tu pieza</h2>
+        </div>
+        <p class="dato directorio__lista-nota">
+          Perfiles con capacidad y trabajos visibles
+        </p>
+      </div>
 
-              {media !== null && (
-                <p class="pp-rating-pill" style="margin-top: 0.35rem;">
-                  <Estrellas valor={media} /> {media.toFixed(1)} ({total})
-                </p>
-              )}
+      <ol class="directorio__lista">
+        {
+          productores.map((productor, indice) => {
+            const { media, total } = calcularMediaValoracion(productor.id, resenas);
+            return (
+              <li class="directorio__item">
+                <a class="fila-maker" href={`/productores/${productor.slug}`}>
+                  <span class="fila-maker__indice dato" aria-hidden="true">
+                    {String(indice + 1).padStart(2, "0")}
+                  </span>
 
-              <div class="pp-materiales-strip" style="margin-top: 0.55rem;">
-                {productor.materiales.map((m) => (
-                  <MaterialChip codigo={m} />
-                ))}
-              </div>
+                  <img
+                    class="fila-maker__foto"
+                    src={productor.foto}
+                    alt=""
+                    width="112"
+                    height="112"
+                  />
 
-              <p class="dir-card-especialidad pp-mono">
-                {productor.especialidades[0]}
-              </p>
-            </div>
-          </a>
-        );
-      })}
-    </div>
-  </div>
+                  <div class="fila-maker__identidad">
+                    <p class="etiqueta fila-maker__tipo">Taller local</p>
+                    <h3 class="fila-maker__nombre">{productor.nombre}</h3>
+                    <p class="fila-maker__sitio dato">
+                      {productor.ubicacion} · Responde en ~{productor.tiempoRespuestaHoras} h
+                    </p>
+                    {media !== null && (
+                      <p class="fila-maker__nota dato">
+                        <Estrellas valor={media} />
+                        {media.toFixed(1)} ({total})
+                      </p>
+                    )}
+                    <p class="fila-maker__bio">{productor.bio}</p>
+                  </div>
+
+                  <div class="fila-maker__equipo">
+                    <p class="etiqueta fila-maker__equipo-titulo">Puede ayudarte con</p>
+                    <div class="fila-maker__materiales">
+                      {productor.materiales.map((codigo) => (
+                        <MaterialChip codigo={codigo} />
+                      ))}
+                    </div>
+                    <p class="fila-maker__especialidad dato">
+                      {productor.especialidades.join(" · ")}
+                    </p>
+                  </div>
+
+                  <span class="fila-maker__ir">
+                    Ver su taller <span class="boton__flecha" aria-hidden="true">→</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <section class="en-cianotipo directorio__aviso">
+      <div class="envoltura directorio__aviso-interior">
+        <div>
+          <p class="etiqueta">Tu encargo empieza aquí</p>
+          <h2 class="directorio__aviso-titulo">
+            ¿No encuentras a nadie en tu zona?
+          </h2>
+          <p class="directorio__aviso-texto">
+            Haz el pedido igualmente. Buscamos al maker adecuado entre los que
+            se van dando de alta y te lo asignamos antes de empezar.
+          </p>
+        </div>
+        <a href="/briefing" class="boton boton--claro">
+          Pedir una pieza
+          <span class="boton__flecha" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </main>
 </BaseLayout>
