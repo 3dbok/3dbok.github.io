@@ -121,11 +121,12 @@ Small branded not-found page using `BaseLayout` with the normal shared navigatio
 - `Nav.astro`: sticky desktop navigation plus an accessible button-controlled menu at widths up to 720 px. It marks active `/productores` and `/maker` routes with `aria-current` and closes the compact menu on Escape or breakpoint changes.
 - `Footer.astro`: service, maker, contact, and privacy navigation; computes the displayed year at build time.
 - `Logo.astro`: inline layered-print brand mark with `tinta` and `claro` tones.
-- `PiezaEnCapas.astro`: inline SVG hero showing a Málaga boquerón printed layer by layer, with an elliptical section, fins at mid height and tree supports underneath. It is meaningful imagery with an accessible label, not a generic decoration.
+- `PiezaEnCapas.astro`: inline SVG hero showing a Málaga boquerón printed layer by layer. The home uses the `articulado` model: ten print-in-place segments that wiggle once printed and on hover. It is meaningful imagery with an accessible label, not a generic decoration.
 - `MaterialChip.astro`: renders only material codes present in the shared `MATERIALES` map.
 - `Estrellas.astro`: renders a five-character star string and exposes the numerical rating through an accessible label.
 - `src/lib/productorShared.js`: the canonical material map for producer views, star rendering, and approved-review aggregation.
 - `src/lib/pedidoShared.js`: the canonical customer-order options, labels, storage keys/expiry times, preview size limit, request/reference validation, Formspree payload/error mapping, and identity generator.
+- `src/lib/boquerones.js`: geometry for the hero boquerón models (`natural`, `tricolor`, `articulado`, `lowpoly`). `PiezaEnCapas` takes a `modelo` prop and only stacks, projects and prints the layers it returns; `/boquerones` is an unlinked, `noindex` page that shows all models side by side.
 - `src/lib/capas.js`: colour helpers that shade stacked SVG layers so printed pieces read as solids (hero boquerón, home wheel).
 
 Prefer extending an existing component or shared helper when a pattern is used on more than one page. Keep one-off page composition and behaviour close to its page.
