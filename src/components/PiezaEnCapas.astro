@@ -1,10 +1,12 @@
 ---
 /**
  * La firma de la casa: un boquerón que se imprime de verdad al cargar la
- * portada. Va tumbado sobre la bancada, que es como se imprimiría en un taller
- * real: cara plana abajo y sin un solo soporte. Las primeras capas llevan la
- * silueta entera, con las aletas finas y planas; encima solo crece el cuerpo,
- * que se va cerrando hasta redondear el lomo.
+ * portada. Va tumbado sobre la bancada y su sección es una elipse, como la del
+ * pez: apoya poco en la cama, ensancha hasta la altura media y se vuelve a
+ * cerrar hacia el lomo. Las aletas y la cola son láminas finas que salen justo
+ * de esa altura media, así que quedan en el aire y el laminador les pone
+ * soporte en árbol: troncos que suben desde la cama y se abren en ramas hasta
+ * tocar cada aleta.
  *
  * Sin JavaScript se ve la pieza terminada. Con JavaScript, la boquilla la
  * deposita capa a capa, la lectura de la máquina sube con ella y la bancada
@@ -14,13 +16,17 @@
  */
 import { tonosDePared } from "../lib/capas.js";
 
-const CAPAS_ALETA = 3; // las aletas son láminas de pocas capas
-const CAPAS_CUERPO = 17;
-const CAPAS = CAPAS_ALETA + CAPAS_CUERPO;
-const ALTURA_CAPA = 1.5; // separación en pantalla entre capa y capa
+const CAPAS = 24;
+const CAPA_ALETA = 11; // primera capa de aletas y cola: la altura media
+const CAPAS_ALETA = 2; // las aletas son láminas de pocas capas
+const ALTURA_CAPA = 1.2; // separación en pantalla entre capa y capa
 const MM_POR_CAPA = 0.2; // lo que mide de verdad una capa con boquilla de 0.4
-const REDONDEO = 8; // cuánto se mete el borde del lomo en la última capa
-const CENTRO_X = -16; // centro del cuerpo: el lomo se cierra hacia aquí
+const MEDIO_ALTO = 28; // medio alto del cuerpo en su parte más ancha
+const LARGO = 134; // medio largo del cuerpo, del centro al morro
+const AFILADO = 2.2; // morro y cola adelgazan más deprisa que el lomo
+const CORTE_CAMA = 0.72; // cuánto se ha cortado la elipse por abajo para apoyar
+const CORTE_LOMO = 0.85; // y por arriba, para que el lomo no acabe en filo
+const CENTRO_X = -16; // centro del cuerpo: cada capa se cierra hacia aquí
 const GIRO = -24; // grados de giro sobre la bancada
 const APLASTADO = 0.5; // coseno del ángulo de cámara: la vista isométrica
 
@@ -52,7 +58,7 @@ const BOQUERON = `
   .trim()
   .replace(/\s+/g, " ");
 
-// El mismo pez sin aletas: lo que sube por encima de ellas.
+// El mismo pez sin aletas: lo que se imprime por debajo y por encima de ellas.
 const CUERPO = `
   M -150 0
   C -138 -12 -124 -19 -108 -22
@@ -70,25 +76,62 @@ const CUERPO = `
   .trim()
   .replace(/\s+/g, " ");
 
-// Perfil del grosor: plano contra la bancada y con el canto redondeado
-// arriba. Cada capa se mete hacia dentro lo mismo por todo el contorno (más
-// en alto que en largo, porque el pez es mucho más largo que alto), así la
-// cara de arriba conserva la silueta del pez. Cada capa lleva su tono para
-// que la pared se lea continua.
-const tonos = tonosDePared(CAPAS, "#8a8255", "#e4ddb2");
+// Sección en elipse: `u` recorre el alto de la pieza de -1 (cama) a 1 (lomo)
+// y vale 0 en la altura media, donde están las aletas. Cada capa se mete
+// hacia dentro lo que pide la elipse en ese punto, más por el morro y la
+// cola que por el lomo y el vientre, y conserva la silueta del pez.
+const MEDIO = CAPA_ALETA + (CAPAS_ALETA - 1) / 2;
+const tonos = tonosDePared(CAPAS, "#6d6643", "#e4ddb2");
 const capas = Array.from({ length: CAPAS }, (_, i) => {
-  const enCuerpo = i >= CAPAS_ALETA;
-  const t = enCuerpo ? (i - CAPAS_ALETA) / (CAPAS_CUERPO - 1) : 0;
-  const metido = REDONDEO * (1 - Math.sqrt(1 - t * t));
+  const u = i < MEDIO ? (-CORTE_CAMA * (MEDIO - i)) / MEDIO : (CORTE_LOMO * (i - MEDIO)) / (CAPAS - 1 - MEDIO);
+  const metido = MEDIO_ALTO * (1 - Math.sqrt(1 - u * u));
+  const aleta = i >= CAPA_ALETA && i < CAPA_ALETA + CAPAS_ALETA;
   return {
     i,
     z: +(i * ALTURA_CAPA).toFixed(2),
-    sx: +(1 - metido / 134).toFixed(4),
-    sy: +(1 - metido / 28).toFixed(4),
-    forma: enCuerpo ? "#cuerpo" : "#boqueron",
+    sx: +(1 - (metido * AFILADO) / LARGO).toFixed(4),
+    sy: +(1 - metido / MEDIO_ALTO).toFixed(4),
+    forma: aleta ? "#boqueron" : "#cuerpo",
     tono: tonos[i],
     cima: i === CAPAS - 1,
   };
+});
+
+// Soporte en árbol. Cada árbol nace de un pie en la cama, sube en un tronco
+// y a partir de cierta altura se abre en ramas que se curvan hasta la punta
+// que toca la aleta. Las puntas caen dentro de la aleta y fuera del cuerpo, y
+// ninguna rama se separa del tronco más de lo que una impresora salvaría.
+const ARBOLES = [
+  { pie: [6, -47], puntas: [[0, -37], [12, -40]] }, // dorsal
+  { pie: [35, 44], puntas: [[30, 38], [38, 33]] }, // anal
+  { pie: [129, -12], puntas: [[124, -6], [135, -19]] }, // lóbulo de arriba
+  { pie: [129, 12], puntas: [[124, 6], [135, 19]] }, // lóbulo de abajo
+];
+const TRONCO = 0.4; // fracción de la altura del soporte que es tronco
+const suave = (t) => t * t * (3 - 2 * t);
+const nudo = (pie, punta, s) => {
+  const t = s <= TRONCO ? 0 : suave((s - TRONCO) / (1 - TRONCO));
+  return { x: pie[0] + (punta[0] - pie[0]) * t, y: pie[1] + (punta[1] - pie[1]) * t, t };
+};
+// En cada capa, cada rama se dibuja como un rastro desde donde estaba en la
+// capa de abajo, para que el soporte se lea como una varilla continua.
+const soportePorCapa = Array.from({ length: CAPA_ALETA }, (_, k) => {
+  const s = k / (CAPA_ALETA - 1);
+  const antes = Math.max(k - 1, 0) / (CAPA_ALETA - 1);
+  return ARBOLES.flatMap(({ pie, puntas }) => {
+    if (k === 0) return [{ x: pie[0], y: pie[1], r: 7 }];
+    const ramas = s <= TRONCO ? [puntas[0]] : puntas;
+    return ramas.flatMap((punta) => {
+      const a = nudo(pie, punta, antes);
+      const b = nudo(pie, punta, s);
+      const r = s <= TRONCO ? 4 : 2.8 - 1.2 * b.t;
+      return [1 / 3, 2 / 3, 1].map((f) => ({
+        x: +(a.x + (b.x - a.x) * f).toFixed(2),
+        y: +(a.y + (b.y - a.y) * f).toFixed(2),
+        r: +r.toFixed(2),
+      }));
+    });
+  });
 });
 
 const escalaCapa = (capa) =>
@@ -96,6 +139,7 @@ const escalaCapa = (capa) =>
 
 const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
 const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
+const cima = capas[CAPAS - 1];
 ---
 
 <figure
@@ -140,6 +184,13 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
         <stop offset="100%" stop-color="#d6ce9e"></stop>
       </linearGradient>
 
+      <!-- Cada rodaja de soporte se sombrea como un cilindro. -->
+      <linearGradient id="soporte-luz" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#a39b70"></stop>
+        <stop offset="60%" stop-color="#ebe5c4"></stop>
+        <stop offset="100%" stop-color="#c3bb90"></stop>
+      </linearGradient>
+
       <radialGradient id="apoyo">
         <stop offset="0%" stop-color="rgb(23 26 51 / 0.42)"></stop>
         <stop offset="55%" stop-color="rgb(23 26 51 / 0.16)"></stop>
@@ -169,21 +220,25 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
           class="capa-grupo"
           data-capa={capa.i}
           data-z={capa.z}
-          data-escala={escalaCapa(capa)}
           data-sx={capa.sx}
-          transform={`translate(0 ${-capa.z}) ${proyeccion} ${escalaCapa(capa)}`}
+          transform={`translate(0 ${-capa.z}) ${proyeccion}`}
         >
-          <use class:list={["capa", { "capa--cima": capa.cima }]} href={capa.forma} style={`fill:${capa.tono}`} />
-          <use class="capa__calor" href={capa.forma} />
-          {capa.cima && (
-            <g class="capa__detalle">
-              <path class="capa__operculo" d="M -94 -20 C -85 -8 -85 8 -94 19" />
-              <path class="capa__banda" d="M -84 -1 C -40 -4 30 -3 110 -1" />
-              <path class="capa__boca" d="M -150 0 L -128 3" />
-              <circle class="capa__ojo" cx="-114" cy="-4" r="7" />
-              <circle class="capa__brillo-ojo" cx="-116" cy="-6" r="2" />
-            </g>
-          )}
+          {soportePorCapa[capa.i]?.map((nudo) => (
+            <circle class="soporte" cx={nudo.x} cy={nudo.y} r={nudo.r} />
+          ))}
+          <g transform={escalaCapa(capa)}>
+            <use class:list={["capa", { "capa--cima": capa.cima }]} href={capa.forma} style={`fill:${capa.tono}`} />
+            <use class="capa__calor" href={capa.forma} />
+            {capa.cima && (
+              <g class="capa__detalle">
+                <path class="capa__operculo" d="M -94 -20 C -85 -8 -85 8 -94 19" />
+                <path class="capa__banda" d="M -84 -1 C -40 -4 30 -3 110 -1" />
+                <path class="capa__boca" d="M -150 0 L -128 3" />
+                <ellipse class="capa__ojo" cx="-114" cy="-4" rx={5.5 / cima.sx} ry={5.5 / cima.sy} />
+                <ellipse class="capa__brillo-ojo" cx="-115.5" cy="-5.5" rx={1.6 / cima.sx} ry={1.6 / cima.sy} />
+              </g>
+            )}
+          </g>
         </g>
       ))
     }
@@ -200,7 +255,7 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
   </svg>
 
   <figcaption class="taller__pie">
-    <span>Boquerón en PLA natural, {CAPAS} capas de {MM_POR_CAPA} mm.</span>
+    <span>Boquerón en PLA natural, {CAPAS} capas de {MM_POR_CAPA} mm con soporte en árbol.</span>
     <button class="taller__repetir" type="button" data-reimprimir hidden>
       Volver a imprimir
     </button>
@@ -263,6 +318,10 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
 
   .capa__brillo-ojo {
     fill: rgb(255 255 255 / 0.8);
+  }
+
+  .soporte {
+    fill: url(#soporte-luz);
   }
 
   /* El material sale caliente por la boquilla y se enfría al subir la pieza. */
@@ -419,10 +478,7 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
       const proyeccion = `scale(1 ${vista.aplastado.toFixed(3)}) rotate(${vista.giro.toFixed(2)})`;
       bancada?.setAttribute("transform", proyeccion);
       grupos.forEach((grupo) => {
-        grupo.setAttribute(
-          "transform",
-          `translate(0 ${-Number(grupo.dataset.z)}) ${proyeccion} ${grupo.dataset.escala}`,
-        );
+        grupo.setAttribute("transform", `translate(0 ${-Number(grupo.dataset.z)}) ${proyeccion}`);
       });
     };
 
