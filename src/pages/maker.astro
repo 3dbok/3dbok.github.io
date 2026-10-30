@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { printerBenefitIcons } from "../lib/icons";
 
 const ventajas = [
-  { icono: printerBenefitIcons.commission, texto: "Solo pagas comisión cuando entregas un pedido" },
-  { icono: printerBenefitIcons.location, texto: "Recibes encargos filtrados por tu zona" },
-  { icono: printerBenefitIcons.choice, texto: "Tú decides qué encargos aceptas" },
+  { titulo: "Sin cuota mensual.", texto: "Solo pagas comisión cuando entregas un pedido." },
+  { titulo: "Encargos de tu zona.", texto: "Te llegan filtrados por cercanía." },
+  { titulo: "Tú decides.", texto: "Aceptas solo los encargos que te encajan." },
 ];
+
+const PASOS_ALTA = ["Equipo y experiencia", "Colores disponibles", "Datos de contacto"];
 
 const MATERIALES = ["PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"];
 const BOQUILLAS = ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"];
@@ -24,92 +25,100 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   descripcion="Da de alta tu impresora 3D en 3dbok: recibes encargos de tu zona, eliges cuáles aceptas y solo pagas comisión cuando entregas."
 >
   <main class="alta">
-    <section class="alta__portada">
+    <section class="alta__portada en-cianotipo">
       <div class="envoltura alta__portada-interior">
         <header class="alta__presentacion">
-          <p class="etiqueta etiqueta--marca">Para makers</p>
+          <p class="etiqueta">Para makers</p>
           <h1 class="alta__titulo">Que tu impresora trabaje también para otros</h1>
-          <p class="entradilla alta__entrada">
+          <p class="alta__entrada">
             Te llegan encargos de gente de tu zona y decides cuáles coges. Sin
             cuota mensual: solo una comisión cuando entregas la pieza.
           </p>
+          <a href="#alta-maker" class="boton boton--arena alta__empezar">Empezar el alta</a>
         </header>
 
-        <ul class="alta__ventajas" id="ventajas">
-          {
-            ventajas.map((ventaja, indice) => (
-              <li class="ventaja">
-                <span class="ventaja__numero dato" aria-hidden="true">
-                  {String(indice + 1).padStart(2, "0")}
-                </span>
-                <span class="ventaja__icono" aria-hidden="true">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    {ventaja.icono.map((trazo) => <path d={trazo} />)}
-                  </svg>
-                </span>
-                <span class="ventaja__texto">{ventaja.texto}</span>
-              </li>
-            ))
-          }
-        </ul>
+        <!-- Ejemplo de cómo llega un encargo: un correo con lo justo para decidir. -->
+        <figure class="aviso">
+          <div class="aviso__correo" aria-hidden="true">
+            <p class="aviso__cabecera">
+              <span class="aviso__punto"></span>
+              Encargo nuevo cerca de ti
+              <span class="aviso__distancia">a 3 km</span>
+            </p>
+            <p class="aviso__pieza">Rueda de carro de la compra</p>
+            <dl class="aviso__datos">
+              <div><dt>Material</dt><dd>PETG negro</dd></div>
+              <div><dt>Medidas</dt><dd class="dato">Ø62 × 18 mm</dd></div>
+              <div><dt>Boceto</dt><dd>Aprobado por el cliente</dd></div>
+            </dl>
+            <p class="aviso__pie">Respondes al correo si lo quieres. Si no, lo dejas pasar.</p>
+          </div>
+          <figcaption class="aviso__leyenda">Así te llega un encargo (ejemplo).</figcaption>
+        </figure>
       </div>
+
+      <ul class="envoltura alta__ventajas" id="ventajas">
+        {
+          ventajas.map((ventaja) => (
+            <li>
+              <strong>{ventaja.titulo}</strong> {ventaja.texto}
+            </li>
+          ))
+        }
+      </ul>
     </section>
 
     <section class="alta__registro">
       <form
+        id="alta-maker"
         class="envoltura alta__formulario"
         data-signup-form
         data-endpoint={FORMSPREE_MAKERS_ENDPOINT}
       >
         <aside class="alta__guia" aria-label="Progreso del alta de maker">
-          <p class="etiqueta etiqueta--marca">Alta de maker</p>
-          <div class="alta__avance">
-            <div class="alta__avance-datos dato">
-              <span>Paso <span data-signup-current>1</span> de 3</span>
-              <span><span data-signup-progress-text>0</span> % completado</span>
+          <div class="alta__cabeza-guia">
+            <!-- El logo se imprime a la vez que el alta: una capa por paso. -->
+            <svg class="pila" viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" rx="7.5" class="pila__placa"></rect>
+              <rect x="6.5" y="20" width="19" height="4" rx="1.2" class="pila__capa pila__capa--1"></rect>
+              <rect x="8.5" y="14" width="15" height="4" rx="1.2" class="pila__capa pila__capa--2"></rect>
+              <rect x="10.5" y="8" width="11" height="4" rx="1.2" class="pila__capa pila__capa--3"></rect>
+            </svg>
+            <div>
+              <p class="alta__guia-titulo">Tu alta, capa a capa</p>
+              <p class="alta__avance-datos">
+                Paso <span data-signup-current>1</span> de 3, <span data-signup-progress-text>0</span> % hecho
+              </p>
             </div>
-            <div
-              class="alta__barra"
-              role="progressbar"
-              aria-label="Progreso del alta"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-valuenow="0"
-              data-signup-progress
-            >
-              <div class="alta__barra-relleno" data-signup-progress-fill></div>
-            </div>
+          </div>
+          <div
+            class="alta__barra"
+            role="progressbar"
+            aria-label="Progreso del alta"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-signup-progress
+          >
+            <div class="alta__barra-relleno" data-signup-progress-fill></div>
           </div>
 
           <ol class="alta__pasos">
             {
-              [
-                "Equipo y experiencia",
-                "Colores disponibles",
-                "Datos de contacto",
-              ].map((titulo, indice) => (
+              PASOS_ALTA.map((titulo, indice) => (
                 <li
                   class="alta__indicador"
                   data-signup-progress-step={indice + 1}
                   aria-current={indice === 0 ? "step" : undefined}
                 >
-                  <span class="alta__indicador-numero dato">
-                    {String(indice + 1).padStart(2, "0")}
-                  </span>
+                  <span class="alta__indicador-numero" aria-hidden="true">{indice + 1}</span>
                   <span class="alta__indicador-titulo">{titulo}</span>
                 </li>
               ))
             }
           </ol>
 
-          <p class="alta__garantia dato">
+          <p class="alta__garantia">
             Revisamos cada alta antes de publicar el perfil del maker.
           </p>
         </aside>
@@ -117,7 +126,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         <div class="alta__panel">
           <!-- Paso 1: impresora, materiales y experiencia -->
           <div data-step-panel="1">
-            <p class="etiqueta etiqueta--marca alta__paso">Paso 1 de 3</p>
+            <p class="etiqueta alta__paso">Paso 1 de 3</p>
             <h2 class="alta__seccion" data-step-title tabindex="-1">
               Tu impresora y tu experiencia
             </h2>
@@ -193,12 +202,12 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
             </div>
 
             <div class="alta__pie">
-              <p class="alta__requisito dato">
+              <p class="alta__requisito">
                 Completa equipo, materiales, boquillas y experiencia para continuar.
               </p>
               <div class="alta__acciones">
                 <button class="boton boton--principal" data-next="1" type="button" disabled>
-                  Siguiente <span class="boton__flecha" aria-hidden="true">→</span>
+                  Siguiente
                 </button>
               </div>
             </div>
@@ -206,7 +215,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 
           <!-- Paso 2: colores disponibles por material -->
           <div data-step-panel="2" hidden>
-            <p class="etiqueta etiqueta--marca alta__paso">Paso 2 de 3</p>
+            <p class="etiqueta alta__paso">Paso 2 de 3</p>
             <h2 class="alta__seccion" data-step-title tabindex="-1">Qué colores tienes</h2>
             <p class="alta__ayuda">
               Marca los que tengas de cada material. Si tienes alguno que no
@@ -216,11 +225,11 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
             <div data-colors-container></div>
 
             <div class="alta__pie">
-              <p class="alta__requisito dato">Elige al menos un color por material.</p>
+              <p class="alta__requisito">Elige al menos un color por material.</p>
               <div class="alta__acciones alta__acciones--doble">
-                <button class="boton boton--secundario" data-prev="2" type="button">← Atrás</button>
+                <button class="boton boton--secundario" data-prev="2" type="button">Atrás</button>
                 <button class="boton boton--principal" data-next="2" type="button" disabled>
-                  Siguiente <span class="boton__flecha" aria-hidden="true">→</span>
+                  Siguiente
                 </button>
               </div>
             </div>
@@ -228,7 +237,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 
           <!-- Paso 3: datos de contacto -->
           <div data-step-panel="3" hidden>
-            <p class="etiqueta etiqueta--marca alta__paso">Paso 3 de 3</p>
+            <p class="etiqueta alta__paso">Paso 3 de 3</p>
             <h2 class="alta__seccion" data-step-title tabindex="-1">Tus datos</h2>
             <p class="alta__ayuda">
               Los usaremos para revisar tu alta y contarte los siguientes pasos.
@@ -261,11 +270,11 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
             <p class="alta__error" data-signup-error hidden role="alert" tabindex="-1"></p>
 
             <div class="alta__pie">
-              <p class="alta__requisito dato">Necesitamos nombre, ciudad y un email válido.</p>
+              <p class="alta__requisito">Necesitamos nombre, ciudad y un email válido.</p>
               <div class="alta__acciones alta__acciones--doble">
-                <button class="boton boton--secundario" data-prev="3" type="button">← Atrás</button>
+                <button class="boton boton--secundario" data-prev="3" type="button">Atrás</button>
                 <button class="boton boton--principal" data-signup-submit type="submit" disabled>
-                  Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>
+                  Darme de alta
                 </button>
               </div>
             </div>
@@ -274,7 +283,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       </form>
 
       <section class="envoltura alta__exito" data-signup-success hidden>
-        <p class="etiqueta etiqueta--marca">Alta recibida</p>
+        <p class="etiqueta">Alta recibida</p>
         <h2 class="alta__titulo" data-success-title tabindex="-1">Te escribimos en unos días</h2>
         <p class="alta__texto">
           Repasamos tu alta y te contamos los siguientes pasos por email. Si no
@@ -288,102 +297,232 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 </BaseLayout>
 
 <style>
+  /* --- Portada -------------------------------------------------------- */
+
   .alta__portada {
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid var(--linea);
-    isolation: isolate;
+    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
   }
 
   .alta__portada::before {
-    position: absolute;
-    z-index: -1;
-    inset: 0 0 0 54%;
-    border-left: 1px solid var(--linea);
-    background-image:
-      linear-gradient(var(--linea) 1px, transparent 1px),
-      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
-    background-size: 42px 42px;
     content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgb(252 252 249 / 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(252 252 249 / 0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent);
+    pointer-events: none;
   }
 
   .alta__portada-interior {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(19rem, 0.9fr);
-    gap: clamp(3rem, 6vw, 7rem);
-    align-items: end;
-    min-height: clamp(27rem, 47vw, 35rem);
-    padding-block: clamp(4rem, 5vw, 6rem);
-  }
-
-  .alta__presentacion {
-    max-width: 43rem;
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: center;
+    padding-block: clamp(3.5rem, 2rem + 5vw, 6rem) clamp(2.5rem, 4vw, 4rem);
   }
 
   .alta__titulo {
-    max-width: 14ch;
-    margin-top: 0.8rem;
-    font-size: var(--paso-4);
+    max-width: 13ch;
+    margin-top: 0.9rem;
+    font-size: clamp(2.4rem, 1.4rem + 3.2vw, 4.2rem);
+    font-stretch: 125%;
+    font-weight: 820;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
   }
 
   .alta__entrada {
-    max-width: 39rem;
-    margin-top: 1.25rem;
+    max-width: 42ch;
+    margin-top: 1.4rem;
+    font-size: var(--paso-1);
+    line-height: 1.55;
+    color: rgb(252 252 249 / 0.84);
+  }
+
+  .alta__empezar {
+    margin-top: 2rem;
+  }
+
+  /* El aviso de encargo: un correo de muestra que entra como entraría en
+     la bandeja de un maker. */
+  .aviso {
+    margin: 0;
+    justify-self: end;
+    width: min(100%, 26rem);
+  }
+
+  .aviso__correo {
+    padding: 1.25rem 1.35rem 1.1rem;
+    border-radius: var(--r-3);
+    background: var(--pieza);
+    color: var(--tinta);
+    box-shadow: 0 24px 50px -28px rgb(23 26 51 / 0.7);
+  }
+
+  .aviso__cabecera {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--linea);
+    font-size: 0.88rem;
+    font-weight: 650;
+    color: var(--cianotipo-hondo);
+  }
+
+  .aviso__punto {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--filamento);
+  }
+
+  .aviso__distancia {
+    margin-left: auto;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--cianotipo-lavado);
+    font-size: 0.78rem;
+  }
+
+  .aviso__pieza {
+    margin-top: 0.9rem;
+    font-family: var(--fuente-titulo);
+    font-size: var(--paso-2);
+    font-stretch: 112%;
+    font-weight: 720;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .aviso__datos {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+
+  .aviso__datos div {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 0.75rem;
+    font-size: 0.92rem;
+  }
+
+  .aviso__datos dt {
+    color: var(--tinta-suave);
+  }
+
+  .aviso__datos dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .aviso__pie {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--linea);
+    font-size: 0.88rem;
+    color: var(--tinta-media);
+  }
+
+  .aviso__leyenda {
+    margin-top: 0.75rem;
+    font-size: 0.84rem;
+    color: rgb(252 252 249 / 0.72);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .aviso__correo {
+      animation: llegar-aviso 0.8s var(--curva-muelle) 0.35s both;
+    }
+
+    .aviso__punto {
+      animation: latir 1.8s ease-in-out 1.2s 3;
+    }
+
+    .alta__presentacion > * {
+      animation: subir 600ms var(--curva-salida) both;
+    }
+
+    .alta__presentacion > :nth-child(2) {
+      animation-delay: 60ms;
+    }
+
+    .alta__presentacion > :nth-child(3) {
+      animation-delay: 120ms;
+    }
+
+    .alta__presentacion > :nth-child(4) {
+      animation-delay: 180ms;
+    }
+  }
+
+  @keyframes llegar-aviso {
+    from {
+      opacity: 0;
+      transform: translateY(28px) rotate(2.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes latir {
+    50% {
+      box-shadow: 0 0 0 6px rgb(229 89 47 / 0.25);
+    }
+  }
+
+  @keyframes subir {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .alta__ventajas {
-    border-top: 2px solid var(--tinta);
-    background: var(--bancada);
-  }
-
-  .ventaja {
+    position: relative;
     display: grid;
-    grid-template-columns: 2rem 2rem minmax(0, 1fr);
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 4.6rem;
-    padding: 0.8rem 0.9rem;
-    border-bottom: 1px solid var(--linea-fuerte);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--linea-clara);
+    font-size: 0.93rem;
+    line-height: 1.5;
+    color: rgb(252 252 249 / 0.76);
   }
 
-  .ventaja__numero {
-    color: var(--filamento-tinta);
-    font-size: 0.7rem;
+  .alta__ventajas li {
+    padding: 1.1rem 1.5rem 0 0;
   }
 
-  .ventaja__icono {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: var(--r-2);
-    background: var(--cianotipo-lavado);
-    color: var(--cianotipo);
+  .alta__ventajas li + li {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--linea-clara);
   }
 
-  .ventaja__icono svg {
-    width: 17px;
-    height: 17px;
+  .alta__ventajas strong {
+    display: block;
+    font-weight: 650;
+    color: var(--pieza);
   }
 
-  .ventaja__texto {
-    font-size: 0.95rem;
-    color: var(--tinta-media);
-    line-height: 1.45;
-  }
+  /* --- Registro ------------------------------------------------------- */
 
   .alta__registro {
     padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
-    background-image:
-      linear-gradient(var(--linea) 1px, transparent 1px),
-      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
-    background-size: 42px 42px;
   }
 
   .alta__formulario {
     display: grid;
-    grid-template-columns: minmax(13rem, 16rem) minmax(0, 49rem);
+    grid-template-columns: minmax(13rem, 17rem) minmax(0, 49rem);
     justify-content: space-between;
     gap: clamp(2rem, 3.5vw, 4.5rem);
     align-items: start;
@@ -395,82 +534,170 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     min-width: 0;
   }
 
-  .alta__avance {
-    margin-top: 1.35rem;
+  .alta__cabeza-guia {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .pila {
+    flex: 0 0 auto;
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .pila__placa {
+    fill: var(--bancada-honda);
+    transition: fill 0.4s ease;
+  }
+
+  .pila__capa {
+    fill: var(--linea-fuerte);
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transition: fill 0.4s ease;
+  }
+
+  /* La capa del paso en curso está "caliente"; las de los pasos hechos ya
+     se han enfriado. Con las tres, el logo queda impreso. */
+  .alta__formulario:has([data-signup-progress-step="1"][aria-current="step"]) .pila__capa--1,
+  .alta__formulario:has([data-signup-progress-step="2"][aria-current="step"]) .pila__capa--2,
+  .alta__formulario:has([data-signup-progress-step="3"][aria-current="step"]) .pila__capa--3 {
+    fill: var(--filamento);
+  }
+
+  .alta__formulario:has([data-signup-progress-step="1"][data-completo]) .pila__capa--1,
+  .alta__formulario:has([data-signup-progress-step="2"][data-completo]) .pila__capa--2,
+  .alta__formulario:has([data-signup-progress-step="3"][data-completo]) .pila__capa--3 {
+    fill: var(--pieza);
+  }
+
+  .alta__formulario:has([data-signup-progress-step="1"][data-completo]) .pila__placa {
+    fill: var(--cianotipo);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .alta__formulario:has([data-signup-progress-step="2"][aria-current="step"]) .pila__capa--2,
+    .alta__formulario:has([data-signup-progress-step="3"][aria-current="step"]) .pila__capa--3 {
+      animation: depositar-capa 0.5s var(--curva-muelle);
+    }
+  }
+
+  @keyframes depositar-capa {
+    from {
+      transform: scaleX(0.2);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  .alta__guia-titulo {
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-stretch: 110%;
   }
 
   .alta__avance-datos {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.1rem;
+    font-size: 0.88rem;
     color: var(--tinta-suave);
   }
 
   .alta__barra {
     height: 4px;
+    margin-top: 1.1rem;
     overflow: hidden;
+    border-radius: 2px;
     background: var(--bancada-honda);
   }
 
   .alta__barra-relleno {
     width: 0;
     height: 100%;
-    background: var(--filamento);
+    background: var(--cianotipo);
     transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .alta__pasos {
-    margin-top: 1.6rem;
-    border-top: 1px solid var(--linea-fuerte);
+    margin-top: 1.4rem;
   }
 
   .alta__indicador {
     display: grid;
-    grid-template-columns: 2.25rem minmax(0, 1fr);
-    gap: 0.65rem;
-    align-items: baseline;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--linea);
+    grid-template-columns: 1.9rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.6rem 0;
     color: var(--tinta-suave);
-    transition: color 0.16s ease, padding-left 0.16s ease;
+    transition: color 0.16s ease;
   }
 
   .alta__indicador-numero {
-    font-size: 0.73rem;
-    color: inherit;
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 50%;
+    font-family: var(--fuente-dato);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
   .alta__indicador-titulo {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 560;
     line-height: 1.3;
   }
 
   .alta__indicador[data-completo] {
-    color: var(--verde);
+    color: var(--tinta);
+  }
+
+  .alta__indicador[data-completo] .alta__indicador-numero {
+    border-color: var(--verde);
+    background: var(--verde);
+    color: transparent;
+    position: relative;
+  }
+
+  .alta__indicador[data-completo] .alta__indicador-numero::after {
+    content: "✓";
+    position: absolute;
+    color: var(--pieza);
+    font-family: var(--fuente-texto);
+    font-size: 0.9rem;
   }
 
   .alta__indicador[aria-current="step"] {
-    padding-left: 0.65rem;
-    border-left: 3px solid var(--filamento);
     color: var(--tinta);
     font-weight: 680;
   }
 
+  .alta__indicador[aria-current="step"] .alta__indicador-numero {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo);
+    color: var(--pieza);
+  }
+
   .alta__garantia {
-    margin-top: 1.5rem;
-    color: var(--tinta-suave);
-    font-size: 0.76rem;
+    margin-top: 1.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--linea);
+    font-size: 0.86rem;
     line-height: 1.55;
+    color: var(--tinta-suave);
   }
 
   .alta__panel {
     min-width: 0;
     padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
-    border: 1px solid var(--linea-fuerte);
-    border-top: 4px solid var(--cianotipo);
-    border-radius: 0 0 var(--r-2) var(--r-2);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
     background: var(--pieza);
   }
 
@@ -478,14 +705,20 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     min-width: 0;
   }
 
+  @media (prefers-reduced-motion: no-preference) {
+    .alta__panel [data-step-panel]:not([hidden]) {
+      animation: subir 420ms var(--curva-salida) both;
+    }
+  }
+
   .alta__paso {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
   }
 
   .alta__seccion {
     max-width: 17ch;
     margin-bottom: 1.35rem;
-    font-size: clamp(1.8rem, 1.45rem + 1.5vw, 2.7rem);
+    font-size: clamp(1.8rem, 1.45rem + 1.5vw, 2.6rem);
   }
 
   .alta__ayuda {
@@ -510,11 +743,8 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 
   .alta__panel .campo__nombre {
     margin-bottom: 0.45rem;
-    font-family: var(--fuente-dato);
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 650;
   }
 
   .alta__panel .campo__ayuda {
@@ -529,25 +759,23 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
 
   .alta__opciones {
     display: grid;
-    gap: 0.7rem;
+    gap: 0.6rem;
   }
 
   .alta__panel .opcion {
     position: relative;
-    min-height: 4.5rem;
-    padding: 0.95rem 5rem 0.95rem 1rem;
+    min-height: 3.6rem;
+    padding: 0.85rem 5rem 0.85rem 1rem;
     border-color: var(--linea-fuerte);
   }
 
   .alta__panel .opcion:hover {
     border-color: var(--cianotipo);
-    background: var(--cianotipo-lavado);
   }
 
   .alta__panel .opcion[aria-pressed="true"] {
     border-color: var(--cianotipo);
     background: var(--cianotipo-lavado);
-    box-shadow: inset 4px 0 0 var(--filamento);
   }
 
   .alta__panel .opcion[aria-pressed="true"]::after {
@@ -555,24 +783,26 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     top: 50%;
     right: 0.9rem;
     translate: 0 -50%;
-    color: var(--cianotipo);
-    font-family: var(--fuente-dato);
-    font-size: 0.66rem;
-    font-weight: 600;
+    color: var(--cianotipo-hondo);
+    font-size: 0.82rem;
+    font-weight: 650;
     content: "✓ Elegido";
   }
 
   .alta__panel .opcion--pastilla {
-    min-height: 2.75rem;
-    padding: 0.55rem 1rem;
+    min-height: 2.6rem;
+    padding: 0.5rem 1rem;
   }
 
   .alta__panel .opcion--pastilla[aria-pressed="true"] {
     padding-right: 2.1rem;
+    background: var(--cianotipo);
+    color: var(--pieza);
   }
 
   .alta__panel .opcion--pastilla[aria-pressed="true"]::after {
-    right: 0.7rem;
+    right: 0.75rem;
+    color: var(--pieza);
     content: "✓";
   }
 
@@ -585,7 +815,6 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   .alta__privacidad {
     margin-top: 1.5rem;
     padding: 1rem 1.15rem;
-    border: 1px solid var(--linea);
     border-radius: var(--r-2);
     background: var(--bancada);
     color: var(--tinta-suave);
@@ -609,19 +838,16 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin: 2.5rem clamp(-2.75rem, -1rem - 2.1vw, -1.5rem)
-      clamp(-2.75rem, -1rem - 2.1vw, -1.5rem);
-    padding: 1.25rem clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
-    border-top: 1px solid var(--linea-fuerte);
-    border-radius: 0 0 var(--r-2) var(--r-2);
-    background: var(--bancada);
+    margin-top: 2.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--linea);
   }
 
   .alta__requisito {
     max-width: 27rem;
-    color: var(--tinta-suave);
-    font-size: 0.76rem;
+    font-size: 0.86rem;
     line-height: 1.45;
+    color: var(--tinta-suave);
   }
 
   .alta__acciones {
@@ -643,9 +869,8 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   .alta__exito {
     max-width: 760px;
     padding: clamp(1.5rem, 1rem + 2.1vw, 2.75rem);
-    border: 1px solid var(--linea-fuerte);
-    border-top: 4px solid var(--cianotipo);
-    border-radius: 0 0 var(--r-2) var(--r-2);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
     background: var(--pieza);
   }
 
@@ -665,26 +890,17 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   }
 
   @media (max-width: 880px) {
-    .alta__portada::before {
-      inset: 54% 0 0;
-      border-top: 1px solid var(--linea);
-      border-left: 0;
-    }
-
     .alta__portada-interior {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 2.5rem;
-      min-height: 0;
-      padding-block: clamp(3rem, 8vw, 4.5rem);
     }
 
-    .alta__presentacion,
-    .alta__ventajas {
-      max-width: 700px;
+    .aviso {
+      justify-self: start;
     }
 
     .alta__formulario {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       max-width: 760px;
       gap: 1.25rem;
     }
@@ -693,39 +909,21 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       position: static;
     }
 
-    .alta__avance {
-      margin-top: 0.9rem;
-    }
-
     .alta__pasos {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.55rem;
-      margin-top: 0.9rem;
-      border-top: 0;
+      margin-top: 1rem;
     }
 
     .alta__indicador {
-      display: block;
-      padding: 0.45rem 0 0;
-      border-top: 2px solid var(--linea);
-      border-bottom: 0;
-    }
-
-    .alta__indicador[aria-current="step"] {
-      padding: 0.45rem 0 0;
-      border-top-color: var(--filamento);
-      border-left: 0;
-    }
-
-    .alta__indicador[data-completo] {
-      border-top-color: var(--verde);
+      grid-template-columns: 1.9rem minmax(0, 1fr);
+      gap: 0.5rem;
+      padding: 0;
     }
 
     .alta__indicador-titulo {
-      display: block;
-      margin-top: 0.25rem;
-      font-size: 0.76rem;
+      font-size: 0.82rem;
     }
 
     .alta__garantia {
@@ -733,32 +931,25 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     }
   }
 
+  @media (max-width: 720px) {
+    .alta__ventajas {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .alta__ventajas li,
+    .alta__ventajas li + li {
+      padding: 0.85rem 0;
+      border-left: 0;
+    }
+
+    .alta__ventajas li + li {
+      border-top: 1px solid var(--linea-clara);
+    }
+  }
+
   @media (max-width: 560px) {
-    .alta__portada-interior {
-      gap: 2rem;
-      padding-block: 2.5rem 3rem;
-    }
-
-    .alta__titulo {
-      font-size: clamp(2.15rem, 10.5vw, 3rem);
-    }
-
-    .ventaja {
-      grid-template-columns: 1.7rem 2rem minmax(0, 1fr);
-      padding-inline: 0;
-    }
-
     .alta__registro {
       padding-block: 1.5rem 3rem;
-      background-size: 32px 32px;
-    }
-
-    .alta__formulario {
-      gap: 0.9rem;
-    }
-
-    .alta__avance-datos {
-      font-size: 0.76rem;
     }
 
     .alta__indicador-titulo {
@@ -770,6 +961,11 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
       overflow: hidden;
       clip-path: inset(50%);
       white-space: nowrap;
+    }
+
+    .alta__pasos {
+      display: flex;
+      gap: 0.5rem;
     }
 
     .alta__panel {
@@ -786,23 +982,13 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     }
 
     .alta__dupla {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 1.65rem;
-    }
-
-    .alta__panel .opcion {
-      min-height: 4.5rem;
-    }
-
-    .alta__panel .opcion--pastilla {
-      min-height: 2.75rem;
     }
 
     .alta__pie {
       flex-direction: column;
       align-items: stretch;
-      margin: 2.25rem -1.1rem -1.25rem;
-      padding: 1.1rem;
     }
 
     .alta__requisito {
@@ -842,8 +1028,8 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   .material-colores {
     min-inline-size: 0;
     padding: 1.25rem;
-    border: 1px solid var(--linea-fuerte);
-    border-left: 3px solid var(--filamento);
+    border: 1px solid var(--linea);
+    border-left: 3px solid var(--cianotipo);
     border-radius: var(--r-2);
     background: var(--pieza);
   }
@@ -855,11 +1041,10 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   .material-colores__titulo {
     padding-inline: 0.35rem;
     margin-bottom: 0.9rem;
-    font-family: var(--fuente-dato);
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    color: var(--cianotipo);
+    font-size: 1rem;
+    font-weight: 700;
+    font-stretch: 110%;
+    color: var(--cianotipo-hondo);
   }
 
   .material-colores__muestras {
@@ -945,8 +1130,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   .material-colores__otros-nombre {
     display: block;
     margin-bottom: 0.45rem;
-    font-family: var(--fuente-dato);
-    font-size: 0.76rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--tinta-media);
   }
@@ -1266,8 +1450,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     } catch (fallo) {
       enviar.disabled = false;
       formulario.removeAttribute("aria-busy");
-      enviar.innerHTML =
-        'Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>';
+      enviar.textContent = "Darme de alta";
       error.textContent =
         "No se ha podido enviar el alta. Compruébalo y vuelve a intentarlo.";
       error.hidden = false;

@@ -126,7 +126,7 @@ Small branded not-found page using `BaseLayout` with the normal shared navigatio
 - `Estrellas.astro`: renders a five-character star string and exposes the numerical rating through an accessible label.
 - `src/lib/productorShared.js`: the canonical material map for producer views, star rendering, and approved-review aggregation.
 - `src/lib/pedidoShared.js`: the canonical customer-order options, labels, storage keys/expiry times, preview size limit, request/reference validation, Formspree payload/error mapping, and identity generator.
-- `src/lib/icons.js`: path data for the three benefits on the maker-registration page.
+- `src/lib/capas.js`: colour helpers that shade stacked SVG layers so printed pieces read as solids (hero boquerón, home wheel).
 
 Prefer extending an existing component or shared helper when a pattern is used on more than one page. Keep one-off page composition and behaviour close to its page.
 

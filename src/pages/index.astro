@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PiezaEnCapas from "../components/PiezaEnCapas.astro";
 import MaterialChip from "../components/MaterialChip.astro";
 import productores from "../data/productores.json";
+import { tonosDePared } from "../lib/capas.js";
 
 // Los makers que ya están dados de alta. Somos pocos y se dice: es más
 // honesto que una cuadrícula de caras de archivo.
@@ -33,24 +34,70 @@ const pasos = [
 const mensajeEjemplo =
   "Se me ha partido una rueda del carro de la compra. Mide unos 6 cm y lleva un eje de metal en el centro. ¿Me la podéis hacer igual?";
 
-// Rueda de carro para el recorrido: aro, buje, eje y cinco radios. Los
-// agujeros van en sentido contrario para que la regla nonzero los respete.
-const circulo = (r, horario = true) =>
-  horario
-    ? `M ${r} 0 A ${r} ${r} 0 1 1 ${-r} 0 A ${r} ${r} 0 1 1 ${r} 0 Z`
-    : `M ${r} 0 A ${r} ${r} 0 1 0 ${-r} 0 A ${r} ${r} 0 1 0 ${r} 0 Z`;
-const radios = Array.from({ length: 5 }, (_, i) => {
-  const a = (i * 72 * Math.PI) / 180;
-  const ancho = 9;
-  const punto = (r, d) => {
-    const x = Math.cos(a) * r - Math.sin(a) * d;
-    const y = Math.sin(a) * r + Math.cos(a) * d;
-    return `${x.toFixed(2)} ${y.toFixed(2)}`;
-  };
-  return `M ${punto(30, -ancho)} L ${punto(92, -ancho)} L ${punto(92, ancho)} L ${punto(30, ancho)} Z`;
-}).join(" ");
-const RUEDA = [circulo(110), circulo(86, false), circulo(36), circulo(12, false), radios].join(" ");
-const capasRueda = Array.from({ length: 28 }, (_, i) => i);
+// Rueda de carro para el recorrido, dibujada a partir de medidas reales en
+// milímetros: así el plano acota lo que de verdad se imprime.
+const MM = 3.55; // px por mm en el dibujo
+const rueda = { exterior: 31, aro: 24, buje: 10, eje: 4, radio: 2.5, ancho: 18 };
+const [R_EXT, R_ARO, R_BUJE, R_EJE, W, ANCHO] = Object.values(rueda).map((v) => +(v * MM).toFixed(2));
+const RADIOS = 5;
+
+const polar = (r, grados) => {
+  const a = (grados * Math.PI) / 180;
+  return `${(r * Math.cos(a)).toFixed(2)} ${(r * Math.sin(a)).toFixed(2)}`;
+};
+const circulo = (r) => `M ${r} 0 A ${r} ${r} 0 1 1 ${-r} 0 A ${r} ${r} 0 1 1 ${r} 0 Z`;
+const grados = (rad) => (rad * 180) / Math.PI;
+
+// Cada hueco entre dos radios es una ventana cerrada: arco del aro, lateral
+// del radio, arco del buje y el lateral del radio anterior. Así los radios
+// nacen del aro y del buje sin que ninguna línea se cruce.
+const ventanas = Array.from({ length: RADIOS }, (_, k) => {
+  const desde = k * (360 / RADIOS);
+  const hasta = desde + 360 / RADIOS;
+  const holguraAro = grados(Math.asin(W / R_ARO));
+  const holguraBuje = grados(Math.asin(W / R_BUJE));
+  return [
+    `M ${polar(R_ARO, desde + holguraAro)}`,
+    `A ${R_ARO} ${R_ARO} 0 0 1 ${polar(R_ARO, hasta - holguraAro)}`,
+    `L ${polar(R_BUJE, hasta - holguraBuje)}`,
+    `A ${R_BUJE} ${R_BUJE} 0 0 0 ${polar(R_BUJE, desde + holguraBuje)}`,
+    "Z",
+  ].join(" ");
+});
+
+// La pieza sólida: disco exterior menos ventanas y agujero del eje.
+const RUEDA = [circulo(R_EXT), ...ventanas, circulo(R_EJE)].join(" ");
+
+// Vista lateral, a la derecha de la de frente.
+const LADO_X = 175;
+const lateral = `M ${LADO_X} ${-R_EXT} H ${LADO_X + ANCHO} V ${R_EXT} H ${LADO_X} Z`;
+
+// Impresión: 18 mm a 0.2 mm por capa son 90 capas; se dibujan 40 para que
+// el navegador no sufra, con la altura total a escala.
+const CAPAS_RUEDA = 40;
+const tonosRueda = tonosDePared(CAPAS_RUEDA, "#191b2a", "#3f4466");
+const capasRueda = tonosRueda.map((tono, i) => ({
+  tono,
+  z: +((i * ANCHO) / CAPAS_RUEDA).toFixed(2),
+}));
+
+// Dibujos de los encargos: cada trazo va por separado para que todos se
+// dibujen al mismo ritmo, sea cual sea su longitud.
+const engranaje = (() => {
+  const dientes = 9;
+  const paso = 360 / dientes;
+  const punto = (r, g) => polar(r, g).split(" ").map((v, i) => +v + 50).join(" ");
+  const puntos = Array.from({ length: dientes }, (_, i) => {
+    const c = i * paso - 90;
+    return [
+      punto(28, c - paso * 0.32),
+      punto(37, c - paso * 0.16),
+      punto(37, c + paso * 0.16),
+      punto(28, c + paso * 0.32),
+    ];
+  }).flat();
+  return `M ${puntos.join(" L ")} Z`;
+})();
 
 const encargos = [
   {
@@ -58,31 +105,31 @@ const encargos = [
     texto:
       "La rueda del carro de la compra, el enganche del toldo, la tapa del mando que se rompió.",
     material: "PETG",
-    dibujo:
-      "M14 70 V34 a20 20 0 0 1 20 -20 h32 a20 20 0 0 1 20 20 v6 h-14 v-6 a6 6 0 0 0 -6 -6 h-32 a6 6 0 0 0 -6 6 V70 Z M40 70 h40 M60 70 v14 M50 84 h20",
+    dibujo: [engranaje, "M50 40 a10 10 0 1 1 0 20 a10 10 0 1 1 0 -20 Z", "M50 40 v-4 h4"],
   },
   {
     titulo: "Una figura o una miniatura",
     texto: "Personajes de rol, maquetas, trofeos, regalos con el nombre de alguien encima.",
     material: "Resina",
-    dibujo:
-      "M50 14 a12 12 0 1 1 0.1 0 Z M38 40 h24 l12 14 l-6 6 l-10 -10 v20 l8 26 h-10 l-6 -20 l-6 20 h-10 l8 -26 v-20 l-10 10 l-6 -6 Z",
+    // Un peón de juego de mesa sobre su peana redonda.
+    dibujo: [
+      "M50 10 a10 10 0 0 1 10 10 c0 4 -2 7 -5 9 c10 2 22 6 26 10 c3 3 0 7 -4 7 h-14 l10 26 c1 4 -1 6 -4 6 h-14 l-5 -12 l-5 12 h-14 c-3 0 -5 -2 -4 -6 l10 -26 h-14 c-4 0 -7 -4 -4 -7 c4 -4 16 -8 26 -10 c-3 -2 -5 -5 -5 -9 a10 10 0 0 1 10 -10 Z",
+      "M18 86 a32 7 0 1 0 64 0 a32 7 0 1 0 -64 0 Z",
+    ],
   },
   {
     titulo: "Algo a medida para casa",
     texto:
       "Soportes, organizadores y adaptadores que no existen en ninguna tienda porque tu hueco mide lo que mide.",
     material: "PLA",
-    dibujo:
-      "M14 20 h72 v64 h-72 Z M14 46 h72 M14 66 h72 M40 20 v26 M62 46 v20 M30 76 h12 M58 76 h12",
+    dibujo: ["M14 20 h72 v64 h-72 Z", "M14 46 h72", "M14 66 h72", "M40 20 v26", "M62 46 v20", "M30 76 h12", "M58 76 h12"],
   },
   {
     titulo: "Un prototipo de tu proyecto",
     texto:
       "Tener la idea en la mano antes de encargar un molde o una serie. Se corrige y se vuelve a imprimir.",
     material: "PLA",
-    dibujo:
-      "M20 40 L50 26 L80 40 L50 54 Z M20 40 V72 L50 86 V54 M80 40 V72 L50 86 M8 40 V72 M4 40 h8 M4 72 h8 M50 14 l30 14",
+    dibujo: ["M20 40 L50 26 L80 40 L50 54 Z", "M20 40 V72 L50 86 V54", "M80 40 V72 L50 86", "M8 40 V72", "M4 40 h8", "M4 72 h8", "M50 14 l30 14"],
   },
 ];
 
@@ -173,8 +220,12 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
                     </span>
                     <div>
                       <h3 class="paso__titulo">{paso.titulo}</h3>
-                      <p class="paso__texto">{paso.texto}</p>
-                      <p class="paso__nota">{paso.nota}</p>
+                      <div class="paso__detalle">
+                        <div>
+                          <p class="paso__texto">{paso.texto}</p>
+                          <p class="paso__nota">{paso.nota}</p>
+                        </div>
+                      </div>
                     </div>
                   </li>
                 ))
@@ -202,41 +253,67 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
 
             <!-- 2. El boceto acotado -->
             <div class="escena escena--plano">
-              <svg viewBox="-200 -170 450 340" class="plano">
+              <svg viewBox="-182 -172 446 350" class="plano">
+                <defs>
+                  <marker
+                    id="flecha"
+                    viewBox="0 0 10 10"
+                    refX="10"
+                    refY="5"
+                    markerWidth="8"
+                    markerHeight="8"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 1.5 L 10 5 L 0 8.5 Z"></path>
+                  </marker>
+                </defs>
+                <g class="plano__ejes">
+                  <path d={`M ${-R_EXT - 18} 0 H ${R_EXT + 18} M 0 ${-R_EXT - 18} V ${R_EXT + 18}`}></path>
+                  <path d={`M ${LADO_X - 12} 0 H ${LADO_X + ANCHO + 12}`}></path>
+                </g>
                 <g class="plano__trazo">
-                  <path pathLength="1" d={circulo(110)}></path>
-                  <path pathLength="1" d={circulo(86)}></path>
-                  <path pathLength="1" d={circulo(36)}></path>
-                  <path pathLength="1" d={circulo(12)}></path>
-                  <path pathLength="1" d={radios}></path>
-                  <path pathLength="1" d="M 190 -110 H 222 V 110 H 190 Z M 190 -36 H 222 M 190 36 H 222"></path>
+                  <path pathLength="1" d={circulo(R_EXT)}></path>
+                  {ventanas.map((ventana) => <path pathLength="1" d={ventana} />)}
+                  <path pathLength="1" d={circulo(R_EJE)}></path>
+                  <path pathLength="1" d={lateral}></path>
                 </g>
                 <g class="plano__cotas">
-                  <path d="M -110 140 H 110 M -110 132 V 148 M 110 132 V 148 M -110 116 V 132 M 110 116 V 132"></path>
-                  <text x="0" y="160">Ø 62 mm</text>
-                  <path d="M 190 -130 H 222 M 190 -138 V -122 M 222 -138 V -122"></path>
-                  <text x="206" y="-142">18</text>
-                  <path d="M 9.7 -7 L 98 -71 H 112"></path>
-                  <text x="116" y="-67" text-anchor="start">eje Ø 8</text>
+                  <path class="plano__oculta" d={`M ${LADO_X} ${-R_EJE} H ${LADO_X + ANCHO} M ${LADO_X} ${R_EJE} H ${LADO_X + ANCHO}`}></path>
+                  <!-- Ø exterior -->
+                  <path d={`M ${-R_EXT} 6 V ${R_EXT + 44} M ${R_EXT} 6 V ${R_EXT + 44}`}></path>
+                  <path class="plano__cota" d={`M ${-R_EXT} ${R_EXT + 36} H ${R_EXT}`}></path>
+                  <text x="0" y={R_EXT + 29}>Ø{rueda.exterior * 2}</text>
+                  <!-- ancho -->
+                  <path d={`M ${LADO_X} ${-R_EXT - 5} V ${-R_EXT - 42} M ${LADO_X + ANCHO} ${-R_EXT - 5} V ${-R_EXT - 42}`}></path>
+                  <path class="plano__cota" d={`M ${LADO_X} ${-R_EXT - 34} H ${LADO_X + ANCHO}`}></path>
+                  <text x={LADO_X + ANCHO / 2} y={-R_EXT - 41}>{rueda.ancho}</text>
+                  <!-- Ø eje, por el hueco entre dos radios -->
+                  <path class="plano__guia" d={`M ${polar(R_EJE, -36)} L ${polar(R_EXT + 30, -36)} h 16`}></path>
+                  <text x={R_EXT * Math.cos(-0.628) + 52} y={R_EXT * Math.sin(-0.628) - 20} text-anchor="start">Ø{rueda.eje * 2}</text>
+                  <!-- Ø buje -->
+                  <path class="plano__guia" d={`M ${polar(R_BUJE, 252)} L ${polar(R_EXT + 30, 252)} h -16`}></path>
+                  <text x={(R_EXT + 30) * Math.cos(4.398) - 20} y={(R_EXT + 30) * Math.sin(4.398) + 4} text-anchor="end">Ø{rueda.buje * 2}</text>
                 </g>
               </svg>
+              <p class="plano__rotulo">Rueda de carro<span>PETG, cotas en mm</span></p>
               <p class="plano__sello">Boceto aprobado</p>
             </div>
 
             <!-- 3. La impresión -->
             <div class="escena escena--pieza">
-              <svg viewBox="-170 -170 340 300" class="rueda">
+              <svg viewBox="-132 -150 264 220" class="rueda">
                 <defs>
                   <path id="rueda-capa" d={RUEDA}></path>
                 </defs>
-                <ellipse class="rueda__sombra" cx="0" cy="8" rx="140" ry="60"></ellipse>
+                <ellipse class="rueda__sombra" cx="0" cy="6" rx="128" ry="62"></ellipse>
                 {
-                  capasRueda.map((i) => (
+                  capasRueda.map((capa) => (
                     <use
                       href="#rueda-capa"
                       class="rueda__capa"
                       data-rueda-capa
-                      transform={`translate(0 ${-i * 2.6}) scale(1 0.48) rotate(${-8 + i * 0.0})`}
+                      style={`--tono:${capa.tono}`}
+                      transform={`translate(0 ${-capa.z}) scale(1 0.5) rotate(-8)`}
                     />
                   ))
                 }
@@ -269,7 +346,9 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
               <li>
                 <a class="encargo" href="/briefing">
                   <svg class="encargo__dibujo" viewBox="0 0 100 100" aria-hidden="true">
-                    <path d={encargo.dibujo} pathLength="1" />
+                    {encargo.dibujo.map((trazo) => (
+                      <path d={trazo} pathLength="1" />
+                    ))}
                   </svg>
                   <h3 class="encargo__titulo">{encargo.titulo}</h3>
                   <p class="encargo__texto">{encargo.texto}</p>
@@ -967,28 +1046,77 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
     opacity: clamp(0, calc((var(--p2, 1) - 0.55) * 4), 1);
   }
 
+  /* Convenciones de plano: líneas de centro a trazo y punto, aristas
+     ocultas a trazos, y cotas finas con flecha en sus extremos. */
+  .plano__ejes {
+    fill: none;
+    stroke: rgb(54 67 154 / 0.55);
+    stroke-width: 0.8;
+    stroke-dasharray: 14 3 2 3;
+    opacity: clamp(0, calc(var(--p2, 1) * 3), 1);
+  }
+
   .plano__cotas path {
     fill: none;
     stroke: var(--filamento-tinta);
-    stroke-width: 1;
+    stroke-width: 0.9;
+  }
+
+  .plano__cotas .plano__cota {
+    marker-start: url(#flecha);
+    marker-end: url(#flecha);
+  }
+
+  .plano__cotas .plano__guia {
+    marker-start: url(#flecha);
+  }
+
+  .plano__cotas .plano__oculta {
+    stroke: var(--cianotipo-hondo);
+    stroke-dasharray: 5 3;
+  }
+
+  #flecha path {
+    fill: var(--filamento-tinta);
   }
 
   .plano__cotas text {
     font-family: var(--fuente-dato);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     fill: var(--filamento-tinta);
     text-anchor: middle;
   }
 
+  .plano__rotulo {
+    position: absolute;
+    left: 4%;
+    top: 5%;
+    display: grid;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid rgb(54 67 154 / 0.45);
+    background: rgb(252 252 249 / 0.7);
+    font-size: 0.8rem;
+    font-weight: 650;
+    line-height: 1.35;
+    color: var(--cianotipo-hondo);
+    opacity: clamp(0, calc((var(--p2, 1) - 0.55) * 4), 1);
+  }
+
+  .plano__rotulo span {
+    font-weight: 400;
+    color: var(--tinta-media);
+  }
+
   .plano__sello {
     position: absolute;
-    right: 8%;
-    bottom: 9%;
-    padding: 0.35rem 0.75rem;
+    right: 3%;
+    bottom: 4%;
+    padding: 0.3rem 0.65rem;
     border: 2px solid var(--verde);
     border-radius: var(--r-1);
-    font-size: 0.9rem;
+    background: rgb(252 252 249 / 0.7);
+    font-size: 0.84rem;
     font-weight: 700;
     color: var(--verde);
     transform: rotate(-6deg);
@@ -1014,7 +1142,7 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
   .rueda {
     width: 100%;
     height: 100%;
-    max-width: 24rem;
+    max-width: 26rem;
     overflow: visible;
   }
 
@@ -1022,20 +1150,22 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
     fill: rgb(23 26 51 / 0.12);
   }
 
+  /* Igual que el boquerón: cada capa aporta su tono a la pared y ninguna
+     lleva contorno, así se lee una pieza maciza. */
   .rueda__capa {
-    fill: #2c2f45;
-    stroke: rgb(252 252 249 / 0.2);
-    stroke-width: 0.8;
-    vector-effect: non-scaling-stroke;
+    fill: var(--tono);
+    fill-rule: evenodd;
     transition: fill 0.9s ease;
   }
 
-  /* La última capa es la cara de arriba: más clara, para que se lean los
-     radios y el agujero del eje. */
+  /* La capa más alta hace de cara superior: más clara y con un filo fino,
+     para que se lean los radios y el agujero del eje. */
   .rueda__capa:last-of-type,
   .recorrido.esta-guiada .rueda__capa.es-tapa {
-    fill: #5a5f86;
-    stroke: rgb(252 252 249 / 0.45);
+    fill: #5d6392;
+    stroke: rgb(252 252 249 / 0.35);
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
   }
 
   .recorrido.esta-guiada .rueda__capa {
@@ -1103,6 +1233,22 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
 
   .recorrido.esta-guiada .paso[aria-current="step"] {
     opacity: 1;
+  }
+
+  /* Los pasos que no están activos pliegan su texto: el bloque fijado cabe
+     así en pantallas bajas sin salirse de su sección. */
+  .paso__detalle {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.4s var(--curva-salida);
+  }
+
+  .paso__detalle > div {
+    overflow: hidden;
+  }
+
+  .recorrido.esta-guiada .paso:not([aria-current="step"]) .paso__detalle {
+    grid-template-rows: 0fr;
   }
 
   .recorrido.esta-guiada .paso[aria-current="step"] .paso__indice {
@@ -1848,8 +1994,11 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
       if (puestas !== capasPuestas) {
         capas.forEach((capa, i) => {
           capa.classList.toggle("esta-puesta", i < puestas);
-          capa.classList.toggle("esta-caliente", i === puestas - 1 && puestas < capas.length);
+          // La cara de arriba siempre es la última capa puesta; justo debajo,
+          // un par de capas calientes marcan por dónde va la boquilla.
+          const enCurso = puestas < capas.length;
           capa.classList.toggle("es-tapa", i === puestas - 1);
+          capa.classList.toggle("esta-caliente", enCurso && i >= puestas - 3 && i < puestas - 1);
         });
         capasPuestas = puestas;
       }

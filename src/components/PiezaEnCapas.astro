@@ -2,8 +2,9 @@
 /**
  * La firma de la casa: un boquerón que se imprime de verdad al cargar la
  * portada. Va tumbado sobre la bancada, que es como se imprimiría en un taller
- * real: cara plana abajo y sin un solo soporte. Cada capa es la silueta del
- * pez, un poco más estrecha que la de debajo.
+ * real: cara plana abajo y sin un solo soporte. Las primeras capas llevan la
+ * silueta entera, con las aletas finas y planas; encima solo crece el cuerpo,
+ * que se va cerrando hasta redondear el lomo.
  *
  * Sin JavaScript se ve la pieza terminada. Con JavaScript, la boquilla la
  * deposita capa a capa, la lectura de la máquina sube con ella y la bancada
@@ -11,11 +12,15 @@
  *
  * El boquerón no es un adorno: es el bicho de Málaga, de donde sale 3dbok.
  */
+import { tonosDePared } from "../lib/capas.js";
 
-const CAPAS = 26;
-const ALTURA_CAPA = 3.2; // separación en pantalla entre capa y capa
+const CAPAS_ALETA = 3; // las aletas son láminas de pocas capas
+const CAPAS_CUERPO = 17;
+const CAPAS = CAPAS_ALETA + CAPAS_CUERPO;
+const ALTURA_CAPA = 1.5; // separación en pantalla entre capa y capa
 const MM_POR_CAPA = 0.2; // lo que mide de verdad una capa con boquilla de 0.4
-const ESTRECHAMIENTO = 0.2; // cuánto se cierra la última capa respecto a la primera
+const REDONDEO = 8; // cuánto se mete el borde del lomo en la última capa
+const CENTRO_X = -16; // centro del cuerpo: el lomo se cierra hacia aquí
 const GIRO = -24; // grados de giro sobre la bancada
 const APLASTADO = 0.5; // coseno del ángulo de cámara: la vista isométrica
 
@@ -47,16 +52,47 @@ const BOQUERON = `
   .trim()
   .replace(/\s+/g, " ");
 
-// Perfil del grosor: plano contra la bancada y redondeado arriba, como el lomo
-// del pez. Nada de escalones bruscos.
+// El mismo pez sin aletas: lo que sube por encima de ellas.
+const CUERPO = `
+  M -150 0
+  C -138 -12 -124 -19 -108 -22
+  C -80 -26 -46 -28 -16 -28
+  C 30 -27 74 -20 98 -12
+  C 106 -9 112 -6 118 -3
+  L 120 0
+  L 118 3
+  C 112 6 106 9 98 13
+  C 62 24 0 29 -58 26
+  C -88 22 -118 14 -138 5
+  C -144 3 -148 1 -150 0
+  Z
+`
+  .trim()
+  .replace(/\s+/g, " ");
+
+// Perfil del grosor: plano contra la bancada y con el canto redondeado
+// arriba. Cada capa se mete hacia dentro lo mismo por todo el contorno (más
+// en alto que en largo, porque el pez es mucho más largo que alto), así la
+// cara de arriba conserva la silueta del pez. Cada capa lleva su tono para
+// que la pared se lea continua.
+const tonos = tonosDePared(CAPAS, "#8a8255", "#e4ddb2");
 const capas = Array.from({ length: CAPAS }, (_, i) => {
-  const t = i / (CAPAS - 1);
+  const enCuerpo = i >= CAPAS_ALETA;
+  const t = enCuerpo ? (i - CAPAS_ALETA) / (CAPAS_CUERPO - 1) : 0;
+  const metido = REDONDEO * (1 - Math.sqrt(1 - t * t));
   return {
     i,
     z: +(i * ALTURA_CAPA).toFixed(2),
-    escala: +(1 - ESTRECHAMIENTO * (1 - Math.sqrt(1 - t * t))).toFixed(4),
+    sx: +(1 - metido / 134).toFixed(4),
+    sy: +(1 - metido / 28).toFixed(4),
+    forma: enCuerpo ? "#cuerpo" : "#boqueron",
+    tono: tonos[i],
+    cima: i === CAPAS - 1,
   };
 });
+
+const escalaCapa = (capa) =>
+  `translate(${CENTRO_X} 0) scale(${capa.sx} ${capa.sy}) translate(${-CENTRO_X} 0)`;
 
 const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
 const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
@@ -88,19 +124,20 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
 
   <svg
     class="taller__vista"
-    viewBox="-228 -206 456 308"
+    viewBox="-205 -175 410 262"
     role="img"
     aria-label="Un boquerón imprimiéndose capa a capa sobre la bancada de una impresora 3D."
   >
     <defs>
       <path id="boqueron" d={BOQUERON}></path>
+      <path id="cuerpo" d={CUERPO}></path>
 
-      <linearGradient id="pla" x1="0" y1="0" x2="0.4" y2="1">
-        <stop offset="0%" stop-color="#b3ab7c"></stop>
-        <stop offset="26%" stop-color="#dcd5a6"></stop>
-        <stop offset="52%" stop-color="#f8f5e4"></stop>
-        <stop offset="76%" stop-color="#e2dcb2"></stop>
-        <stop offset="100%" stop-color="#a49c6c"></stop>
+      <!-- La cara de arriba: el lomo recibe la luz y el vientre la pierde. -->
+      <linearGradient id="pla-cara" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#cfc694"></stop>
+        <stop offset="38%" stop-color="#faf7e9"></stop>
+        <stop offset="62%" stop-color="#f1ecd0"></stop>
+        <stop offset="100%" stop-color="#d6ce9e"></stop>
       </linearGradient>
 
       <radialGradient id="apoyo">
@@ -132,12 +169,21 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
           class="capa-grupo"
           data-capa={capa.i}
           data-z={capa.z}
-          data-escala={capa.escala}
-          transform={`translate(0 ${-capa.z}) ${proyeccion} scale(${capa.escala})`}
+          data-escala={escalaCapa(capa)}
+          data-sx={capa.sx}
+          transform={`translate(0 ${-capa.z}) ${proyeccion} ${escalaCapa(capa)}`}
         >
-          <use class="capa" href="#boqueron" />
-          <use class="capa__calor" href="#boqueron" />
-          {capa.i === CAPAS - 1 && <ellipse class="capa__ojo" cx="-116" cy="-5" rx="8" ry="8" />}
+          <use class:list={["capa", { "capa--cima": capa.cima }]} href={capa.forma} style={`fill:${capa.tono}`} />
+          <use class="capa__calor" href={capa.forma} />
+          {capa.cima && (
+            <g class="capa__detalle">
+              <path class="capa__operculo" d="M -94 -20 C -85 -8 -85 8 -94 19" />
+              <path class="capa__banda" d="M -84 -1 C -40 -4 30 -3 110 -1" />
+              <path class="capa__boca" d="M -150 0 L -128 3" />
+              <circle class="capa__ojo" cx="-114" cy="-4" r="7" />
+              <circle class="capa__brillo-ojo" cx="-116" cy="-6" r="2" />
+            </g>
+          )}
         </g>
       ))
     }
@@ -186,11 +232,37 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
     stroke-width: 1;
   }
 
+  /* Sin contorno: cada capa solo aporta su borde y su tono a la pared. */
   .capa {
-    fill: url(#pla);
-    stroke: rgb(23 26 51 / 0.2);
-    stroke-width: 0.9;
+    stroke: none;
+  }
+
+  .capa--cima {
+    fill: url(#pla-cara) !important;
+    stroke: rgb(23 26 51 / 0.18);
+    stroke-width: 0.8;
     vector-effect: non-scaling-stroke;
+  }
+
+  .capa__detalle path {
+    fill: none;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .capa__operculo,
+  .capa__boca {
+    stroke: rgb(23 26 51 / 0.22);
+    stroke-width: 1.2;
+  }
+
+  .capa__banda {
+    stroke: rgb(255 255 255 / 0.75);
+    stroke-width: 3;
+  }
+
+  .capa__brillo-ojo {
+    fill: rgb(255 255 255 / 0.8);
   }
 
   /* El material sale caliente por la boquilla y se enfría al subir la pieza. */
@@ -200,7 +272,7 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
   }
 
   .capa__ojo {
-    fill: rgb(23 26 51 / 0.6);
+    fill: #2b2d3f;
   }
 
   /* Sin JavaScript la boquilla no tiene a dónde ir: se queda fuera. */
@@ -317,7 +389,7 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
 
 <script>
   const RADIANES = Math.PI / 180;
-  const DURACION_CAPA = 115; // ms por capa: la impresión entera dura unos 3 s
+  const DURACION_CAPA = 140; // ms por capa: la impresión entera dura unos 3 s
   const reducir = window.matchMedia("(prefers-reduced-motion: reduce)");
   const punteroFino = window.matchMedia("(pointer: fine)");
 
@@ -349,7 +421,7 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
       grupos.forEach((grupo) => {
         grupo.setAttribute(
           "transform",
-          `translate(0 ${-Number(grupo.dataset.z)}) ${proyeccion} scale(${grupo.dataset.escala})`,
+          `translate(0 ${-Number(grupo.dataset.z)}) ${proyeccion} ${grupo.dataset.escala}`,
         );
       });
     };
@@ -364,7 +436,7 @@ const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
     // siempre apoyada sobre la última capa depositada.
     const seguirCapa = (capa, fase) => {
       const grupo = grupos[Math.min(capa, total - 1)];
-      const recorrido = Math.sin(fase) * 128 * Number(grupo.dataset.escala);
+      const recorrido = Math.sin(fase) * 128 * Number(grupo.dataset.sx);
       const angulo = vista.giro * RADIANES;
       moverBoquilla(
         Math.cos(angulo) * recorrido,
