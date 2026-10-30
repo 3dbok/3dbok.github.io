@@ -13,12 +13,12 @@ const pasos = [
     titulo: "Cuéntanos la pieza",
     texto:
       "Descríbela como se la contarías a un amigo. Si tienes fotos, un boceto o un archivo STL, súbelo; si solo tienes la idea, también vale.",
-    nota: "5 minutos",
+    nota: "Unos 5 minutos",
   },
   {
     titulo: "Apruebas el boceto",
     texto:
-      "Un diseñador convierte tu descripción en un modelo y te lo enseña antes de gastar un gramo de filamento. Se cambia hasta que encaje.",
+      "Un diseñador convierte tu descripción en un modelo con medidas y te lo enseña antes de gastar un gramo de filamento. Se cambia hasta que encaje.",
     nota: "Nada se imprime sin tu visto bueno",
   },
   {
@@ -29,127 +29,234 @@ const pasos = [
   },
 ];
 
+// Lo que el cliente escribe en el primer paso del recorrido animado.
+const mensajeEjemplo =
+  "Se me ha partido una rueda del carro de la compra. Mide unos 6 cm y lleva un eje de metal en el centro. ¿Me la podéis hacer igual?";
+
+// Rueda de carro para el recorrido: aro, buje, eje y cinco radios. Los
+// agujeros van en sentido contrario para que la regla nonzero los respete.
+const circulo = (r, horario = true) =>
+  horario
+    ? `M ${r} 0 A ${r} ${r} 0 1 1 ${-r} 0 A ${r} ${r} 0 1 1 ${r} 0 Z`
+    : `M ${r} 0 A ${r} ${r} 0 1 0 ${-r} 0 A ${r} ${r} 0 1 0 ${r} 0 Z`;
+const radios = Array.from({ length: 5 }, (_, i) => {
+  const a = (i * 72 * Math.PI) / 180;
+  const ancho = 9;
+  const punto = (r, d) => {
+    const x = Math.cos(a) * r - Math.sin(a) * d;
+    const y = Math.sin(a) * r + Math.cos(a) * d;
+    return `${x.toFixed(2)} ${y.toFixed(2)}`;
+  };
+  return `M ${punto(30, -ancho)} L ${punto(92, -ancho)} L ${punto(92, ancho)} L ${punto(30, ancho)} Z`;
+}).join(" ");
+const RUEDA = [circulo(110), circulo(86, false), circulo(36), circulo(12, false), radios].join(" ");
+const capasRueda = Array.from({ length: 28 }, (_, i) => i);
+
 const encargos = [
   {
     titulo: "Un repuesto que ya no se fabrica",
     texto:
       "La rueda del carro de la compra, el enganche del toldo, la tapa del mando que se rompió.",
     material: "PETG",
+    dibujo:
+      "M14 70 V34 a20 20 0 0 1 20 -20 h32 a20 20 0 0 1 20 20 v6 h-14 v-6 a6 6 0 0 0 -6 -6 h-32 a6 6 0 0 0 -6 6 V70 Z M40 70 h40 M60 70 v14 M50 84 h20",
   },
   {
     titulo: "Una figura o una miniatura",
-    texto:
-      "Personajes de rol, maquetas, trofeos, regalos con el nombre de alguien encima.",
+    texto: "Personajes de rol, maquetas, trofeos, regalos con el nombre de alguien encima.",
     material: "Resina",
+    dibujo:
+      "M50 14 a12 12 0 1 1 0.1 0 Z M38 40 h24 l12 14 l-6 6 l-10 -10 v20 l8 26 h-10 l-6 -20 l-6 20 h-10 l8 -26 v-20 l-10 10 l-6 -6 Z",
   },
   {
     titulo: "Algo a medida para casa",
     texto:
       "Soportes, organizadores y adaptadores que no existen en ninguna tienda porque tu hueco mide lo que mide.",
     material: "PLA",
+    dibujo:
+      "M14 20 h72 v64 h-72 Z M14 46 h72 M14 66 h72 M40 20 v26 M62 46 v20 M30 76 h12 M58 76 h12",
   },
   {
     titulo: "Un prototipo de tu proyecto",
     texto:
       "Tener la idea en la mano antes de encargar un molde o una serie. Se corrige y se vuelve a imprimir.",
     material: "PLA",
+    dibujo:
+      "M20 40 L50 26 L80 40 L50 54 Z M20 40 V72 L50 86 V54 M80 40 V72 L50 86 M8 40 V72 M4 40 h8 M4 72 h8 M50 14 l30 14",
   },
 ];
 
+// Valores orientativos (1 a 5) para comparar materiales a ojo. No son
+// fichas técnicas: el maker decide el material definitivo.
+const propiedades = ["Rigidez", "Detalle", "Aguante al calor", "Flexibilidad"];
 const materiales = [
   {
+    id: "pla",
     codigo: "PLA",
-    color: "var(--mat-pla)",
     que: "Rígido, económico y el más habitual.",
     para: "Decoración, figuras, prototipos",
+    valores: [4, 3, 1, 1],
   },
   {
+    id: "petg",
     codigo: "PETG",
-    color: "var(--mat-petg)",
-    que: "Aguanta golpes, calor y humedad.",
+    que: "Aguanta golpes, calor y humedad sin quejarse.",
     para: "Repuestos y piezas de exterior",
+    valores: [3, 3, 3, 2],
   },
   {
+    id: "resina",
     codigo: "Resina",
-    color: "var(--mat-resina)",
-    que: "Detalle finísimo y superficie lisa.",
+    que: "Detalle finísimo y superficie lisa, sin capas a la vista.",
     para: "Miniaturas, joyería, maquetas",
+    valores: [3, 5, 2, 1],
   },
   {
+    id: "tpu",
     codigo: "TPU",
-    color: "var(--mat-tpu)",
-    que: "Flexible, como una goma dura.",
+    que: "Flexible, como una goma dura: se dobla y vuelve.",
     para: "Fundas, juntas y topes",
+    valores: [1, 2, 3, 5],
   },
 ];
+
+// Las líneas de capa que se ven en las caras de la pieza de prueba.
+const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
 ---
 
 <BaseLayout>
   <main>
-    <section class="portada">
+    <!-- Portada ------------------------------------------------------- -->
+    <section class="portada en-cianotipo" data-zona-giro>
       <div class="envoltura portada__interior">
         <div class="portada__texto">
-          <p class="etiqueta etiqueta--marca">Impresión 3D por encargo</p>
-          <h1 class="portada__titular">
-            Cuéntalo con tus palabras. Sale impreso en tu ciudad.
-          </h1>
-          <p class="entradilla portada__entrada">
+          <p class="portada__lugar">Impresión 3D por encargo, desde Málaga</p>
+          <div class="portada__impresion">
+            <h1 class="portada__titular">Cuéntalo con tus palabras. Sale impreso en tu ciudad.</h1>
+            <span class="portada__cabezal" aria-hidden="true"></span>
+          </div>
+          <p class="portada__entrada">
             No hace falta que sepas qué es un STL ni que tengas impresora.
             Describes la pieza, un diseñador te manda un boceto y, cuando lo
             apruebas, un maker cercano la fabrica.
           </p>
           <div class="portada__acciones">
-            <a href="/briefing" class="boton boton--principal">
-              Pedir una pieza <span class="boton__flecha" aria-hidden="true">→</span>
-            </a>
-            <a href="/productores" class="boton boton--secundario">Ver makers</a>
+            <a href="/briefing" class="boton boton--arena">Pedir una pieza</a>
+            <a href="/productores" class="boton boton--fantasma">Ver makers</a>
           </div>
-          <ul class="portada__garantias dato">
-            <li>Boceto antes de imprimir</li>
-            <li>Makers verificados</li>
-            <li>Sin compromiso hasta aprobarlo</li>
-          </ul>
         </div>
 
         <div class="portada__pieza">
           <PiezaEnCapas />
         </div>
       </div>
+
+      <ul class="envoltura portada__garantias">
+        <li><strong>Boceto antes de imprimir.</strong> Lo ves y lo apruebas tú.</li>
+        <li><strong>Makers con nombre.</strong> Sabes quién fabrica y dónde.</li>
+        <li><strong>Sin compromiso.</strong> No pagas nada hasta dar el visto bueno.</li>
+      </ul>
     </section>
 
-    <section class="seccion proceso" id="como-funciona">
-      <div class="envoltura">
-        <div class="rotulo">
-          <p class="etiqueta">Cómo funciona</p>
-          <h2>Del recado a la pieza, en tres pasos</h2>
-        </div>
+    <!-- Cómo funciona: recorrido fijado al scroll ---------------------- -->
+    <section class="recorrido" id="como-funciona" data-recorrido data-paso="0">
+      <div class="recorrido__fijo">
+        <div class="envoltura recorrido__interior">
+          <div class="recorrido__texto">
+            <h2 class="recorrido__titulo">Del recado a la pieza, en tres pasos</h2>
+            <ol class="recorrido__pasos">
+              {
+                pasos.map((paso, indice) => (
+                  <li class="paso" data-paso-indice={indice}>
+                    <span class="paso__indice" aria-hidden="true">
+                      {indice + 1}
+                    </span>
+                    <div>
+                      <h3 class="paso__titulo">{paso.titulo}</h3>
+                      <p class="paso__texto">{paso.texto}</p>
+                      <p class="paso__nota">{paso.nota}</p>
+                    </div>
+                  </li>
+                ))
+              }
+            </ol>
+            <div class="recorrido__avance" aria-hidden="true"><span></span></div>
+          </div>
 
-        <ol class="proceso__lista">
-          {
-            pasos.map((paso, indice) => (
-              <li class="paso">
-                <span class="paso__indice dato" aria-hidden="true">
-                  {String(indice + 1).padStart(2, "0")}
-                </span>
-                <div class="paso__cuerpo">
-                  <h3 class="paso__titulo">{paso.titulo}</h3>
-                  <p class="paso__texto">{paso.texto}</p>
-                  <p class="paso__nota dato">{paso.nota}</p>
+          <div class="escenario" aria-hidden="true">
+            <!-- 1. El mensaje del cliente -->
+            <div class="escena escena--mensaje">
+              <div class="mensaje">
+                <p class="mensaje__cabecera">Tu encargo</p>
+                <p class="mensaje__texto">
+                  <span data-tecleo data-frase={mensajeEjemplo}>{mensajeEjemplo}</span><span
+                    class="mensaje__cursor"></span>
+                </p>
+                <div class="mensaje__adjuntos">
+                  <span class="mensaje__adjunto">rueda-rota.jpg</span>
+                  <span class="mensaje__adjunto">medida-eje.jpg</span>
                 </div>
-              </li>
-            ))
-          }
-        </ol>
+                <span class="mensaje__enviar">Enviar</span>
+              </div>
+            </div>
+
+            <!-- 2. El boceto acotado -->
+            <div class="escena escena--plano">
+              <svg viewBox="-200 -170 450 340" class="plano">
+                <g class="plano__trazo">
+                  <path pathLength="1" d={circulo(110)}></path>
+                  <path pathLength="1" d={circulo(86)}></path>
+                  <path pathLength="1" d={circulo(36)}></path>
+                  <path pathLength="1" d={circulo(12)}></path>
+                  <path pathLength="1" d={radios}></path>
+                  <path pathLength="1" d="M 190 -110 H 222 V 110 H 190 Z M 190 -36 H 222 M 190 36 H 222"></path>
+                </g>
+                <g class="plano__cotas">
+                  <path d="M -110 140 H 110 M -110 132 V 148 M 110 132 V 148 M -110 116 V 132 M 110 116 V 132"></path>
+                  <text x="0" y="160">Ø 62 mm</text>
+                  <path d="M 190 -130 H 222 M 190 -138 V -122 M 222 -138 V -122"></path>
+                  <text x="206" y="-142">18</text>
+                  <path d="M 9.7 -7 L 98 -71 H 112"></path>
+                  <text x="116" y="-67" text-anchor="start">eje Ø 8</text>
+                </g>
+              </svg>
+              <p class="plano__sello">Boceto aprobado</p>
+            </div>
+
+            <!-- 3. La impresión -->
+            <div class="escena escena--pieza">
+              <svg viewBox="-170 -170 340 300" class="rueda">
+                <defs>
+                  <path id="rueda-capa" d={RUEDA}></path>
+                </defs>
+                <ellipse class="rueda__sombra" cx="0" cy="8" rx="140" ry="60"></ellipse>
+                {
+                  capasRueda.map((i) => (
+                    <use
+                      href="#rueda-capa"
+                      class="rueda__capa"
+                      data-rueda-capa
+                      transform={`translate(0 ${-i * 2.6}) scale(1 0.48) rotate(${-8 + i * 0.0})`}
+                    />
+                  ))
+                }
+              </svg>
+              <div class="rueda__fichas">
+                <span>Ignacio, Málaga</span>
+                <span>PETG negro</span>
+                <span>Lista para recoger</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Qué se pide --------------------------------------------------- -->
     <section class="seccion encargos">
       <div class="envoltura">
         <div class="rotulo rotulo--partido">
-          <div>
-            <p class="etiqueta">Qué se pide aquí</p>
-            <h2>Casi siempre es una de estas cuatro cosas</h2>
-          </div>
+          <h2>Casi siempre es una de estas cuatro cosas</h2>
           <p class="entradilla rotulo__apunte">
             Si lo tuyo no aparece en la lista, cuéntalo igual. Lo raro se
             imprime igual de bien.
@@ -159,12 +266,18 @@ const materiales = [
         <ul class="encargos__lista">
           {
             encargos.map((encargo) => (
-              <li class="encargo">
-                <h3 class="encargo__titulo">{encargo.titulo}</h3>
-                <p class="encargo__texto">{encargo.texto}</p>
-                <p class="encargo__material dato">
-                  Suele hacerse en {encargo.material}
-                </p>
+              <li>
+                <a class="encargo" href="/briefing">
+                  <svg class="encargo__dibujo" viewBox="0 0 100 100" aria-hidden="true">
+                    <path d={encargo.dibujo} pathLength="1" />
+                  </svg>
+                  <h3 class="encargo__titulo">{encargo.titulo}</h3>
+                  <p class="encargo__texto">{encargo.texto}</p>
+                  <p class="encargo__pie">
+                    <span>Suele hacerse en {encargo.material}</span>
+                    <span class="encargo__accion">Pedir algo así</span>
+                  </p>
+                </a>
               </li>
             ))
           }
@@ -172,119 +285,185 @@ const materiales = [
       </div>
     </section>
 
-    <section class="seccion materiales">
+    <!-- Materiales ---------------------------------------------------- -->
+    <section class="seccion materiales" data-materiales>
       <div class="envoltura materiales__interior">
-        <div class="rotulo">
-          <p class="etiqueta">Materiales</p>
+        <div class="materiales__cabeza">
           <h2>En qué se puede imprimir</h2>
           <p class="entradilla materiales__apunte">
             Elegir material es cosa del maker. Esto es solo para que sepas de
             qué te habla cuando lo mencione.
           </p>
-        </div>
-
-        <table class="tabla-materiales">
-          <thead>
-            <tr>
-              <th scope="col">Material</th>
-              <th scope="col">Qué es</th>
-              <th scope="col">Va bien para</th>
-            </tr>
-          </thead>
-          <tbody>
+          <div class="materiales__pestanas" role="tablist" aria-label="Materiales" hidden>
             {
-              materiales.map((material) => (
-                <tr>
-                  <th scope="row">
-                    <span
-                      class="tabla-materiales__punto"
-                      style={`background:${material.color}`}
-                    />
-                    {material.codigo}
-                  </th>
-                  <td>{material.que}</td>
-                  <td class="tabla-materiales__uso">{material.para}</td>
-                </tr>
+              materiales.map((material, indice) => (
+                <button
+                  type="button"
+                  role="tab"
+                  class="materiales__pestana"
+                  id={`pestana-${material.id}`}
+                  aria-controls={`panel-${material.id}`}
+                  aria-selected={indice === 0 ? "true" : "false"}
+                  tabindex={indice === 0 ? "0" : "-1"}
+                  data-material={material.id}
+                >
+                  {material.codigo}
+                </button>
               ))
             }
-          </tbody>
-        </table>
+          </div>
+        </div>
+
+        <div class="muestra" data-muestra="pla" aria-hidden="true">
+          <svg viewBox="-110 -120 220 210" class="muestra__pieza">
+            <g class="muestra__cubo">
+              <polygon class="muestra__cara muestra__cara--arriba" points="0,-100 70,-60 0,-20 -70,-60"></polygon>
+              <polygon class="muestra__cara muestra__cara--izq" points="-70,-60 0,-20 0,60 -70,20"></polygon>
+              <polygon class="muestra__cara muestra__cara--der" points="0,-20 70,-60 70,20 0,60"></polygon>
+              <g class="muestra__capas">
+                {
+                  lineasCubo.map((dy) => (
+                    <path d={`M -70 ${-60 + dy} L 0 ${-20 + dy} L 70 ${-60 + dy}`} />
+                  ))
+                }
+              </g>
+              <path class="muestra__brillo" d="M -52 -62 L 0 -91 L 22 -79"></path>
+            </g>
+          </svg>
+        </div>
+
+        <div class="materiales__paneles">
+          {
+            materiales.map((material, indice) => (
+              <div
+                class="material"
+                role="tabpanel"
+                id={`panel-${material.id}`}
+                aria-labelledby={`pestana-${material.id}`}
+                data-panel={material.id}
+              >
+                <h3 class="material__nombre">{material.codigo}</h3>
+                <p class="material__que">{material.que}</p>
+                <p class="material__para">
+                  <span>Va bien para</span> {material.para}
+                </p>
+                <dl class="material__valores">
+                  {propiedades.map((propiedad, p) => (
+                    <div class="valor" style={`--v:${material.valores[p]}`}>
+                      <dt>{propiedad}</dt>
+                      <dd>
+                        <span class="solo-lectores">{material.valores[p]} de 5</span>
+                        <span class="valor__capas" aria-hidden="true">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <span class:list={["valor__capa", { "esta-llena": n <= material.valores[p] }]} style={`--n:${n}`} />
+                          ))}
+                        </span>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))
+          }
+        </div>
       </div>
     </section>
 
+    <!-- Quién imprime -------------------------------------------------- -->
     <section class="seccion quienes">
       <div class="envoltura">
         <div class="rotulo rotulo--partido">
-          <div>
-            <p class="etiqueta">Quién imprime</p>
-            <h2>Detrás de cada pieza hay alguien con su máquina</h2>
-          </div>
+          <h2>Detrás de cada pieza hay alguien con su máquina</h2>
           <p class="entradilla rotulo__apunte">
             Acabamos de empezar, así que de momento somos pocos y salimos con
-            nombre y apellidos. Puedes ver el taller de cada uno antes de
-            encargar nada.
+            nombre. Puedes ver el taller de cada uno antes de encargar nada.
           </p>
         </div>
 
         <ul class="quienes__lista">
           {
             makers.map((maker) => (
-              <li class="taller-maker">
+              <li class="ficha">
                 <img
-                  class="taller-maker__foto"
+                  class="ficha__foto"
                   src={maker.foto}
                   alt=""
-                  width="88"
-                  height="88"
+                  width="120"
+                  height="120"
                   loading="lazy"
                 />
-                <div>
-                  <h3 class="taller-maker__nombre">
+                <div class="ficha__cuerpo">
+                  <h3 class="ficha__nombre">
                     <a href={`/productores/${maker.slug}`}>{maker.nombre}</a>
                   </h3>
-                  <p class="taller-maker__sitio dato">{maker.ubicacion}</p>
-                  <p class="taller-maker__bio">{maker.bio}</p>
-                  <div class="taller-maker__chips">
-                    {maker.materiales.map((codigo) => (
-                      <MaterialChip codigo={codigo} />
-                    ))}
+                  <p class="ficha__sitio">{maker.ubicacion}</p>
+                  <p class="ficha__bio">{maker.bio}</p>
+                  <dl class="ficha__datos">
+                    <div>
+                      <dt>Impresora</dt>
+                      <dd>{maker.impresoras.join(", ")}</dd>
+                    </div>
+                    <div>
+                      <dt>Boquillas</dt>
+                      <dd class="dato">{maker.tamNozzle.join(" / ")}</dd>
+                    </div>
+                    <div>
+                      <dt>Responde en</dt>
+                      <dd class="dato">{maker.tiempoRespuestaHoras} h</dd>
+                    </div>
+                    <div>
+                      <dt>Materiales</dt>
+                      <dd class="ficha__chips">
+                        {maker.materiales.map((codigo) => (
+                          <MaterialChip codigo={codigo} />
+                        ))}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div class="ficha__acciones">
+                    <a class="boton boton--principal" href={`/briefing?maker=${maker.id}`}>
+                      Pedirle una pieza
+                    </a>
+                    <a class="boton boton--secundario" href={`/productores/${maker.slug}`}>
+                      Ver su taller
+                    </a>
                   </div>
-                  <p class="taller-maker__equipo dato">
-                    {maker.impresoras.join(" · ")}
-                  </p>
                 </div>
               </li>
             ))
           }
+          <li class="ficha ficha--hueco">
+            <div class="ficha__hueco-placa" aria-hidden="true"></div>
+            <div class="ficha__cuerpo">
+              <h3 class="ficha__nombre">Este hueco es para tu impresora</h3>
+              <p class="ficha__bio">
+                Si imprimes en Málaga o alrededores, los próximos encargos
+                pueden ser tuyos.
+              </p>
+              <a class="ficha__enlace" href="/maker">Quiero ser maker</a>
+            </div>
+          </li>
         </ul>
-
-        <a href="/productores" class="quienes__enlace">
-          Ver el directorio de makers
-          <span class="boton__flecha" aria-hidden="true">→</span>
-        </a>
       </div>
     </section>
 
+    <!-- Para makers ---------------------------------------------------- -->
     <section class="en-cianotipo llamada-maker">
       <div class="envoltura llamada-maker__interior">
         <div>
           <p class="etiqueta">Para makers</p>
-          <h2 class="llamada-maker__titulo">
-            ¿Tienes una impresora parada media semana?
-          </h2>
+          <h2 class="llamada-maker__titulo">¿Tienes una impresora parada media semana?</h2>
           <p class="llamada-maker__texto">
             Te llegan encargos de tu provincia y decides cuáles coges. Sin cuota
             mensual: solo una comisión cuando entregas la pieza.
           </p>
-          <ul class="llamada-maker__puntos dato">
-            <li>Sin cuota mensual</li>
-            <li>Tú eliges los pedidos</li>
-            <li>Encargos de tu zona</li>
-          </ul>
         </div>
-        <a href="/maker" class="boton boton--claro llamada-maker__accion">
-          Darme de alta <span class="boton__flecha" aria-hidden="true">→</span>
-        </a>
+        <ul class="llamada-maker__puntos">
+          <li><strong>Sin cuota mensual.</strong> Pagas comisión solo si entregas.</li>
+          <li><strong>Tú eliges los pedidos.</strong> Ninguno te llega obligado.</li>
+          <li><strong>Encargos de tu zona.</strong> Nada de envíos a la otra punta.</li>
+        </ul>
+        <a href="/maker" class="boton boton--arena llamada-maker__accion">Darme de alta</a>
       </div>
     </section>
   </main>
@@ -296,29 +475,31 @@ const materiales = [
   .portada {
     position: relative;
     overflow: hidden;
-    border-bottom: 1px solid var(--linea);
+    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
   }
 
+  /* La retícula de la bancada se extiende por toda la portada: la página
+     empieza encima de la máquina. */
   .portada::before {
     content: "";
     position: absolute;
-    inset: 0 0 0 55%;
-    border-left: 1px solid var(--linea);
-    background-image: linear-gradient(var(--linea) 1px, transparent 1px),
-      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
-    background-size: 32px 32px;
-    opacity: 0.46;
+    inset: 0;
+    background-image: linear-gradient(rgb(252 252 249 / 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(252 252 249 / 0.07) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-position: center top;
+    mask-image: linear-gradient(to bottom, #000 40%, transparent);
     pointer-events: none;
   }
 
   .portada__interior {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 0.92fr) minmax(24rem, 1.08fr);
+    grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
     align-items: center;
-    gap: clamp(2.5rem, 1rem + 4.5vw, 5.5rem);
-    min-height: clamp(40rem, calc(100svh - 67px), 47rem);
-    padding-block: clamp(3.5rem, 2rem + 5vw, 6rem);
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+    min-height: clamp(36rem, calc(100svh - 66px - 7rem), 46rem);
+    padding-block: clamp(3rem, 2rem + 4vw, 5rem) clamp(2rem, 3vw, 3rem);
   }
 
   .portada__texto {
@@ -326,17 +507,37 @@ const materiales = [
     z-index: 1;
   }
 
+  .portada__lugar {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--arena);
+  }
+
+  .portada__impresion {
+    position: relative;
+    margin-top: 1rem;
+  }
+
   .portada__titular {
-    margin-top: 1.1rem;
     max-width: 14ch;
-    font-size: clamp(3rem, 4.15vw, 4.35rem);
-    line-height: 0.95;
+    font-size: clamp(2.5rem, 1.3rem + 3.5vw, 4.5rem);
+    font-stretch: 125%;
+    font-weight: 820;
+    line-height: 0.93;
     letter-spacing: -0.045em;
+    color: var(--pieza);
+  }
+
+  .portada__cabezal {
+    display: none;
   }
 
   .portada__entrada {
     margin-top: 1.6rem;
-    max-width: 47ch;
+    max-width: 44ch;
+    font-size: var(--paso-1);
+    line-height: 1.55;
+    color: rgb(252 252 249 / 0.84);
   }
 
   .portada__acciones {
@@ -346,183 +547,154 @@ const materiales = [
     margin-top: 2.2rem;
   }
 
-  .portada__garantias {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0 1.2rem;
-    margin-top: 2.4rem;
-    counter-reset: garantia;
-    color: var(--tinta-suave);
-  }
-
-  .portada__garantias li {
-    padding-top: 0.7rem;
-    border-top: 1px solid var(--linea);
-    counter-increment: garantia;
-    line-height: 1.45;
-  }
-
-  .portada__garantias li::before {
-    content: "0" counter(garantia);
-    display: block;
-    margin-bottom: 0.35rem;
-    color: var(--filamento-tinta);
-    font-weight: 600;
-  }
-
   .portada__pieza {
     position: relative;
     z-index: 1;
+    width: min(100%, 40rem);
     justify-self: end;
-    width: min(100%, 43rem);
   }
 
-  .portada__pieza::before {
-    content: "";
-    position: absolute;
-    inset: 7% -3% 14% 8%;
-    z-index: -1;
-    border: 1px solid var(--linea-fuerte);
-    border-left: 3px solid var(--filamento);
-    pointer-events: none;
+  .portada__garantias {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--linea-clara);
+    font-size: 0.93rem;
+    line-height: 1.5;
+    color: rgb(252 252 249 / 0.76);
   }
 
+  .portada__garantias li {
+    padding: 1.1rem 1.5rem 0 0;
+  }
+
+  .portada__garantias li + li {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--linea-clara);
+  }
+
+  .portada__garantias strong {
+    display: block;
+    font-weight: 650;
+    color: var(--pieza);
+  }
+
+  /* El titular se imprime de abajo arriba, en capas, como cualquier pieza:
+     el recorte sube a saltos y una línea caliente marca la capa en curso. */
   @media (prefers-reduced-motion: no-preference) {
-    .portada__texto > * {
-      animation: entrar-portada 540ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    .portada__titular {
+      animation: imprimir-titular 1.6s steps(16, end) 0.2s both;
     }
 
-    .portada__texto > :nth-child(2) {
-      animation-delay: 70ms;
+    .portada__cabezal {
+      display: block;
+      position: absolute;
+      left: -0.5rem;
+      right: 10%;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--filamento);
+      box-shadow: 0 0 14px 2px rgb(229 89 47 / 0.7);
+      animation: subir-cabezal 1.6s steps(16, end) 0.2s both;
+      pointer-events: none;
     }
 
-    .portada__texto > :nth-child(3) {
-      animation-delay: 130ms;
+    .portada__lugar,
+    .portada__entrada,
+    .portada__acciones,
+    .portada__garantias {
+      animation: aparecer 600ms var(--curva-salida) both;
     }
 
-    .portada__texto > :nth-child(4) {
-      animation-delay: 190ms;
+    .portada__lugar {
+      animation-delay: 0.05s;
     }
 
-    .portada__texto > :nth-child(5) {
-      animation-delay: 250ms;
+    .portada__entrada {
+      animation-delay: 1.5s;
     }
 
-    .portada__pieza {
-      animation: entrar-pieza 680ms 120ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    .portada__acciones {
+      animation-delay: 1.62s;
+    }
+
+    .portada__garantias {
+      animation-delay: 1.8s;
     }
   }
 
-  @keyframes entrar-portada {
+  @keyframes imprimir-titular {
     from {
-      opacity: 0;
-      transform: translateY(12px);
+      clip-path: inset(100% -10% -10% -10%);
     }
-
     to {
-      opacity: 1;
-      transform: translateY(0);
+      clip-path: inset(-10% -10% -10% -10%);
     }
   }
 
-  @keyframes entrar-pieza {
+  @keyframes subir-cabezal {
+    from {
+      top: 100%;
+      opacity: 1;
+    }
+    94% {
+      opacity: 1;
+    }
+    to {
+      top: 0%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes aparecer {
     from {
       opacity: 0;
-      transform: translate3d(18px, 10px, 0) scale(0.98);
+      transform: translateY(10px);
     }
-
     to {
       opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1);
+      transform: none;
     }
   }
 
   @media (max-width: 940px) {
-    .portada::before {
-      inset: 56% 0 0;
-      border-top: 1px solid var(--linea);
-      border-left: 0;
-      opacity: 0.34;
-    }
-
     .portada__interior {
       grid-template-columns: minmax(0, 1fr);
-      gap: 1.6rem;
       min-height: 0;
-      padding-block: clamp(2.75rem, 1.5rem + 6vw, 4.25rem);
-    }
-
-    .portada__texto {
-      display: contents;
-    }
-
-    .portada__texto > .etiqueta {
-      grid-row: 1;
-    }
-
-    .portada__titular {
-      grid-row: 2;
-      margin-top: -0.65rem;
-      max-width: 15ch;
-      font-size: clamp(3.25rem, 8vw, 4.35rem);
-    }
-
-    .portada__entrada {
-      grid-row: 3;
-      margin-top: -0.5rem;
-    }
-
-    .portada__acciones {
-      grid-row: 4;
-      margin-top: 0;
+      gap: 1.5rem;
     }
 
     .portada__pieza {
-      grid-row: 5;
       justify-self: center;
-      width: min(100%, 36rem);
+      width: min(100%, 34rem);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .portada__garantias {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .portada__garantias {
-      grid-row: 6;
-      margin-top: 0.25rem;
+    .portada__garantias li,
+    .portada__garantias li + li {
+      padding: 0.85rem 0;
+      border-left: 0;
+    }
+
+    .portada__garantias li + li {
+      border-top: 1px solid var(--linea-clara);
     }
   }
 
   @media (max-width: 480px) {
-    .portada__titular {
-      max-width: 12ch;
-      font-size: clamp(2.55rem, 12vw, 3.15rem);
-    }
-
     .portada__acciones {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
     .portada__acciones .boton {
       justify-content: center;
       padding-inline: 0.85rem;
-    }
-
-    .portada__pieza::before {
-      inset: 7% 0 14% 6%;
-    }
-
-    .portada__garantias {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0;
-    }
-
-    .portada__garantias li {
-      display: grid;
-      grid-template-columns: 2.25rem minmax(0, 1fr);
-      align-items: baseline;
-      padding-block: 0.7rem;
-    }
-
-    .portada__garantias li::before {
-      margin: 0;
     }
   }
 
@@ -533,15 +705,14 @@ const materiales = [
   }
 
   .rotulo h2 {
-    margin-top: 0.75rem;
-    max-width: 20ch;
+    max-width: 18ch;
   }
 
   .rotulo--partido {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
     align-items: end;
-    gap: 1.5rem 3rem;
+    gap: 1.25rem 3rem;
   }
 
   .rotulo__apunte {
@@ -554,124 +725,476 @@ const materiales = [
     }
   }
 
-  /* --- Proceso: la línea es el recorrido del filamento ---------------- */
+  /* --- Recorrido: cómo funciona -------------------------------------- */
 
-  .proceso {
+  .recorrido {
+    --cabecera: 66px;
+    position: relative;
     background: var(--pieza);
     border-bottom: 1px solid var(--linea);
   }
 
-  .proceso__lista {
+  .recorrido__fijo {
+    padding-block: var(--aire-seccion);
+  }
+
+  .recorrido__interior {
     display: grid;
-    gap: 0;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .recorrido__texto {
+    position: relative;
+  }
+
+  .recorrido__titulo {
+    max-width: 14ch;
+  }
+
+  .recorrido__pasos {
+    position: relative;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
   }
 
   .paso {
-    --pad: 1.75rem;
-    position: relative;
     display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr);
-    gap: 0 1.75rem;
-    padding-block: var(--pad);
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0 1rem;
+    padding-block: 1.15rem;
     border-top: 1px solid var(--linea);
-  }
-
-  .paso:last-child {
-    border-bottom: 1px solid var(--linea);
-  }
-
-  /* El hilo continuo que enhebra los tres pasos: el recorrido que hace el
-     encargo desde que lo cuentas hasta que lo tienes en la mano. */
-  .paso::before {
-    content: "";
-    position: absolute;
-    left: 0.42rem;
-    top: calc(var(--pad) + 1.8rem);
-    bottom: calc((var(--pad) + 0.1rem) * -1);
-    width: 2px;
-    background: var(--filamento);
-    opacity: 0.42;
-  }
-
-  .paso:last-child::before {
-    display: none;
+    transition: opacity 0.3s ease;
   }
 
   .paso__indice {
-    padding-top: 0.28rem;
-    font-size: 0.8rem;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 50%;
+    font-family: var(--fuente-dato);
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--filamento-tinta);
+    color: var(--cianotipo-hondo);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .paso__titulo {
+    font-size: var(--paso-2);
   }
 
   .paso__texto {
-    margin-top: 0.5rem;
-    max-width: 58ch;
+    margin-top: 0.45rem;
+    max-width: 46ch;
     color: var(--tinta-media);
   }
 
   .paso__nota {
-    margin-top: 0.85rem;
-    color: var(--tinta-suave);
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--cianotipo-hondo);
   }
 
-  @media (min-width: 900px) {
-    .proceso__lista {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      border-top: 1px solid var(--linea);
-      border-bottom: 1px solid var(--linea);
+  .recorrido__avance {
+    display: none;
+  }
+
+  /* El escenario: tres escenas superpuestas, una por paso. */
+  .escenario {
+    position: relative;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    aspect-ratio: 1.12;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
+    background-color: var(--cianotipo-lavado);
+    background-image: linear-gradient(rgb(73 89 184 / 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(73 89 184 / 0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center;
+    overflow: hidden;
+  }
+
+  .escena {
+    grid-area: 1 / 1;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    place-items: center;
+    min-height: 0;
+    padding: clamp(1.25rem, 4%, 2.5rem);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.45s ease, visibility 0s linear 0.45s, transform 0.6s var(--curva-salida);
+    transform: translateY(14px);
+  }
+
+  /* Sin JavaScript, se ve la pieza terminada. */
+  .escena--pieza,
+  .recorrido[data-paso="0"].esta-guiada .escena--mensaje,
+  .recorrido[data-paso="1"].esta-guiada .escena--plano,
+  .recorrido[data-paso="2"].esta-guiada .escena--pieza {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.45s ease, visibility 0s, transform 0.6s var(--curva-salida);
+  }
+
+  .recorrido.esta-guiada:not([data-paso="2"]) .escena--pieza {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* 1. Mensaje */
+  .mensaje {
+    position: relative;
+    width: min(100%, 26rem);
+    padding: 1.25rem 1.35rem 1.1rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
+    background: var(--pieza);
+    box-shadow: 0 1px 0 var(--linea), 0 18px 40px -24px rgb(23 26 51 / 0.45);
+  }
+
+  .mensaje__cabecera {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--linea);
+    font-size: 0.85rem;
+    font-weight: 650;
+    color: var(--cianotipo-hondo);
+  }
+
+  .mensaje__texto {
+    min-height: 7.5em;
+    margin-top: 0.85rem;
+    font-size: 1.02rem;
+    line-height: 1.55;
+  }
+
+  .mensaje__cursor {
+    display: none;
+  }
+
+  .recorrido.esta-guiada .mensaje__cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    margin-left: 1px;
+    vertical-align: -0.18em;
+    background: var(--cianotipo);
+    animation: parpadeo 1s steps(1) infinite;
+  }
+
+  @keyframes parpadeo {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .mensaje__adjuntos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+
+  .mensaje__adjunto {
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-1);
+    background: var(--bancada);
+    font-family: var(--fuente-dato);
+    font-size: 0.74rem;
+    color: var(--tinta-media);
+    transition: opacity 0.3s ease, transform 0.4s var(--curva-muelle);
+  }
+
+  .recorrido.esta-guiada .mensaje__adjunto {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+
+  .recorrido.esta-guiada.con-adjuntos .mensaje__adjunto {
+    opacity: 1;
+    transform: none;
+  }
+
+  .recorrido.esta-guiada.con-adjuntos .mensaje__adjunto + .mensaje__adjunto {
+    transition-delay: 0.08s;
+  }
+
+  .mensaje__enviar {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--r-2);
+    background: var(--cianotipo);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--pieza);
+    transition: transform 0.25s var(--curva-muelle), background-color 0.25s ease;
+  }
+
+  .recorrido.esta-guiada.con-envio .mensaje__enviar {
+    transform: scale(0.94);
+    background: var(--cianotipo-hondo);
+  }
+
+  /* 2. Plano */
+  .escena--plano {
+    position: relative;
+  }
+
+  .plano {
+    width: 100%;
+    height: 100%;
+    max-width: 30rem;
+    overflow: visible;
+  }
+
+  .plano__trazo path {
+    fill: none;
+    stroke: var(--cianotipo-hondo);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--p2, 1));
+  }
+
+  .plano__cotas {
+    opacity: clamp(0, calc((var(--p2, 1) - 0.55) * 4), 1);
+  }
+
+  .plano__cotas path {
+    fill: none;
+    stroke: var(--filamento-tinta);
+    stroke-width: 1;
+  }
+
+  .plano__cotas text {
+    font-family: var(--fuente-dato);
+    font-size: 13px;
+    font-weight: 600;
+    fill: var(--filamento-tinta);
+    text-anchor: middle;
+  }
+
+  .plano__sello {
+    position: absolute;
+    right: 8%;
+    bottom: 9%;
+    padding: 0.35rem 0.75rem;
+    border: 2px solid var(--verde);
+    border-radius: var(--r-1);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--verde);
+    transform: rotate(-6deg);
+    transition: opacity 0.2s ease, transform 0.35s var(--curva-muelle);
+  }
+
+  .recorrido.esta-guiada .plano__sello {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.4);
+  }
+
+  .recorrido.esta-guiada.con-sello .plano__sello {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+
+  /* 3. Pieza */
+  .escena--pieza {
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1rem;
+  }
+
+  .rueda {
+    width: 100%;
+    height: 100%;
+    max-width: 24rem;
+    overflow: visible;
+  }
+
+  .rueda__sombra {
+    fill: rgb(23 26 51 / 0.12);
+  }
+
+  .rueda__capa {
+    fill: #2c2f45;
+    stroke: rgb(252 252 249 / 0.2);
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.9s ease;
+  }
+
+  /* La última capa es la cara de arriba: más clara, para que se lean los
+     radios y el agujero del eje. */
+  .rueda__capa:last-of-type,
+  .recorrido.esta-guiada .rueda__capa.es-tapa {
+    fill: #5a5f86;
+    stroke: rgb(252 252 249 / 0.45);
+  }
+
+  .recorrido.esta-guiada .rueda__capa {
+    visibility: hidden;
+  }
+
+  .recorrido.esta-guiada .rueda__capa.esta-puesta {
+    visibility: visible;
+  }
+
+  .recorrido.esta-guiada .rueda__capa.esta-caliente {
+    fill: var(--filamento);
+    transition: none;
+  }
+
+  .rueda__fichas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: opacity 0.35s ease, transform 0.45s var(--curva-salida);
+  }
+
+  .rueda__fichas span {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    background: var(--pieza);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .rueda__fichas span:last-child {
+    border-color: var(--verde);
+    color: var(--verde);
+  }
+
+  .recorrido.esta-guiada .rueda__fichas {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .recorrido.esta-guiada.con-entrega .rueda__fichas {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Guiado por scroll: el bloque se queda fijo mientras avanzan los pasos. */
+  .recorrido.esta-guiada {
+    height: 340svh;
+  }
+
+  .recorrido.esta-guiada .recorrido__fijo {
+    position: sticky;
+    top: var(--cabecera);
+    display: grid;
+    align-items: center;
+    height: calc(100svh - var(--cabecera));
+    padding-block: clamp(1.5rem, 4vh, 3rem);
+  }
+
+  .recorrido.esta-guiada .paso {
+    opacity: 0.38;
+  }
+
+  .recorrido.esta-guiada .paso[aria-current="step"] {
+    opacity: 1;
+  }
+
+  .recorrido.esta-guiada .paso[aria-current="step"] .paso__indice {
+    border-color: var(--cianotipo);
+    background: var(--cianotipo);
+    color: var(--pieza);
+  }
+
+  .recorrido.esta-guiada .recorrido__avance {
+    display: block;
+    position: absolute;
+    left: 1.05rem;
+    bottom: 0;
+    width: 2px;
+    height: 0;
+  }
+
+  @media (min-width: 941px) {
+    .recorrido.esta-guiada .recorrido__avance {
+      top: calc(var(--alto-titulo, 6rem) + 1rem);
+      height: auto;
+      background: var(--linea);
+      z-index: -1;
     }
 
-    .paso {
-      --pad: 2rem;
+    .recorrido.esta-guiada .recorrido__avance span {
       display: block;
-      min-height: 20rem;
-      padding: var(--pad) clamp(1.5rem, 2.4vw, 2.5rem) 2.25rem;
-      border: 0;
+      height: 100%;
+      background: var(--cianotipo);
+      transform-origin: top;
+      transform: scaleY(var(--p, 0));
+    }
+  }
+
+  @media (max-width: 940px) {
+    .recorrido__interior {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .paso + .paso {
-      border-left: 1px solid var(--linea);
+    .escenario {
+      aspect-ratio: 1.35;
     }
 
-    .paso::before {
-      left: 0;
-      top: -1px;
-      bottom: auto;
-      width: 3.5rem;
-      height: 2px;
-      opacity: 1;
+    /* En pantallas estrechas el escenario va arriba y solo se lee el paso
+       activo debajo; los tres ocupan la misma celda. */
+    .recorrido.esta-guiada .recorrido__interior {
+      grid-template-rows: auto auto;
+      align-content: center;
+      gap: 1.25rem;
     }
 
-    .paso:last-child::before {
-      display: block;
+    .recorrido.esta-guiada .recorrido__texto {
+      order: 2;
     }
 
-    .paso__indice {
-      display: block;
-      margin-bottom: clamp(2.75rem, 4vw, 4.25rem);
-      padding: 0;
-      font-size: var(--paso-2);
-      line-height: 1;
+    .recorrido.esta-guiada .recorrido__titulo {
+      display: none;
     }
 
-    .paso__cuerpo {
-      display: block;
+    .recorrido.esta-guiada .recorrido__pasos {
+      display: grid;
+      margin-top: 0;
     }
 
-    .paso__texto {
-      margin-top: 0.8rem;
+    .recorrido.esta-guiada .paso {
+      grid-area: 1 / 1;
+      border-top: 0;
+      padding-block: 0;
+      opacity: 0;
+      visibility: hidden;
     }
 
-    .paso__nota {
-      margin-top: 1.2rem;
+    .recorrido.esta-guiada .paso[aria-current="step"] {
+      visibility: visible;
+    }
+
+    .recorrido.esta-guiada .escenario {
+      aspect-ratio: 1.05;
+      max-height: 52svh;
+      width: 100%;
+      justify-self: center;
     }
   }
 
   @media (max-width: 560px) {
-    .paso {
-      grid-template-columns: 2.4rem minmax(0, 1fr);
-      gap: 0 1rem;
+    .recorrido.esta-guiada .paso__texto {
+      font-size: 0.95rem;
+    }
+
+    .mensaje__texto {
+      min-height: 6.5em;
+      font-size: 0.95rem;
     }
   }
 
@@ -683,356 +1206,587 @@ const materiales = [
 
   .encargos__lista {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     border-top: 2px solid var(--tinta);
-    counter-reset: encargo;
   }
 
-  .encargo {
-    position: relative;
-    min-height: 13.5rem;
-    padding: clamp(1.75rem, 2.8vw, 2.75rem) clamp(1.5rem, 3.2vw, 3.25rem)
-      clamp(1.75rem, 2.8vw, 2.75rem) clamp(3.5rem, 5vw, 5rem);
-    counter-increment: encargo;
-  }
-
-  .encargo::before {
-    content: "0" counter(encargo);
-    position: absolute;
-    top: clamp(1.9rem, 3vw, 2.9rem);
-    left: clamp(0.25rem, 1.2vw, 1rem);
-    color: var(--filamento-tinta);
-    font-family: var(--fuente-dato);
-    font-size: 0.74rem;
-    font-weight: 600;
-  }
-
-  .encargo:nth-child(even) {
+  .encargos__lista li + li {
     border-left: 1px solid var(--linea);
   }
 
-  .encargo:nth-child(n + 3) {
-    border-top: 1px solid var(--linea);
+  .encargo {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.6rem clamp(1rem, 1.8vw, 1.6rem) 1.4rem;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .encargo:hover,
+  .encargo:focus-visible {
+    background: var(--pieza);
+  }
+
+  .encargo__dibujo {
+    width: 4.5rem;
+    height: 4.5rem;
+    margin-bottom: 1.4rem;
+    overflow: visible;
+  }
+
+  .encargo__dibujo path {
+    fill: none;
+    stroke: var(--cianotipo);
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  /* Al pasar por encima, el dibujo se vuelve a trazar como una trayectoria
+     de boquilla. */
+  @media (prefers-reduced-motion: no-preference) {
+    .encargo:hover .encargo__dibujo path,
+    .encargo:focus-visible .encargo__dibujo path {
+      animation: trazar 1.1s var(--curva-salida);
+    }
+  }
+
+  @keyframes trazar {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   .encargo__titulo {
     font-size: var(--paso-1);
-    font-stretch: 108%;
-    font-weight: 700;
-    max-width: 23ch;
+    max-width: 18ch;
   }
 
   .encargo__texto {
-    margin-top: 0.8rem;
-    max-width: 42ch;
-    font-size: 0.96rem;
-    line-height: 1.58;
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
     color: var(--tinta-media);
   }
 
-  .encargo__material {
-    margin-top: 1.1rem;
+  .encargo__pie {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: auto;
+    padding-top: 1.4rem;
+    font-size: 0.86rem;
     color: var(--tinta-suave);
   }
 
-  @media (max-width: 699px) {
+  .encargo__accion {
+    font-weight: 650;
+    color: var(--cianotipo-hondo);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 0.16s ease;
+  }
+
+  .encargo:hover .encargo__accion {
+    text-decoration-color: currentColor;
+  }
+
+  @media (max-width: 1000px) {
+    .encargos__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .encargos__lista li:nth-child(3) {
+      border-left: 0;
+    }
+
+    .encargos__lista li:nth-child(n + 3) {
+      border-top: 1px solid var(--linea);
+    }
+  }
+
+  @media (max-width: 560px) {
     .encargos__lista {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .encargo {
-      min-height: 0;
-      padding: 1.5rem 0 1.6rem 2.75rem;
+    .encargos__lista li + li {
+      border-left: 0;
       border-top: 1px solid var(--linea);
     }
 
-    .encargo:first-child {
-      border-top: 0;
+    .encargo {
+      display: grid;
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+      gap: 0 1rem;
+      padding-inline: 0;
     }
 
-    .encargo:nth-child(even) {
-      border-left: 0;
-    }
-
-    .encargo::before {
-      top: 1.65rem;
-      left: 0;
+    .encargo__dibujo {
+      grid-row: 1 / span 3;
+      width: 3.25rem;
+      height: 3.25rem;
+      margin: 0;
     }
   }
 
   /* --- Materiales ------------------------------------------------------ */
 
   .materiales {
-    background: var(--pieza);
-    border-bottom: 1px solid var(--linea);
+    background: var(--arena);
   }
 
   .materiales__interior {
     display: grid;
-    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
-    gap: clamp(2rem, 1rem + 3vw, 4rem);
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr);
+    grid-template-areas: "cabeza muestra panel";
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: center;
   }
 
-  .materiales .rotulo {
-    margin-bottom: 0;
+  .materiales__cabeza {
+    grid-area: cabeza;
   }
 
   .materiales__apunte {
     margin-top: 1rem;
-    font-size: 0.95rem;
-  }
-
-  .tabla-materiales {
-    width: 100%;
-    text-align: left;
-  }
-
-  .tabla-materiales th,
-  .tabla-materiales td {
-    padding: 0.9rem 1rem 0.9rem 0;
-    border-bottom: 1px solid var(--linea);
-    vertical-align: baseline;
-  }
-
-  .tabla-materiales thead th {
-    padding-top: 0;
-    border-bottom-color: var(--tinta);
-    border-bottom-width: 2px;
-    font-family: var(--fuente-dato);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--tinta-suave);
-  }
-
-  .tabla-materiales tbody th {
-    font-family: var(--fuente-dato);
-    font-size: 0.88rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .tabla-materiales__punto {
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    margin-right: 0.5rem;
-    border-radius: 2px;
-    vertical-align: baseline;
-  }
-
-  .tabla-materiales td {
-    font-size: 0.94rem;
+    font-size: var(--paso-0);
     color: var(--tinta-media);
   }
 
-  .tabla-materiales__uso {
-    color: var(--tinta-suave);
+  .materiales__pestanas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.75rem;
+    padding: 0.3rem;
+    border-radius: var(--r-3);
+    background: rgb(23 26 51 / 0.08);
+    width: fit-content;
   }
 
-  @media (max-width: 880px) {
+  .materiales__pestana {
+    padding: 0.55rem 1rem;
+    border: 0;
+    border-radius: var(--r-2);
+    background: none;
+    font-weight: 650;
+    font-stretch: 108%;
+    color: var(--tinta-media);
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  .materiales__pestana:hover {
+    color: var(--tinta);
+    background: rgb(252 252 249 / 0.5);
+  }
+
+  .materiales__pestana[aria-selected="true"] {
+    background: var(--tinta);
+    color: var(--pieza);
+  }
+
+  .muestra {
+    grid-area: muestra;
+    --color: var(--mat-pla);
+    --lineas: 0.32;
+    --brillo: 0;
+  }
+
+  .muestra[data-muestra="petg"] {
+    --color: var(--mat-petg);
+    --lineas: 0.22;
+    --brillo: 0.85;
+  }
+
+  .muestra[data-muestra="resina"] {
+    --color: var(--mat-resina);
+    --lineas: 0;
+    --brillo: 0.5;
+  }
+
+  .muestra[data-muestra="tpu"] {
+    --color: var(--mat-tpu);
+    --lineas: 0.26;
+    --brillo: 0.15;
+  }
+
+  .muestra__pieza {
+    width: 100%;
+    max-width: 18rem;
+    margin-inline: auto;
+    overflow: visible;
+  }
+
+  .muestra__cubo {
+    transform-origin: 0 60px;
+    transform-box: view-box;
+  }
+
+  .muestra__cara {
+    transition: fill 0.5s ease;
+  }
+
+  .muestra__cara--arriba {
+    fill: color-mix(in srgb, var(--color) 62%, white);
+  }
+
+  .muestra__cara--izq {
+    fill: var(--color);
+  }
+
+  .muestra__cara--der {
+    fill: color-mix(in srgb, var(--color) 70%, black);
+  }
+
+  .muestra__capas path {
+    fill: none;
+    stroke: rgb(23 26 51 / var(--lineas));
+    stroke-width: 1;
+    transition: stroke 0.5s ease;
+  }
+
+  .muestra__brillo {
+    fill: none;
+    stroke: white;
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: var(--brillo);
+    transition: opacity 0.5s ease;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .muestra.esta-cambiando .muestra__cubo {
+      animation: asentar 0.55s var(--curva-muelle);
+    }
+
+    .muestra.esta-cambiando[data-muestra="tpu"] .muestra__cubo {
+      animation: aplastar 0.9s var(--curva-muelle);
+    }
+  }
+
+  @keyframes asentar {
+    from {
+      transform: translateY(-14px) scale(0.96);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes aplastar {
+    0% {
+      transform: none;
+    }
+    35% {
+      transform: scale(1.14, 0.78);
+    }
+    70% {
+      transform: scale(0.95, 1.06);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  .materiales__paneles {
+    grid-area: panel;
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .materiales.esta-activa .materiales__paneles {
+    gap: 0;
+  }
+
+  .material__nombre {
+    font-size: var(--paso-3);
+    font-stretch: 125%;
+  }
+
+  .material__que {
+    margin-top: 0.5rem;
+    font-size: var(--paso-1);
+    line-height: 1.45;
+  }
+
+  .material__para {
+    margin-top: 0.6rem;
+    color: var(--tinta-media);
+  }
+
+  .material__para span {
+    font-weight: 650;
+    color: var(--tinta);
+  }
+
+  .material__valores {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 1.4rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgb(23 26 51 / 0.2);
+  }
+
+  .valor {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .valor dt {
+    font-size: 0.93rem;
+  }
+
+  .valor dd {
+    margin: 0;
+  }
+
+  /* Cada punto del valor es una capa: se apilan de izquierda a derecha. */
+  .valor__capas {
+    display: flex;
+    gap: 3px;
+  }
+
+  .valor__capa {
+    width: 1.6rem;
+    height: 0.55rem;
+    border-radius: 2px;
+    background: rgb(23 26 51 / 0.14);
+  }
+
+  .valor__capa.esta-llena {
+    background: var(--tinta);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .material.esta-entrando .valor__capa.esta-llena {
+      animation: depositar-valor 0.4s var(--curva-salida) both;
+      animation-delay: calc(var(--n) * 55ms);
+    }
+  }
+
+  @keyframes depositar-valor {
+    from {
+      transform: scaleX(0);
+      transform-origin: left;
+      background: var(--filamento);
+    }
+    to {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  @media (max-width: 1000px) {
     .materiales__interior {
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        "cabeza cabeza"
+        "muestra panel";
     }
   }
 
   @media (max-width: 620px) {
-    .tabla-materiales thead {
-      display: none;
+    .materiales__interior {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        "cabeza"
+        "muestra"
+        "panel";
     }
 
-    .tabla-materiales tr {
-      display: block;
-      padding-block: 1rem;
-      border-bottom: 1px solid var(--linea);
-    }
-
-    .tabla-materiales th,
-    .tabla-materiales td {
-      display: block;
-      padding: 0;
-      border: 0;
-    }
-
-    .tabla-materiales td {
-      margin-top: 0.3rem;
+    .muestra__pieza {
+      max-width: 12rem;
     }
   }
 
   /* --- Quién imprime --------------------------------------------------- */
 
-  /* La red inicial es breve: cada maker ocupa una ficha editorial completa
-     para que un único taller parezca una elección consciente, no un hueco. */
   .quienes__lista {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    border-top: 2px solid var(--tinta);
-    border-bottom: 1px solid var(--linea);
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 1rem;
   }
 
-  .taller-maker {
+  .ficha {
     display: grid;
-    grid-template-columns: 116px minmax(0, 1fr);
-    gap: clamp(1.5rem, 3vw, 3rem);
-    align-items: start;
-    padding-block: clamp(1.75rem, 3vw, 2.75rem);
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-3);
+    background: var(--pieza);
   }
 
-  .taller-maker__foto {
-    width: 116px;
-    height: 116px;
-    border: 1px solid var(--linea);
+  .ficha__foto {
+    width: 120px;
+    height: 120px;
     border-radius: var(--r-2);
-    background: var(--pieza);
+    background: var(--bancada);
     object-fit: cover;
   }
 
-  .taller-maker > div {
-    display: grid;
-    grid-template-columns: minmax(12rem, 0.72fr) minmax(18rem, 1.28fr);
-    gap: 0.2rem clamp(2rem, 4vw, 5rem);
-    align-items: start;
-  }
-
-  .taller-maker__nombre {
-    grid-column: 1;
-    grid-row: 1;
+  .ficha__nombre {
     font-size: var(--paso-2);
   }
 
-  .taller-maker__nombre a {
+  .ficha__nombre a {
     color: inherit;
     text-decoration: none;
   }
 
-  .taller-maker__nombre a:hover {
+  .ficha__nombre a:hover {
     text-decoration: underline;
-    text-decoration-color: var(--filamento);
+    text-decoration-color: var(--cianotipo);
     text-decoration-thickness: 2px;
   }
 
-  .taller-maker__sitio {
-    grid-column: 1;
-    grid-row: 2;
+  .ficha__sitio {
     margin-top: 0.2rem;
+    font-size: 0.93rem;
     color: var(--tinta-suave);
   }
 
-  .taller-maker__bio {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    max-width: 48ch;
-    margin-top: 0;
+  .ficha__bio {
+    margin-top: 0.85rem;
+    max-width: 52ch;
     font-size: 0.98rem;
     line-height: 1.58;
     color: var(--tinta-media);
   }
 
-  .taller-maker__chips {
-    grid-column: 2;
-    grid-row: 3;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 1rem;
+  .ficha__datos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1.5rem;
+    margin-top: 1.3rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--linea);
   }
 
-  .taller-maker__equipo {
-    grid-column: 1;
-    grid-row: 3;
-    margin-top: 1rem;
+  .ficha__datos dt {
+    font-size: 0.8rem;
     color: var(--tinta-suave);
   }
 
-  .quienes__enlace {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 2.25rem;
+  .ficha__datos dd {
+    margin: 0.15rem 0 0;
     font-weight: 600;
-    text-decoration-color: var(--linea-fuerte);
   }
 
-  .quienes__enlace:hover .boton__flecha {
-    transform: translateX(3px);
+  .ficha__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
   }
 
-  @media (max-width: 780px) {
-    .taller-maker > div {
-      display: block;
-    }
-
-    .taller-maker__bio {
-      margin-top: 0.75rem;
-    }
-
-    .taller-maker__equipo {
-      margin-top: 0.6rem;
-    }
+  .ficha__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
   }
 
-  @media (max-width: 480px) {
-    .taller-maker {
+  .ficha--hueco {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    border-style: dashed;
+    border-color: var(--linea-fuerte);
+    background: transparent;
+  }
+
+  /* La placa vacía: una bancada esperando su primera pieza. */
+  .ficha__hueco-placa {
+    width: 120px;
+    height: 120px;
+    border: 1px dashed var(--linea-fuerte);
+    border-radius: var(--r-2);
+    background-image: linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size: 15px 15px;
+  }
+
+  .ficha__enlace {
+    display: inline-block;
+    margin-top: 1.1rem;
+    font-weight: 650;
+  }
+
+  @media (max-width: 880px) {
+    .quienes__lista {
       grid-template-columns: minmax(0, 1fr);
-      gap: 0.9rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .ficha {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .taller-maker__foto {
-      width: 96px;
-      height: 96px;
+    .ficha__foto,
+    .ficha__hueco-placa {
+      width: 88px;
+      height: 88px;
     }
   }
 
   /* --- Llamada a makers ------------------------------------------------ */
 
   .llamada-maker {
-    padding-block: clamp(3rem, 1.8rem + 4.5vw, 5rem);
+    padding-block: clamp(3.5rem, 2rem + 5vw, 6rem);
   }
 
   .llamada-maker__interior {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 2rem 3rem;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 2rem clamp(2rem, 5vw, 5rem);
   }
 
   .llamada-maker__titulo {
     margin-top: 0.75rem;
-    max-width: 17ch;
+    max-width: 15ch;
+    font-size: var(--paso-4);
+    font-stretch: 125%;
+    line-height: 0.98;
   }
 
   .llamada-maker__texto {
-    margin-top: 1rem;
-    max-width: 46ch;
-    color: rgba(252, 251, 247, 0.78);
+    margin-top: 1.2rem;
+    max-width: 44ch;
+    color: rgb(252 252 249 / 0.82);
   }
 
   .llamada-maker__puntos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1.4rem;
-    margin-top: 1.6rem;
-    color: rgba(252, 251, 247, 0.66);
+    display: grid;
+    border-top: 1px solid var(--linea-clara);
+    color: rgb(252 252 249 / 0.78);
   }
 
   .llamada-maker__puntos li {
-    position: relative;
-    padding-left: 0.95rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--linea-clara);
   }
 
-  .llamada-maker__puntos li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.62em;
-    width: 5px;
-    height: 5px;
-    border-radius: 1px;
-    background: var(--filamento);
+  .llamada-maker__puntos strong {
+    color: var(--pieza);
+    font-weight: 650;
+  }
+
+  .llamada-maker__accion {
+    grid-column: 2;
+    justify-self: start;
   }
 
   @media (max-width: 780px) {
@@ -1041,7 +1795,134 @@ const materiales = [
     }
 
     .llamada-maker__accion {
-      justify-self: start;
+      grid-column: 1;
     }
   }
 </style>
+
+<script>
+  // --- Recorrido: el scroll mueve los tres pasos -------------------------
+  const recorrido = document.querySelector("[data-recorrido]");
+
+  if (recorrido) {
+    const pasos = [...recorrido.querySelectorAll("[data-paso-indice]")];
+    const tecleo = recorrido.querySelector("[data-tecleo]");
+    const frase = tecleo?.dataset.frase ?? "";
+    const capas = [...recorrido.querySelectorAll("[data-rueda-capa]")];
+    const titulo = recorrido.querySelector(".recorrido__titulo");
+    const acotar = (valor) => Math.min(1, Math.max(0, valor));
+    let pendiente = false;
+    let capasPuestas = -1;
+
+    recorrido.classList.add("esta-guiada");
+
+    const medirTitulo = () => {
+      if (titulo) recorrido.style.setProperty("--alto-titulo", `${titulo.offsetHeight}px`);
+    };
+
+    const actualizar = () => {
+      pendiente = false;
+      const caja = recorrido.getBoundingClientRect();
+      const fijo = recorrido.querySelector(".recorrido__fijo");
+      const distancia = caja.height - (fijo?.offsetHeight ?? window.innerHeight);
+      const p = acotar(-caja.top / Math.max(distancia, 1));
+      const paso = Math.min(2, Math.floor(p * 3));
+      // Cada escena se completa un poco antes de ceder el sitio a la siguiente.
+      const local = [0, 1, 2].map((i) => acotar((p * 3 - i) * 1.3));
+
+      recorrido.style.setProperty("--p", p.toFixed(4));
+      recorrido.style.setProperty("--p2", local[1].toFixed(4));
+      recorrido.dataset.paso = String(paso);
+      pasos.forEach((li, i) => {
+        if (i === paso) li.setAttribute("aria-current", "step");
+        else li.removeAttribute("aria-current");
+      });
+
+      if (tecleo) tecleo.textContent = frase.slice(0, Math.round(frase.length * acotar(local[0] * 1.2)));
+      recorrido.classList.toggle("con-adjuntos", local[0] > 0.86);
+      recorrido.classList.toggle("con-envio", local[0] >= 1);
+      recorrido.classList.toggle("con-sello", local[1] >= 0.95);
+      recorrido.classList.toggle("con-entrega", local[2] >= 1);
+
+      const puestas = Math.round(capas.length * local[2]);
+      if (puestas !== capasPuestas) {
+        capas.forEach((capa, i) => {
+          capa.classList.toggle("esta-puesta", i < puestas);
+          capa.classList.toggle("esta-caliente", i === puestas - 1 && puestas < capas.length);
+          capa.classList.toggle("es-tapa", i === puestas - 1);
+        });
+        capasPuestas = puestas;
+      }
+    };
+
+    const pedir = () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(actualizar);
+    };
+
+    medirTitulo();
+    actualizar();
+    window.addEventListener("scroll", pedir, { passive: true });
+    window.addEventListener("resize", () => {
+      medirTitulo();
+      pedir();
+    });
+  }
+
+  // --- Materiales: pestañas accesibles ------------------------------------
+  const seccion = document.querySelector("[data-materiales]");
+
+  if (seccion) {
+    const lista = seccion.querySelector("[role='tablist']");
+    const pestanas = [...seccion.querySelectorAll("[role='tab']")];
+    const paneles = [...seccion.querySelectorAll("[role='tabpanel']")];
+    const muestra = seccion.querySelector("[data-muestra]");
+
+    const elegir = (pestana, enfocar = false) => {
+      const id = pestana.dataset.material;
+      pestanas.forEach((otra) => {
+        const activa = otra === pestana;
+        otra.setAttribute("aria-selected", String(activa));
+        otra.tabIndex = activa ? 0 : -1;
+      });
+      paneles.forEach((panel) => {
+        const activo = panel.dataset.panel === id;
+        panel.hidden = !activo;
+        panel.classList.remove("esta-entrando");
+        if (activo) {
+          void panel.offsetWidth;
+          panel.classList.add("esta-entrando");
+        }
+      });
+      if (muestra) {
+        muestra.dataset.muestra = id;
+        muestra.classList.remove("esta-cambiando");
+        void muestra.getBoundingClientRect();
+        muestra.classList.add("esta-cambiando");
+      }
+      if (enfocar) pestana.focus();
+    };
+
+    if (lista) lista.hidden = false;
+    seccion.classList.add("esta-activa");
+    paneles.forEach((panel, i) => (panel.hidden = i !== 0));
+
+    pestanas.forEach((pestana, i) => {
+      pestana.addEventListener("click", () => elegir(pestana));
+      pestana.addEventListener("keydown", (evento) => {
+        const mover = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[evento.key];
+        if (mover) {
+          evento.preventDefault();
+          elegir(pestanas[(i + mover + pestanas.length) % pestanas.length], true);
+        } else if (evento.key === "Home") {
+          evento.preventDefault();
+          elegir(pestanas[0], true);
+        } else if (evento.key === "End") {
+          evento.preventDefault();
+          elegir(pestanas[pestanas.length - 1], true);
+        }
+      });
+    });
+  }
+</script>

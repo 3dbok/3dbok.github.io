@@ -223,7 +223,7 @@
 .directorio__aviso-texto {
   max-width: 54ch;
   margin-top: 0.9rem;
-  color: rgba(252, 251, 247, 0.78);
+  color: rgba(252, 252, 249, 0.78);
 }
 
 /* --- Cabecera del perfil --------------------------------------------- */
@@ -358,7 +358,7 @@
 .ficha__encargo-texto {
   max-width: 56ch;
   margin-top: 0.55rem;
-  color: rgba(252, 251, 247, 0.78);
+  color: rgba(252, 252, 249, 0.78);
   font-size: 0.96rem;
 }
 
@@ -537,7 +537,7 @@
   padding: 0.3rem 0.5rem;
   border: 1px solid var(--linea-clara);
   border-radius: var(--r-1);
-  background: rgba(21, 24, 27, 0.82);
+  background: rgba(23, 26, 51, 0.82);
   color: var(--pieza);
 }
 

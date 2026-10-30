@@ -3,14 +3,18 @@
  * La firma de la casa: un boquerón que se imprime de verdad al cargar la
  * portada. Va tumbado sobre la bancada, que es como se imprimiría en un taller
  * real: cara plana abajo y sin un solo soporte. Cada capa es la silueta del
- * pez, un poco más estrecha que la de debajo, y sube desde el naranja del
- * material recién extruido hasta el marfil del PLA natural.
+ * pez, un poco más estrecha que la de debajo.
+ *
+ * Sin JavaScript se ve la pieza terminada. Con JavaScript, la boquilla la
+ * deposita capa a capa, la lectura de la máquina sube con ella y la bancada
+ * se puede girar con el puntero para verla desde otro ángulo.
  *
  * El boquerón no es un adorno: es el bicho de Málaga, de donde sale 3dbok.
  */
 
 const CAPAS = 26;
 const ALTURA_CAPA = 3.2; // separación en pantalla entre capa y capa
+const MM_POR_CAPA = 0.2; // lo que mide de verdad una capa con boquilla de 0.4
 const ESTRECHAMIENTO = 0.2; // cuánto se cierra la última capa respecto a la primera
 const GIRO = -24; // grados de giro sobre la bancada
 const APLASTADO = 0.5; // coseno del ángulo de cámara: la vista isométrica
@@ -55,12 +59,36 @@ const capas = Array.from({ length: CAPAS }, (_, i) => {
 });
 
 const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
+const alturaTotal = (CAPAS * MM_POR_CAPA).toFixed(1);
 ---
 
-<figure class="taller">
+<figure
+  class="taller"
+  data-taller
+  data-capas={CAPAS}
+  data-altura-capa={ALTURA_CAPA}
+  data-mm-capa={MM_POR_CAPA}
+  data-giro={GIRO}
+  data-aplastado={APLASTADO}
+>
+  <dl class="taller__lectura" aria-hidden="true">
+    <div>
+      <dt>Capa</dt>
+      <dd><span data-lectura-capa>{CAPAS}</span>/{CAPAS}</dd>
+    </div>
+    <div>
+      <dt>Altura</dt>
+      <dd><span data-lectura-z>{alturaTotal}</span> mm</dd>
+    </div>
+    <div>
+      <dt>Boquilla</dt>
+      <dd><span data-lectura-temp>210</span> °C</dd>
+    </div>
+  </dl>
+
   <svg
     class="taller__vista"
-    viewBox="-228 -134 456 236"
+    viewBox="-228 -206 456 308"
     role="img"
     aria-label="Un boquerón imprimiéndose capa a capa sobre la bancada de una impresora 3D."
   >
@@ -68,61 +96,68 @@ const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
       <path id="boqueron" d={BOQUERON}></path>
 
       <linearGradient id="pla" x1="0" y1="0" x2="0.4" y2="1">
-        <stop offset="0%" stop-color="#b3a687"></stop>
-        <stop offset="26%" stop-color="#ded3b9"></stop>
-        <stop offset="52%" stop-color="#f8f3e7"></stop>
-        <stop offset="76%" stop-color="#e3d9c2"></stop>
-        <stop offset="100%" stop-color="#a2967a"></stop>
+        <stop offset="0%" stop-color="#b3ab7c"></stop>
+        <stop offset="26%" stop-color="#dcd5a6"></stop>
+        <stop offset="52%" stop-color="#f8f5e4"></stop>
+        <stop offset="76%" stop-color="#e2dcb2"></stop>
+        <stop offset="100%" stop-color="#a49c6c"></stop>
       </linearGradient>
 
       <radialGradient id="apoyo">
-        <stop offset="0%" stop-color="rgb(21 24 27 / 0.34)"></stop>
-        <stop offset="55%" stop-color="rgb(21 24 27 / 0.13)"></stop>
-        <stop offset="100%" stop-color="rgb(21 24 27 / 0)"></stop>
+        <stop offset="0%" stop-color="rgb(23 26 51 / 0.42)"></stop>
+        <stop offset="55%" stop-color="rgb(23 26 51 / 0.16)"></stop>
+        <stop offset="100%" stop-color="rgb(23 26 51 / 0)"></stop>
+      </radialGradient>
+
+      <radialGradient id="brasa">
+        <stop offset="0%" stop-color="#ffb08f"></stop>
+        <stop offset="45%" stop-color="rgb(229 89 47 / 0.55)"></stop>
+        <stop offset="100%" stop-color="rgb(229 89 47 / 0)"></stop>
       </radialGradient>
 
       <pattern id="reticula" width="22" height="22" patternUnits="userSpaceOnUse">
-        <path
-          d="M22 0V22M0 22H22"
-          fill="none"
-          stroke="rgb(21 24 27 / 0.1)"
-          stroke-width="1"></path>
+        <path d="M22 0V22M0 22H22" class="taller__reticula"></path>
       </pattern>
     </defs>
 
-    <g transform={proyeccion}>
-      <rect
-        class="taller__bancada"
-        x="-190"
-        y="-110"
-        width="380"
-        height="220"
-        rx="4"></rect>
-      <rect
-        x="-190"
-        y="-110"
-        width="380"
-        height="220"
-        rx="4"
-        fill="url(#reticula)"></rect>
+    <g data-bancada transform={proyeccion}>
+      <rect class="taller__bancada" x="-190" y="-110" width="380" height="220" rx="4"></rect>
+      <rect x="-190" y="-110" width="380" height="220" rx="4" fill="url(#reticula)"></rect>
       <ellipse rx="162" ry="56" fill="url(#apoyo)"></ellipse>
     </g>
 
     {
       capas.map((capa) => (
-        <g transform={`translate(0 ${-capa.z}) ${proyeccion} scale(${capa.escala})`}>
-          <use class="capa" href="#boqueron" style={`--i:${capa.i}`} />
-          <use class="capa__calor" href="#boqueron" style={`--i:${capa.i}`} />
-          {capa.i === CAPAS - 1 && (
-            <ellipse class="capa__ojo" cx="-116" cy="-5" rx="8" ry="8" style={`--i:${capa.i}`} />
-          )}
+        <g
+          class="capa-grupo"
+          data-capa={capa.i}
+          data-z={capa.z}
+          data-escala={capa.escala}
+          transform={`translate(0 ${-capa.z}) ${proyeccion} scale(${capa.escala})`}
+        >
+          <use class="capa" href="#boqueron" />
+          <use class="capa__calor" href="#boqueron" />
+          {capa.i === CAPAS - 1 && <ellipse class="capa__ojo" cx="-116" cy="-5" rx="8" ry="8" />}
         </g>
       ))
     }
+
+    <!-- Fusor: bloque calefactor, boquilla de latón y el tubo que lo alimenta. -->
+    <g class="boquilla" data-boquilla>
+      <path class="boquilla__tubo" d="M 0 -58 C 0 -110 40 -130 90 -150 S 160 -190 170 -260"></path>
+      <rect class="boquilla__disipador" x="-13" y="-58" width="26" height="22" rx="2"></rect>
+      <path class="boquilla__aletas" d="M -13 -52 H 13 M -13 -46 H 13 M -13 -40 H 13"></path>
+      <rect class="boquilla__bloque" x="-15" y="-36" width="30" height="18" rx="2"></rect>
+      <path class="boquilla__punta" d="M -7 -18 H 7 L 2.5 -6 H -2.5 Z"></path>
+      <circle class="boquilla__brasa" cy="-4" r="11" fill="url(#brasa)"></circle>
+    </g>
   </svg>
 
-  <figcaption class="taller__pie dato">
-    Boquerón · PLA natural · {CAPAS} capas
+  <figcaption class="taller__pie">
+    <span>Boquerón en PLA natural, {CAPAS} capas de {MM_POR_CAPA} mm.</span>
+    <button class="taller__repetir" type="button" data-reimprimir hidden>
+      Volver a imprimir
+    </button>
   </figcaption>
 </figure>
 
@@ -135,62 +170,141 @@ const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
     width: 100%;
     height: auto;
     overflow: visible;
+    touch-action: pan-y;
   }
 
   .taller__bancada {
-    fill: var(--bancada-honda);
-    stroke: var(--linea-fuerte);
+    fill: var(--cianotipo-hondo);
+    stroke: var(--cianotipo-claro);
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
   }
 
+  .taller__reticula {
+    fill: none;
+    stroke: rgb(252 252 249 / 0.13);
+    stroke-width: 1;
+  }
+
   .capa {
     fill: url(#pla);
-    stroke: rgb(21 24 27 / 0.16);
+    stroke: rgb(23 26 51 / 0.2);
     stroke-width: 0.9;
     vector-effect: non-scaling-stroke;
-    animation: depositar 320ms ease-out both;
-    animation-delay: calc(var(--i) * 34ms);
   }
 
   /* El material sale caliente por la boquilla y se enfría al subir la pieza. */
   .capa__calor {
     fill: var(--filamento);
-    animation: enfriar 950ms ease-out both;
-    animation-delay: calc(var(--i) * 34ms);
+    opacity: 0;
   }
 
   .capa__ojo {
-    fill: rgb(21 24 27 / 0.55);
-    animation: depositar 320ms ease-out both;
-    animation-delay: calc((var(--i) + 1) * 34ms);
+    fill: rgb(23 26 51 / 0.6);
   }
 
-  @keyframes depositar {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  /* Sin JavaScript la boquilla no tiene a dónde ir: se queda fuera. */
+  .boquilla {
+    display: none;
   }
 
-  @keyframes enfriar {
-    0% {
-      opacity: 1;
-    }
-    18% {
-      opacity: 0.88;
-    }
-    100% {
-      opacity: 0;
-    }
+  .taller.esta-viva .boquilla {
+    display: inline;
+  }
+
+  .boquilla__tubo {
+    fill: none;
+    stroke: rgb(252 252 249 / 0.5);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .boquilla__disipador {
+    fill: #c9cbd6;
+  }
+
+  .boquilla__aletas {
+    stroke: #8d90a6;
+    stroke-width: 1.4;
+  }
+
+  .boquilla__bloque {
+    fill: var(--tinta);
+  }
+
+  .boquilla__punta {
+    fill: #c9a24a;
+  }
+
+  .boquilla__brasa {
+    mix-blend-mode: screen;
+    transition: opacity 0.4s ease;
+  }
+
+  .taller.esta-parada .boquilla__brasa {
+    opacity: 0;
+  }
+
+  /* --- Lectura de máquina -------------------------------------------- */
+
+  .taller__lectura {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .taller__lectura div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.32rem 0.65rem;
+    border: 1px solid var(--linea-clara);
+    border-radius: var(--r-1);
+    background: rgb(23 26 51 / 0.16);
+  }
+
+  .taller__lectura dt {
+    font-size: 0.78rem;
+    color: rgb(252 252 249 / 0.7);
+  }
+
+  .taller__lectura dd {
+    margin: 0;
+    min-width: 4.6ch;
+    font-family: var(--fuente-dato);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--pieza);
   }
 
   .taller__pie {
-    margin-top: 0.75rem;
-    color: var(--tinta-suave);
-    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-top: 0.6rem;
+    font-size: 0.86rem;
+    color: rgb(252 252 249 / 0.74);
+  }
+
+  .taller__repetir {
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--linea-clara);
+    border-radius: var(--r-1);
+    background: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--pieza);
+    cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+  }
+
+  .taller__repetir:hover {
+    border-color: var(--arena);
+    background: rgb(252 252 249 / 0.08);
   }
 
   @media (max-width: 940px) {
@@ -200,3 +314,168 @@ const proyeccion = `scale(1 ${APLASTADO}) rotate(${GIRO})`;
     }
   }
 </style>
+
+<script>
+  const RADIANES = Math.PI / 180;
+  const DURACION_CAPA = 115; // ms por capa: la impresión entera dura unos 3 s
+  const reducir = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const punteroFino = window.matchMedia("(pointer: fine)");
+
+  for (const taller of document.querySelectorAll("[data-taller]")) {
+    const total = Number(taller.dataset.capas);
+    const alturaCapa = Number(taller.dataset.alturaCapa);
+    const mmCapa = Number(taller.dataset.mmCapa);
+    const giroBase = Number(taller.dataset.giro);
+    const aplastadoBase = Number(taller.dataset.aplastado);
+
+    const bancada = taller.querySelector("[data-bancada]");
+    const boquilla = taller.querySelector("[data-boquilla]");
+    const grupos = [...taller.querySelectorAll(".capa-grupo")];
+    const lecturaCapa = taller.querySelector("[data-lectura-capa]");
+    const lecturaZ = taller.querySelector("[data-lectura-z]");
+    const lecturaTemp = taller.querySelector("[data-lectura-temp]");
+    const repetir = taller.querySelector("[data-reimprimir]");
+
+    const vista = { giro: giroBase, aplastado: aplastadoBase };
+    const objetivo = { giro: giroBase, aplastado: aplastadoBase };
+    const punta = { x: 0, y: 0 };
+    let capasVisibles = total;
+    let fotograma = 0;
+    let inicio = 0;
+
+    const proyectar = () => {
+      const proyeccion = `scale(1 ${vista.aplastado.toFixed(3)}) rotate(${vista.giro.toFixed(2)})`;
+      bancada?.setAttribute("transform", proyeccion);
+      grupos.forEach((grupo) => {
+        grupo.setAttribute(
+          "transform",
+          `translate(0 ${-Number(grupo.dataset.z)}) ${proyeccion} scale(${grupo.dataset.escala})`,
+        );
+      });
+    };
+
+    const moverBoquilla = (x, y) => {
+      punta.x = x;
+      punta.y = y;
+      boquilla?.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+    };
+
+    // La boquilla recorre el eje largo del pez, de la cola al morro y vuelta,
+    // siempre apoyada sobre la última capa depositada.
+    const seguirCapa = (capa, fase) => {
+      const grupo = grupos[Math.min(capa, total - 1)];
+      const recorrido = Math.sin(fase) * 128 * Number(grupo.dataset.escala);
+      const angulo = vista.giro * RADIANES;
+      moverBoquilla(
+        Math.cos(angulo) * recorrido,
+        Math.sin(angulo) * recorrido * vista.aplastado - Number(grupo.dataset.z) - alturaCapa,
+      );
+    };
+
+    const leer = (capa, temperatura) => {
+      if (lecturaCapa) lecturaCapa.textContent = String(capa);
+      if (lecturaZ) lecturaZ.textContent = (capa * mmCapa).toFixed(1);
+      if (lecturaTemp) lecturaTemp.textContent = String(Math.round(temperatura));
+    };
+
+    const depositar = (grupo) => {
+      grupo.style.opacity = "1";
+      grupo
+        .querySelector(".capa__calor")
+        ?.animate([{ opacity: 0.95 }, { opacity: 0.6, offset: 0.2 }, { opacity: 0 }], {
+          duration: 1300,
+          easing: "ease-out",
+          fill: "forwards",
+        });
+    };
+
+    // Terminada la pieza, la boquilla se aparta hacia arriba y se enfría.
+    const aparcar = () => {
+      const destino = { x: 150, y: -total * alturaCapa - 60 };
+      let temperatura = 210;
+      const paso = () => {
+        moverBoquilla(punta.x + (destino.x - punta.x) * 0.08, punta.y + (destino.y - punta.y) * 0.08);
+        temperatura -= 2.5;
+        leer(total, Math.max(temperatura, 45));
+        if (temperatura > 45) fotograma = requestAnimationFrame(paso);
+      };
+      fotograma = requestAnimationFrame(paso);
+    };
+
+    const imprimir = (ahora) => {
+      if (!inicio) inicio = ahora;
+      const transcurrido = ahora - inicio;
+      const capa = Math.min(total, Math.floor(transcurrido / DURACION_CAPA) + 1);
+
+      while (capasVisibles < capa) {
+        depositar(grupos[capasVisibles]);
+        capasVisibles += 1;
+      }
+
+      seguirCapa(capasVisibles - 1, transcurrido / 52);
+      leer(capasVisibles, 210);
+
+      if (capasVisibles < total) {
+        fotograma = requestAnimationFrame(imprimir);
+        return;
+      }
+
+      taller.classList.add("esta-parada");
+      if (repetir) repetir.hidden = false;
+      aparcar();
+    };
+
+    const empezar = () => {
+      cancelAnimationFrame(fotograma);
+      grupos.forEach((grupo) => {
+        grupo.style.opacity = "0";
+        grupo.querySelector(".capa__calor")?.getAnimations().forEach((a) => a.cancel());
+      });
+      taller.classList.remove("esta-parada");
+      capasVisibles = 0;
+      inicio = 0;
+      fotograma = requestAnimationFrame(imprimir);
+    };
+
+    if (!reducir.matches) {
+      taller.classList.add("esta-viva");
+      empezar();
+      repetir?.addEventListener("click", () => {
+        repetir.hidden = true;
+        empezar();
+      });
+    }
+
+    // Girar la bancada con el puntero: solo con ratón y sin movimiento
+    // reducido. La vista persigue al puntero con un poco de inercia.
+    if (punteroFino.matches && !reducir.matches) {
+      const zona = taller.closest("[data-zona-giro]") ?? taller;
+      let siguiendo = 0;
+
+      const seguir = () => {
+        vista.giro += (objetivo.giro - vista.giro) * 0.09;
+        vista.aplastado += (objetivo.aplastado - vista.aplastado) * 0.09;
+        proyectar();
+        const quieto =
+          Math.abs(objetivo.giro - vista.giro) < 0.05 &&
+          Math.abs(objetivo.aplastado - vista.aplastado) < 0.001;
+        siguiendo = quieto ? 0 : requestAnimationFrame(seguir);
+      };
+
+      zona.addEventListener("pointermove", (evento) => {
+        const caja = taller.getBoundingClientRect();
+        const dx = (evento.clientX - (caja.left + caja.width / 2)) / caja.width;
+        const dy = (evento.clientY - (caja.top + caja.height / 2)) / caja.height;
+        objetivo.giro = giroBase + Math.max(-1, Math.min(1, dx)) * 26;
+        objetivo.aplastado = aplastadoBase - Math.max(-1, Math.min(1, dy)) * 0.12;
+        if (!siguiendo) siguiendo = requestAnimationFrame(seguir);
+      });
+
+      zona.addEventListener("pointerleave", () => {
+        objetivo.giro = giroBase;
+        objetivo.aplastado = aplastadoBase;
+        if (!siguiendo) siguiendo = requestAnimationFrame(seguir);
+      });
+    }
+  }
+</script>

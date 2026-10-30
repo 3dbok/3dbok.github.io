@@ -1,15 +1,16 @@
 /* =====================================================================
    3dbok — hoja base
    ---------------------------------------------------------------------
-   La paleta y la tipografía salen del taller: la bancada de la impresora,
-   el filamento natural, el azul de un plano técnico y el naranja del
-   material recién extruido. Nada de degradados ni de sombras difusas:
-   lo que separa superficies aquí es una línea de 1px, como en un plano.
+   La paleta sale de la marca: el azul #4959B8 hace de plano técnico y
+   de acción, y la arena #DBD4A0 es el PLA natural recién salido de la
+   bobina. La tinta es un índigo muy hondo, primo del azul, para que el
+   texto y la marca hablen el mismo idioma. El naranja solo aparece donde
+   hay calor de verdad: la boquilla y la capa que se está depositando.
 
-   Roles tipográficos, tres y solo tres:
-     Archivo expandida ....... titulares
-     Archivo normal .......... prosa
-     IBM Plex Mono ........... datos, etiquetas y medidas
+   Roles tipográficos:
+     Archivo ancha ........... titulares (el eje de anchura es la voz)
+     Archivo normal .......... prosa y etiquetas
+     IBM Plex Mono ........... solo medidas y lecturas de máquina
    ===================================================================== */
 
 /* --- Tipografías, servidas desde el propio dominio ---------------------
@@ -56,35 +57,44 @@
   color-scheme: light;
 
   /* --- Color --------------------------------------------------------- */
-  --tinta: #15181b;
-  --tinta-media: #3a3e44;
-  --tinta-suave: #56595e;
+  --tinta: #171a33; /* índigo casi negro: texto y fondos oscuros */
+  --tinta-media: #3a3e5c;
+  --tinta-suave: #575b76;
 
-  --bancada: #e9e7e0; /* fondo de página: gris cálido de plancha */
-  --bancada-honda: #dedbd2; /* zonas rehundidas */
-  --pieza: #fcfbf7; /* superficies elevadas */
+  --bancada: #f1f1ec; /* fondo de página: neutro, apenas cálido */
+  --bancada-honda: #e3e3da; /* zonas rehundidas */
+  --pieza: #fcfcf9; /* superficies elevadas */
 
-  --cianotipo: #22367d; /* azul de plano: acciones y estructura */
-  --cianotipo-hondo: #1a2a63;
-  --cianotipo-lavado: #e0e3ef;
+  --cianotipo: #4959b8; /* azul de marca: acciones y estructura */
+  --cianotipo-hondo: #36439a;
+  --cianotipo-claro: #6474cc; /* retícula y líneas sobre fondo azul */
+  --cianotipo-lavado: #e4e7f6;
 
-  --filamento: #d75a28; /* acento escaso: la capa caliente */
-  --filamento-tinta: #a63c14; /* variante legible en texto pequeño */
-  --laton: #7e5f1c; /* valoraciones y marcas menores */
+  --arena: #dbd4a0; /* secundario de marca: PLA natural */
+  --arena-honda: #c8bf86;
+  --arena-lavada: #efebd2;
+
+  --filamento: #e5592f; /* acento escaso: la capa caliente */
+  --filamento-tinta: #b13e16; /* variante legible en texto pequeño */
+  --laton: #7a5d14; /* valoraciones y marcas menores */
   --verde: #1f6f62;
   --alerta: #a32f22;
 
-  --linea: rgba(21, 24, 27, 0.13);
-  --linea-fuerte: rgba(21, 24, 27, 0.26);
-  --linea-clara: rgba(252, 251, 247, 0.18);
+  --linea: rgba(23, 26, 51, 0.13);
+  --linea-fuerte: rgba(23, 26, 51, 0.26);
+  --linea-clara: rgba(252, 252, 249, 0.2);
 
   /* --- Materiales (compartido con la ficha de maker) ------------------ */
-  --mat-pla: #22367d;
+  --mat-pla: #4959b8;
   --mat-petg: #1f6f62;
   --mat-abs: #3e4148;
   --mat-tpu: #c2621f;
-  --mat-resina: #5b4a9e;
-  --mat-nylon: #7e5f1c;
+  --mat-resina: #6a55b0;
+  --mat-nylon: #7a5d14;
+
+  /* --- Movimiento ---------------------------------------------------- */
+  --curva-salida: cubic-bezier(0.22, 1, 0.36, 1);
+  --curva-muelle: cubic-bezier(0.34, 1.4, 0.64, 1);
 
   /* --- Tipografía ---------------------------------------------------- */
   --fuente-titulo: "Archivo Variable", "Archivo", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -250,17 +260,17 @@ h3 {
 
 .etiqueta {
   display: block;
-  font-family: var(--fuente-dato);
-  font-size: 0.71rem;
-  font-weight: 600;
-  letter-spacing: 0.13em;
+  font-family: var(--fuente-texto);
+  font-size: 0.86rem;
+  font-weight: 640;
+  font-stretch: 104%;
+  letter-spacing: 0;
   line-height: 1.4;
-  text-transform: uppercase;
-  color: var(--tinta-suave);
+  color: var(--cianotipo-hondo);
 }
 
 .etiqueta--marca {
-  color: var(--filamento-tinta);
+  color: var(--cianotipo-hondo);
 }
 
 .dato {
@@ -315,7 +325,7 @@ h3 {
 
 .en-tinta .etiqueta,
 .en-cianotipo .etiqueta {
-  color: rgba(252, 251, 247, 0.6);
+  color: var(--arena);
 }
 
 .en-cianotipo :focus-visible {
@@ -369,7 +379,19 @@ h3 {
 
 .boton--secundario:hover {
   border-color: var(--tinta);
-  background: rgba(21, 24, 27, 0.04);
+  background: rgba(23, 26, 51, 0.04);
+}
+
+/* Arena sobre azul: la acción principal cuando el fondo ya es de marca. */
+.boton--arena {
+  background: var(--arena);
+  border-color: var(--arena);
+  color: var(--tinta);
+}
+
+.boton--arena:hover {
+  background: var(--pieza);
+  border-color: var(--pieza);
 }
 
 .boton--claro {
@@ -390,7 +412,7 @@ h3 {
 
 .boton--fantasma:hover {
   border-color: var(--pieza);
-  background: rgba(252, 251, 247, 0.08);
+  background: rgba(252, 252, 249, 0.08);
 }
 
 .boton[disabled],
@@ -530,6 +552,21 @@ select.entrada {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* --- Transiciones entre páginas -------------------------------------
+   El sitio es multipágina: el navegador funde una página con la
+   siguiente sin una línea de JavaScript. Donde no hay soporte, no pasa
+   nada. */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: var(--curva-salida);
 }
 
 /* --- Accesibilidad --------------------------------------------------- */
