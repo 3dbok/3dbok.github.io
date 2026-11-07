@@ -299,7 +299,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
             data-productor-id={productor.id}
             data-productor-nombre={productor.nombre}
             data-endpoint={FORMSPREE_RESENAS_ENDPOINT}
-            aria-describedby="opinar-nota"
+            aria-describedby="opinar-nota opinar-privacidad"
           >
             <div class="opinar__cabecera">
               <div>
@@ -348,6 +348,14 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
                   maxlength="500"></textarea>
               </div>
             </div>
+
+            <p class="opinar__privacidad" id="opinar-privacidad">
+              Formspree procesa el envío por cuenta de 3dbok. Revisaremos la
+              opinión antes de publicarla; si se aprueba, aparecerán tu nombre,
+              valoración, comentario y la fecha. Al enviarla, autorizas esa
+              publicación. Puedes retirar tu consentimiento según se explica en
+              la <a href="/privacidad">política de privacidad</a>.
+            </p>
 
             <div class="opinar__pie">
               <button class="boton boton--principal opinar__enviar" type="submit" data-review-submit>

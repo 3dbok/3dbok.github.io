@@ -4,67 +4,137 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout
   title="Privacidad"
-  descripcion="Cómo trata 3dbok los datos personales de clientes y makers."
+  descripcion="Cómo trata 3dbok los datos personales de clientes, makers y personas que dejan una opinión."
 >
   <main class="legal">
     <article class="envoltura--angosta legal__contenido">
       <p class="etiqueta etiqueta--marca">Privacidad</p>
       <h1>Cómo tratamos tus datos</h1>
-      <p class="legal__actualizacion dato">Última actualización: 20 de octubre de 2026</p>
+      <p class="legal__actualizacion dato">Última actualización: 7 de noviembre de 2026</p>
 
       <p>
         3dbok es responsable de los datos que envías desde esta web. Puedes
         contactar con nosotros en <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
       </p>
 
-      <h2>Qué datos recogemos y para qué</h2>
+      <h2>Qué datos tratamos y para qué</h2>
+
+      <h3>Solicitudes de piezas</h3>
       <p>
-        Al solicitar una pieza recogemos tus datos de contacto y los detalles
-        necesarios para valorar el diseño, la impresión y la entrega. Los usamos
-        para responder a tu solicitud, preparar una propuesta y gestionar los
-        pasos previos a un posible encargo. La base jurídica es aplicar medidas
-        precontractuales solicitadas por ti.
-      </p>
-      <p>
-        Si eliges un STL, el archivo se procesa solo en tu dispositivo para
-        mostrar una previsualización: 3dbok no lo recibe ni lo almacena desde
-        este formulario. Sí recibimos la indicación de que has seleccionado un
-        archivo, para pedírtelo después por email.
-      </p>
-      <p>
-        Para evitar que pierdas lo escrito, la web guarda las respuestas sin el
-        STL en el almacenamiento de sesión del navegador y deja de recuperarlas
-        pasadas dos horas. Tras un envío correcto, conserva el resumen de
-        confirmación durante 30 minutos.
+        Al pedir una pieza recogemos tu nombre, email, teléfono si decides
+        facilitarlo y los detalles necesarios para valorar el diseño, la
+        impresión y la entrega. Usamos estos datos para responder, preparar una
+        propuesta y gestionar los pasos previos al posible encargo. La base
+        jurídica es la aplicación de medidas precontractuales que solicitas.
       </p>
 
-      <h2>Quién puede acceder</h2>
+      <h3>Altas de makers</h3>
       <p>
-        Formspree procesa el formulario por cuenta de 3dbok. Cuando sea necesario
-        para valorar o realizar el encargo, podremos comunicar los datos mínimos
-        imprescindibles al diseñador o maker correspondiente. No vendemos tus
-        datos ni los usamos para publicidad ajena a tu solicitud.
+        Al solicitar el alta como maker recogemos tu nombre, email, ciudad y los
+        datos que facilitas sobre impresora, experiencia, materiales, boquillas
+        y colores disponibles. Los usamos para revisar la solicitud y
+        contactarte sobre los siguientes pasos. La información se envía a una
+        función de Supabase y queda almacenada en la base de datos de 3dbok en
+        una región europea de Supabase. El envío no crea automáticamente una
+        cuenta ni publica un perfil. La base jurídica es la aplicación de
+        medidas precontractuales que solicitas.
+      </p>
+
+      <h3>Opiniones sobre makers</h3>
+      <p>
+        Al dejar una opinión recogemos el nombre que indiques, la valoración, el
+        comentario y el maker al que se refiere. La revisamos manualmente para
+        evitar spam o contenido falso. El envío no se publica de forma
+        automática: si se aprueba, podemos mostrar en la web tu nombre,
+        valoración, comentario y fecha. La base jurídica para esa publicación
+        es tu consentimiento, que puedes retirar en cualquier momento
+        escribiéndonos.
+      </p>
+
+      <h2>Archivo STL y datos guardados en el navegador</h2>
+      <p>
+        Si eliges un STL en el formulario de pedido, el archivo se procesa solo
+        en tu dispositivo para mostrar la previsualización. 3dbok, Formspree y
+        Supabase no reciben ni almacenan ese archivo. Solo recibimos la
+        indicación de que lo has seleccionado para pedírtelo después por email.
       </p>
       <p>
-        Formspree presta el servicio mediante infraestructura en Estados Unidos
-        y declara utilizar las cláusulas contractuales tipo de la Comisión
-        Europea como garantía para las transferencias internacionales.
+        Para evitar que pierdas lo escrito, el formulario de pedido guarda las
+        respuestas, pero no el STL, en el almacenamiento de sesión de este
+        navegador. Deja de recuperarlas pasadas dos horas. Tras un envío
+        correcto, conserva el resumen de confirmación durante 30 minutos. No
+        utilizamos ese almacenamiento para publicidad ni seguimiento.
+      </p>
+
+      <h2>Proveedores y otras personas que pueden acceder</h2>
+      <p>
+        Usamos proveedores que tratan datos por cuenta de 3dbok para prestar el
+        servicio:
+      </p>
+      <ul>
+        <li>
+          <strong>Formspree</strong> recibe las solicitudes de piezas y las
+          opiniones. Su infraestructura está en Estados Unidos y declara usar
+          cláusulas contractuales tipo de la Comisión Europea para proteger las
+          transferencias internacionales. Puedes consultar su
+          <a href="https://formspree.io/legal/privacy-policy/">política de privacidad</a>.
+        </li>
+        <li>
+          <strong>Supabase</strong> ejecuta el formulario de alta de makers y
+          aloja sus datos principales y copias de seguridad en la región europea
+          configurada para el proyecto. Supabase puede tratar metadatos, registros
+          técnicos o datos necesarios para soporte y operaciones fuera de esa
+          región, incluidos Singapur y Estados Unidos, con las cláusulas
+          contractuales tipo incorporadas a su
+          <a href="https://supabase.com/legal/customer-resources/data-processing-addendum">acuerdo de tratamiento de datos</a>.
+        </li>
+        <li>
+          <strong>Cloudflare Turnstile</strong> comprueba en el alta de makers
+          que el envío no proceda de un sistema automatizado. Para ello procesa
+          señales técnicas del dispositivo y la solicitud, pero no accede a los
+          campos del formulario. La base jurídica es nuestro interés legítimo
+          en proteger el formulario frente al abuso. Consulta el
+          <a href="https://www.cloudflare.com/turnstile-privacy-policy/">anexo de privacidad de Turnstile</a>.
+        </li>
+      </ul>
+      <p>
+        Cuando sea necesario para valorar o realizar un encargo, podremos
+        comunicar los datos mínimos imprescindibles al diseñador o maker
+        correspondiente. Las opiniones aprobadas quedan visibles públicamente
+        en los términos indicados arriba. No vendemos tus datos ni los usamos
+        para publicidad ajena a tu solicitud.
       </p>
 
       <h2>Cuánto tiempo los conservamos</h2>
       <p>
-        Conservaremos la solicitud y las comunicaciones mientras sean necesarias
-        para atenderla y, después, durante los plazos exigidos para cumplir
-        obligaciones legales. El plan gratuito de Formspree conserva el historial
-        de envíos durante 30 días.
+        Conservamos las solicitudes de piezas y las comunicaciones mientras sean
+        necesarias para atenderlas y, si se formaliza un encargo, durante la
+        relación y los plazos exigidos para cumplir obligaciones legales. En la
+        configuración actual, Formspree conserva 30 días de historial de los
+        envíos.
+      </p>
+      <p>
+        Las solicitudes de alta permanecen en Supabase mientras se revisan. Si
+        el alta se acepta, conservamos los datos necesarios durante la relación
+        con el maker; si no prospera, los suprimimos cuando dejan de ser
+        necesarios, salvo que debamos conservarlos para atender una reclamación
+        u otra obligación legal.
+      </p>
+      <p>
+        Las opiniones rechazadas no se incorporan a la web. Las aprobadas se
+        mantienen publicadas mientras resulten pertinentes o hasta que retires
+        tu consentimiento. Los proveedores pueden conservar temporalmente
+        copias de seguridad y registros técnicos conforme a sus propios ciclos
+        de seguridad y borrado.
       </p>
 
       <h2>Tus derechos</h2>
       <p>
         Puedes pedir acceso, rectificación, supresión, oposición, limitación o
-        portabilidad escribiendo a <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
-        También puedes presentar una reclamación ante la Agencia Española de
-        Protección de Datos.
+        portabilidad, así como retirar tu consentimiento para publicar una
+        opinión, escribiendo a <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
+        Retirar el consentimiento no afecta al tratamiento realizado antes de
+        retirarlo.
       </p>
     </article>
   </main>
@@ -94,9 +164,28 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     font-size: var(--paso-1);
   }
 
+  .legal h3 {
+    margin-top: 1.35rem;
+    font-size: 1rem;
+    font-stretch: 105%;
+  }
+
   .legal p:not(.etiqueta) {
     margin-top: 0.8rem;
     color: var(--tinta-media);
     line-height: 1.7;
+  }
+
+  .legal ul {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+    padding-left: 1.2rem;
+    color: var(--tinta-media);
+    line-height: 1.7;
+  }
+
+  .legal li::marker {
+    color: var(--filamento);
   }
 </style>
