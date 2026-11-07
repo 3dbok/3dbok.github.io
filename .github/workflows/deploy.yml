@@ -36,6 +36,8 @@ jobs:
 
       - name: Compilar el proyecto
         run: npm run build
+        env:
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5

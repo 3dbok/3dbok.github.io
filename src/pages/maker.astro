@@ -17,7 +17,9 @@ const EXPERIENCIAS = [
   "Más de 2 años",
 ];
 
-const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
+const SUPABASE_MAKERS_ENDPOINT =
+  "https://rzthxvzbsibblqefhfmf.supabase.co/functions/v1/register-maker";
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 <BaseLayout
@@ -76,7 +78,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         id="alta-maker"
         class="envoltura alta__formulario"
         data-signup-form
-        data-endpoint={FORMSPREE_MAKERS_ENDPOINT}
+        data-endpoint={SUPABASE_MAKERS_ENDPOINT}
       >
         <aside class="alta__guia" aria-label="Progreso del alta de maker">
           <div class="alta__cabeza-guia">
@@ -269,6 +271,13 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
               procesa el formulario por cuenta de 3dbok. Consulta la
               <a href="/privacidad">política de privacidad</a>.
             </p>
+
+            <div
+              class="alta__turnstile"
+              data-turnstile
+              data-sitekey={TURNSTILE_SITE_KEY}
+              aria-label="Verificación de seguridad"
+            ></div>
 
             <p class="alta__error" data-signup-error hidden role="alert" tabindex="-1"></p>
 
@@ -1160,6 +1169,14 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
   }
 </style>
 
+<script
+  is:inline
+  data-turnstile-script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+  async
+  defer
+></script>
+
 <script>
   const paleta = [
     { nombre: "Negro", hex: "#1c1c1c" },
@@ -1199,6 +1216,25 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     document.querySelectorAll("[data-signup-progress-step]"),
   );
   const tituloExito = document.querySelector("[data-success-title]");
+  const contenedorTurnstile = document.querySelector("[data-turnstile]");
+  const scriptTurnstile = document.querySelector("[data-turnstile-script]");
+
+  let turnstileMontado = false;
+
+  const montarTurnstile = () => {
+    if (!(contenedorTurnstile instanceof HTMLElement) || turnstileMontado) return;
+    if (contenedorTurnstile.closest("[data-step-panel]")?.hidden) return;
+
+    const sitekey = contenedorTurnstile.dataset.sitekey;
+    const turnstile = Reflect.get(window, "turnstile");
+    if (!sitekey || !turnstile?.render) return;
+
+    turnstile.render(contenedorTurnstile, { sitekey });
+    turnstileMontado = true;
+  };
+
+  montarTurnstile();
+  scriptTurnstile?.addEventListener("load", montarTurnstile, { once: true });
 
   // material -> { colores: Set<string>, otros: string }
   const colores = new Map();
@@ -1270,6 +1306,7 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
     paneles.forEach((panel) => {
       panel.hidden = panel.dataset.stepPanel !== String(numero);
     });
+    if (numero === 3) montarTurnstile();
     actualizarProgreso(numero);
     if (enfocar) {
       formulario?.scrollIntoView({
@@ -1443,6 +1480,26 @@ const FORMSPREE_MAKERS_ENDPOINT = "https://formspree.io/f/xlgyykkz";
         .join(" | "),
     );
     datos.append("tipo", "maker");
+    datos.append(
+          "colorsJson",
+          JSON.stringify(
+            Object.fromEntries(
+              materialesElegidos().map((material) => {
+                const estado = colores.get(material);
+
+                return [
+                  material,
+                  [
+                    ...(estado?.colores ?? []),
+                    ...(estado?.otros.trim()
+                      ? [estado.otros.trim()]
+                      : []),
+                  ],
+                ];
+              }),
+            ),
+          ),
+        );
 
     try {
       const respuesta = await fetch(formulario.dataset.endpoint || "", {
