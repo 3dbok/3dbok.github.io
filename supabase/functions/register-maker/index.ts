@@ -1,4 +1,9 @@
 import { withSupabase } from "npm:@supabase/server@1";
+import {
+  MAX_REQUEST_BYTES,
+  readBodyWithLimit,
+  RequestTooLargeError,
+} from "./bodyLimit.js";
 
 const allowedMaterials = [
   "PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"
@@ -23,14 +28,34 @@ export default {
       return reply("Método no permitido", 405);
     }
 
-    if (Number(req.headers.get("content-length") || 0) > 20000) {
+    if (Number(req.headers.get("content-length") || 0) > MAX_REQUEST_BYTES) {
       return reply("Solicitud demasiado grande", 413);
+    }
+
+    let body: Uint8Array;
+
+    try {
+      body = await readBodyWithLimit(req, MAX_REQUEST_BYTES);
+    } catch (error) {
+      if (error instanceof RequestTooLargeError) {
+        return reply("Solicitud demasiado grande", 413);
+      }
+
+      return reply("No se pudo leer el formulario", 400);
     }
 
     let data: FormData;
 
     try {
-      data = await req.formData();
+      const boundedRequest = new Request(req.url, {
+        method: "POST",
+        headers: {
+          "content-type": req.headers.get("content-type") || "",
+        },
+        body,
+      });
+
+      data = await boundedRequest.formData();
     } catch {
       return reply("Formulario inválido", 400);
     }
