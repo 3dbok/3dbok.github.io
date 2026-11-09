@@ -6,8 +6,7 @@ This file applies to the whole repository. It describes the codebase as it exist
 
 3dbok is a Spanish platform that connects:
 
-- customers who need a custom or replacement 3D-printed object;
-- designers who can turn an idea into a printable model; and
+- customers who need a custom or replacement 3D-printed object; and
 - independent local makers who own 3D printers.
 
 The initial market is Spain, beginning in Málaga. The public site is written in Spanish and uses an approachable, local, workshop-oriented voice. The two main conversion paths are:
@@ -109,7 +108,7 @@ The review form posts `FormData` to `https://formspree.io/f/mvzjyjrb`. A success
 
 ### `/privacidad` — `src/pages/privacidad.astro`
 
-Public Spanish privacy information for form users. It explains Formspree processing and international transfers, limited sharing with designers/makers, retention, user rights, and that STL files remain local to the customer's browser.
+Public Spanish privacy information for form users. It explains Formspree processing and international transfers, limited sharing with makers, retention, user rights, and that STL files remain local to the customer's browser.
 
 ### `/404` — `src/pages/404.astro`
 

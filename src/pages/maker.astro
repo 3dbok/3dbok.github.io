@@ -4,7 +4,7 @@ import { EXPERIENCIAS, FUNCIONES_SUPABASE } from "../lib/makerShared.js";
 import "../styles/AltaMaker.css";
 
 const ventajas = [
-  { titulo: "Sin cuota mensual.", texto: "Solo pagas comisión cuando entregas un pedido." },
+  { titulo: "Encargos claros.", texto: "El cliente aprueba el boceto antes de que imprimas." },
   { titulo: "Encargos de tu zona.", texto: "Te llegan filtrados por cercanía." },
   { titulo: "Tú decides.", texto: "Aceptas solo los encargos que te encajan." },
 ];
@@ -15,7 +15,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 <BaseLayout
   title="Darme de alta como maker"
-  descripcion="Da de alta tu impresora 3D en 3dbok: recibes encargos de tu zona, eliges cuáles aceptas y solo pagas comisión cuando entregas."
+  descripcion="Da de alta tu impresora 3D en 3dbok: recibes encargos de tu zona y eliges cuáles aceptas."
 >
   <main class="alta">
     <section class="alta__portada en-cianotipo">
@@ -24,8 +24,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           <p class="etiqueta">Para makers</p>
           <h1 class="alta__titulo">Que tu impresora trabaje también para otros</h1>
           <p class="alta__entrada">
-            Te llegan encargos de gente de tu zona y decides cuáles coges. Sin
-            cuota mensual: solo una comisión cuando entregas la pieza.
+            Te llegan encargos de gente de tu zona y decides cuáles coges.
           </p>
           <a href="#alta-maker" class="boton boton--arena alta__empezar">Empezar el alta</a>
         </header>
