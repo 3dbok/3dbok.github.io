@@ -1,0 +1,814 @@
+---
+// Segundo formulario del alta: datos del equipo. No está enlazado desde la
+// web ni se indexa; mandamos el enlace por email al revisar el alta.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { BOQUILLAS, FUNCIONES_SUPABASE, MATERIALES } from "../../lib/makerShared.js";
+import { MARCAS_IMPRESORA, MAX_IMPRESORAS, OTRO } from "../../lib/impresoras.js";
+import "../../styles/AltaMaker.css";
+import "../../styles/EquipoMaker.css";
+
+const PASOS = ["Impresora y materiales", "Colores disponibles"];
+
+const SUPABASE_DETALLES_ENDPOINT = `${FUNCIONES_SUPABASE}/maker-details`;
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+<BaseLayout
+  title="Datos de tu equipo"
+  descripcion="Último paso del alta de makers verificados en 3dbok: impresora, materiales, boquillas y colores disponibles."
+  noindex
+>
+  <main class="alta">
+    <section class="equipo__cabecera">
+      <div class="envoltura">
+        <p class="etiqueta">Para makers verificados</p>
+        <h1 class="alta__titulo equipo__titulo">Cuéntanos con qué imprimes</h1>
+        <p class="equipo__entrada">
+          Con estos datos te mandamos solo los encargos que puedes hacer con tu
+          equipo.
+        </p>
+        <div class="equipo__aviso" role="note">
+          <p>
+            <strong>Antes de seguir:</strong> este formulario es solo para makers
+            que ya han pasado la verificación. Si todavía no te has dado de
+            alta,
+            <a href="/maker#alta-maker">empieza por darte de alta como maker</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="alta__registro">
+      <form
+        id="equipo-maker"
+        data-max-impresoras={MAX_IMPRESORAS}
+        class="envoltura alta__formulario"
+        data-equipo-form
+        data-endpoint={SUPABASE_DETALLES_ENDPOINT}
+        novalidate
+      >
+        <aside class="alta__guia" aria-label="Progreso de los datos del equipo">
+          <div class="alta__cabeza-guia">
+            <!-- La última capa de la pieza: el alta ya está hecha. -->
+            <svg class="pila pila--fase-3" viewBox="0 0 32 32" aria-hidden="true">
+              <rect width="32" height="32" rx="7.5" class="pila__placa"></rect>
+              <rect x="6.5" y="20" width="19" height="4" rx="1.2" class="pila__capa pila__capa--1"></rect>
+              <rect x="8.5" y="14" width="15" height="4" rx="1.2" class="pila__capa pila__capa--2"></rect>
+              <rect x="10.5" y="8" width="11" height="4" rx="1.2" class="pila__capa pila__capa--3"></rect>
+            </svg>
+            <div>
+              <p class="alta__guia-titulo">Datos de tu equipo</p>
+              <p class="alta__avance-datos">
+                Paso <span data-equipo-actual>1</span> de {PASOS.length},
+                <span data-equipo-avance-texto>0</span> % hecho
+              </p>
+            </div>
+          </div>
+          <div
+            class="alta__barra"
+            role="progressbar"
+            aria-label="Progreso de los datos del equipo"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-equipo-avance
+          >
+            <div class="alta__barra-relleno" data-equipo-avance-relleno></div>
+          </div>
+
+          <ol class="alta__pasos" style={`--pasos: ${PASOS.length}`}>
+            {
+              PASOS.map((titulo, indice) => (
+                <li
+                  class="alta__indicador"
+                  data-equipo-paso={indice + 1}
+                  aria-current={indice === 0 ? "step" : undefined}
+                >
+                  <span class="alta__indicador-numero" aria-hidden="true">{indice + 1}</span>
+                  <span class="alta__indicador-titulo">{titulo}</span>
+                </li>
+              ))
+            }
+          </ol>
+
+          <p class="alta__garantia">
+            Revisamos estos datos antes de activar tu perfil de maker.
+          </p>
+        </aside>
+
+        <div class="alta__panel">
+          <!-- Paso 1: email del alta, impresora, materiales y boquillas -->
+          <div data-step-panel="1">
+            <p class="etiqueta alta__paso">Paso 1 de {PASOS.length}</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">
+              Tu impresora y tus materiales
+            </h2>
+
+            <div class="alta__campos">
+              <div class="campo">
+                <label class="campo__nombre" for="equipo-email">Email con el que te diste de alta</label>
+                <p class="campo__ayuda" id="equipo-email-ayuda">
+                  Lo usamos para unir estos datos a tu alta.
+                </p>
+                <input
+                  class="entrada"
+                  id="equipo-email"
+                  data-equipo-input="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="254"
+                  placeholder="tu@email.com"
+                  aria-describedby="equipo-email-ayuda"
+                />
+              </div>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">Tus impresoras</legend>
+                <p class="campo__ayuda">
+                  Si tienes varias, añádelas todas. Si la tuya no aparece, elige
+                  «Otra» y escríbela.
+                </p>
+                <div class="impresoras" data-impresoras></div>
+                <button
+                  class="boton boton--secundario impresoras__anadir"
+                  type="button"
+                  data-anadir-impresora
+                >
+                  + Añadir otra impresora
+                </button>
+              </fieldset>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">¿Puedes imprimir en multicolor?</legend>
+                <div class="alta__opciones alta__opciones--dupla">
+                  <button class="opcion" type="button" data-multicolor="true" aria-pressed="false">
+                    <span class="opcion__titulo">Sí</span>
+                  </button>
+                  <button class="opcion" type="button" data-multicolor="false" aria-pressed="false">
+                    <span class="opcion__titulo">No</span>
+                  </button>
+                </div>
+              </fieldset>
+
+              <!-- Una fila por impresora; el script la clona y le pone los ids. -->
+              <template data-plantilla-impresora>
+                <div class="impresora" data-impresora>
+                  <div class="impresora__cabeza">
+                    <p class="impresora__titulo">Impresora <span data-impresora-numero>1</span></p>
+                    <button class="impresora__quitar" type="button" data-quitar-impresora>
+                      Quitar
+                    </button>
+                  </div>
+                  <div class="alta__dupla">
+                    <div class="campo">
+                      <label class="campo__nombre" data-para="marca">Marca</label>
+                      <select class="entrada" data-impresora-marca data-campo="marca">
+                        <option value="" disabled selected>Elige la marca</option>
+                        {MARCAS_IMPRESORA.map(({ marca }) => <option value={marca}>{marca}</option>)}
+                        <option value={OTRO}>Otra marca</option>
+                      </select>
+                      <input
+                        class="entrada impresora__otro"
+                        type="text"
+                        maxlength="60"
+                        placeholder="Escribe la marca"
+                        aria-label="Marca de la impresora"
+                        data-impresora-marca-otra
+                        hidden
+                      />
+                    </div>
+                    <div class="campo">
+                      <label class="campo__nombre" data-para="modelo">Modelo</label>
+                      <select class="entrada" data-impresora-modelo data-campo="modelo" disabled>
+                        <option value="" disabled selected>Primero elige la marca</option>
+                      </select>
+                      <input
+                        class="entrada impresora__otro"
+                        type="text"
+                        maxlength="80"
+                        placeholder="Escribe el modelo"
+                        aria-label="Modelo de la impresora"
+                        data-impresora-modelo-otro
+                        hidden
+                      />
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <fieldset class="campo alta__grupo">
+                <legend class="campo__nombre">Con qué materiales trabajas</legend>
+                <p class="campo__ayuda">Puedes marcar varios.</p>
+                <div class="fila-opciones">
+                  {
+                    MATERIALES.map((material) => (
+                      <button
+                        class="opcion opcion--pastilla"
+                        type="button"
+                        data-material={material}
+                        aria-pressed="false"
+                      >
+                        {material}
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+
+              <fieldset class="campo alta__grupo" data-nozzle-container hidden>
+                <legend class="campo__nombre">Qué boquillas tienes</legend>
+                <p class="campo__ayuda">Marca todos los tamaños disponibles.</p>
+                <div class="fila-opciones">
+                  {
+                    BOQUILLAS.map((boquilla) => (
+                      <button
+                        class="opcion opcion--pastilla"
+                        type="button"
+                        data-nozzle={boquilla}
+                        aria-pressed="false"
+                      >
+                        {boquilla}
+                      </button>
+                    ))
+                  }
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="alta__pie">
+              <p class="alta__requisito">
+                Completa email, marca y modelo de cada impresora, multicolor, materiales y boquillas para continuar.
+              </p>
+              <div class="alta__acciones">
+                <button class="boton boton--principal" data-next="1" type="button" disabled>
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 2: colores disponibles por material -->
+          <div data-step-panel="2" hidden>
+            <p class="etiqueta alta__paso">Paso 2 de {PASOS.length}</p>
+            <h2 class="alta__seccion" data-step-title tabindex="-1">Qué colores tienes</h2>
+            <p class="alta__ayuda">
+              Marca los que tengas de cada material. Si tienes alguno que no
+              aparece, escríbelo abajo.
+            </p>
+
+            <div data-colors-container></div>
+
+            <p class="alta__privacidad">
+              Añadimos estos datos a tu solicitud de alta, guardada en una región
+              europea de Supabase. Cloudflare Turnstile comprueba que el envío no
+              sea automatizado sin acceder a los campos del formulario. Consulta
+              la <a href="/privacidad">política de privacidad</a>.
+            </p>
+
+            <div
+              class="alta__turnstile"
+              data-turnstile
+              data-sitekey={TURNSTILE_SITE_KEY}
+              aria-label="Verificación de seguridad"
+            ></div>
+
+            <p class="alta__error" data-equipo-error hidden role="alert" tabindex="-1"></p>
+
+            <div class="alta__pie">
+              <p class="alta__requisito">Elige al menos un color por material.</p>
+              <div class="alta__acciones alta__acciones--doble">
+                <button class="boton boton--secundario" data-prev="2" type="button">Atrás</button>
+                <button class="boton boton--principal" data-equipo-submit type="submit" disabled>
+                  Enviar mis datos
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <section class="envoltura alta__exito" data-equipo-success hidden>
+        <p class="etiqueta">Datos recibidos</p>
+        <h2 class="alta__titulo" data-success-title tabindex="-1">Ya casi está</h2>
+        <p class="alta__texto">
+          Repasamos tu equipo y activamos tu perfil de maker. Te avisamos por
+          email en cuanto esté listo. Si tienes cualquier duda, escríbenos a
+          <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
+        </p>
+        <a href="/" class="boton boton--principal alta__accion">Volver al inicio</a>
+      </section>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .equipo__cabecera {
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) 0;
+  }
+
+  .equipo__titulo {
+    max-width: 16ch;
+    font-size: clamp(2.2rem, 1.4rem + 2.6vw, 3.6rem);
+  }
+
+  .equipo__entrada {
+    max-width: 46ch;
+    margin-top: 1.1rem;
+    font-size: var(--paso-1);
+    line-height: 1.55;
+    color: var(--tinta-media);
+  }
+
+  .equipo__aviso {
+    max-width: 46rem;
+    margin-top: 1.75rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--linea);
+    border-left: 4px solid var(--filamento);
+    border-radius: var(--r-2);
+    background: var(--pieza);
+    line-height: 1.55;
+  }
+</style>
+
+<script
+  is:inline
+  data-turnstile-script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+  async
+  defer
+></script>
+
+<script>
+  import { normalizarTexto } from "../../lib/makerShared.js";
+  import { MAX_IMPRESORAS, OTRO, describirImpresoras, modelosDe } from "../../lib/impresoras.js";
+  import { prepararTurnstile } from "../../lib/turnstile.js";
+
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const TEXTO_ENVIAR = "Enviar mis datos";
+  const TOTAL_PASOS = 2;
+
+  const paleta = [
+    { nombre: "Negro", hex: "#1c1c1c" },
+    { nombre: "Blanco", hex: "#f5f5f5" },
+    { nombre: "Gris", hex: "#9e9e9e" },
+    { nombre: "Rojo", hex: "#d32f2f" },
+    { nombre: "Naranja", hex: "#ef6c00" },
+    { nombre: "Amarillo", hex: "#fbc02d" },
+    { nombre: "Verde", hex: "#2e7d32" },
+    { nombre: "Azul", hex: "#1565c0" },
+    { nombre: "Morado", hex: "#7b1fa2" },
+    { nombre: "Rosa", hex: "#ec407a" },
+    { nombre: "Marrón", hex: "#6d4c41" },
+    { nombre: "Dorado", hex: "#c9a227" },
+    { nombre: "Plata", hex: "#bdbdbd" },
+    { nombre: "Transparente", transparente: true },
+  ];
+
+  const formulario = document.querySelector("[data-equipo-form]");
+  const exito = document.querySelector("[data-equipo-success]");
+  const error = document.querySelector("[data-equipo-error]");
+  const enviar = document.querySelector("[data-equipo-submit]");
+  const entradas = Array.from(document.querySelectorAll("[data-equipo-input]"));
+  const botonesMaterial = Array.from(document.querySelectorAll("[data-material]"));
+  const zonaBoquillas = document.querySelector("[data-nozzle-container]");
+  const botonesBoquilla = Array.from(document.querySelectorAll("[data-nozzle]"));
+  const paneles = Array.from(document.querySelectorAll("[data-step-panel]"));
+  const zonaColores = document.querySelector("[data-colors-container]");
+  const botonesSiguiente = Array.from(document.querySelectorAll("[data-next]"));
+  const botonesAtras = Array.from(document.querySelectorAll("[data-prev]"));
+  const pasoActual = document.querySelector("[data-equipo-actual]");
+  const textoAvance = document.querySelector("[data-equipo-avance-texto]");
+  const barraAvance = document.querySelector("[data-equipo-avance]");
+  const rellenoAvance = document.querySelector("[data-equipo-avance-relleno]");
+  const indicadoresPaso = Array.from(document.querySelectorAll("[data-equipo-paso]"));
+  const tituloExito = document.querySelector("[data-success-title]");
+  const turnstile = prepararTurnstile(
+    document.querySelector("[data-turnstile]"),
+    document.querySelector("[data-turnstile-script]"),
+  );
+
+  const botonesMulticolor = Array.from(document.querySelectorAll("[data-multicolor]"));
+  const zonaImpresoras = document.querySelector("[data-impresoras]");
+  const plantillaImpresora = document.querySelector("[data-plantilla-impresora]");
+  const botonAnadirImpresora = document.querySelector("[data-anadir-impresora]");
+
+  // material -> { colores: Set<string>, otros: string }
+  const colores = new Map();
+
+  // ---- Impresoras: una fila de marca + modelo por impresora ----------------
+
+  let filasCreadas = 0;
+  const filasImpresora = () =>
+    zonaImpresoras instanceof HTMLElement
+      ? Array.from(zonaImpresoras.querySelectorAll("[data-impresora]"))
+      : [];
+
+  const opcion = (texto, valor, { indicacion = false } = {}) => {
+    const elemento = new Option(texto, valor, indicacion, indicacion);
+    elemento.disabled = indicacion;
+    return elemento;
+  };
+
+  // Rehace el desplegable de modelos según la marca. Con «Otra marca», o con
+  // una marca sin modelos en el catálogo, el modelo se escribe directamente.
+  const actualizarModelos = (fila) => {
+    const marca = fila.querySelector("[data-impresora-marca]");
+    const marcaOtra = fila.querySelector("[data-impresora-marca-otra]");
+    const modelo = fila.querySelector("[data-impresora-modelo]");
+    const modeloOtro = fila.querySelector("[data-impresora-modelo-otro]");
+    if (
+      !(marca instanceof HTMLSelectElement) ||
+      !(marcaOtra instanceof HTMLInputElement) ||
+      !(modelo instanceof HTMLSelectElement) ||
+      !(modeloOtro instanceof HTMLInputElement)
+    ) return;
+
+    const esOtraMarca = marca.value === OTRO;
+    marcaOtra.hidden = !esOtraMarca;
+    if (!esOtraMarca) marcaOtra.value = "";
+
+    const modelos = esOtraMarca ? [] : modelosDe(marca.value);
+    const escribirModelo = esOtraMarca || (marca.value !== "" && modelos.length === 0);
+
+    modelo.replaceChildren(
+      opcion(marca.value ? "Elige el modelo" : "Primero elige la marca", "", { indicacion: true }),
+      ...modelos.map((nombre) => opcion(nombre, nombre)),
+      opcion("Otro modelo", OTRO),
+    );
+    modelo.disabled = marca.value === "";
+    modelo.hidden = escribirModelo;
+    modeloOtro.hidden = !escribirModelo;
+    modeloOtro.value = "";
+  };
+
+  const actualizarModeloOtro = (fila) => {
+    const modelo = fila.querySelector("[data-impresora-modelo]");
+    const modeloOtro = fila.querySelector("[data-impresora-modelo-otro]");
+    if (!(modelo instanceof HTMLSelectElement) || !(modeloOtro instanceof HTMLInputElement)) return;
+    if (modelo.hidden) return;
+    modeloOtro.hidden = modelo.value !== OTRO;
+    if (modeloOtro.hidden) modeloOtro.value = "";
+  };
+
+  // { marca, modelo } de una fila, o null si falta algo.
+  const impresoraDe = (fila) => {
+    const marca = fila.querySelector("[data-impresora-marca]");
+    const marcaOtra = fila.querySelector("[data-impresora-marca-otra]");
+    const modelo = fila.querySelector("[data-impresora-modelo]");
+    const modeloOtro = fila.querySelector("[data-impresora-modelo-otro]");
+    if (
+      !(marca instanceof HTMLSelectElement) ||
+      !(marcaOtra instanceof HTMLInputElement) ||
+      !(modelo instanceof HTMLSelectElement) ||
+      !(modeloOtro instanceof HTMLInputElement)
+    ) return null;
+
+    const nombreMarca = marca.value === OTRO ? marcaOtra.value.trim() : marca.value;
+    const nombreModelo =
+      modelo.hidden || modelo.value === OTRO ? modeloOtro.value.trim() : modelo.value;
+    return nombreMarca && nombreModelo ? { marca: nombreMarca, modelo: nombreModelo } : null;
+  };
+
+  const impresorasElegidas = () => filasImpresora().map(impresoraDe);
+  const impresorasCompletas = () => {
+    const lista = impresorasElegidas();
+    return lista.length > 0 && lista.every(Boolean);
+  };
+
+  const renumerarImpresoras = () => {
+    const filas = filasImpresora();
+    filas.forEach((fila, indice) => {
+      const numero = fila.querySelector("[data-impresora-numero]");
+      if (numero) numero.textContent = String(indice + 1);
+      const quitar = fila.querySelector("[data-quitar-impresora]");
+      if (quitar instanceof HTMLElement) quitar.hidden = filas.length === 1;
+    });
+    if (botonAnadirImpresora instanceof HTMLButtonElement) {
+      botonAnadirImpresora.hidden = filas.length >= MAX_IMPRESORAS;
+    }
+  };
+
+  const anadirImpresora = ({ enfocar = false } = {}) => {
+    if (!(plantillaImpresora instanceof HTMLTemplateElement) || !(zonaImpresoras instanceof HTMLElement)) return;
+    if (filasImpresora().length >= MAX_IMPRESORAS) return;
+
+    const fragmento = plantillaImpresora.content.cloneNode(true);
+    if (!(fragmento instanceof DocumentFragment)) return;
+    const fila = fragmento.querySelector("[data-impresora]");
+    if (!(fila instanceof HTMLElement)) return;
+
+    // Ids únicos para que cada etiqueta apunte a su desplegable.
+    filasCreadas += 1;
+    fila.querySelectorAll("[data-campo]").forEach((campo) => {
+      campo.id = `equipo-impresora-${filasCreadas}-${campo.getAttribute("data-campo")}`;
+    });
+    fila.querySelectorAll("label[data-para]").forEach((etiqueta) => {
+      if (etiqueta instanceof HTMLLabelElement) {
+        etiqueta.htmlFor = `equipo-impresora-${filasCreadas}-${etiqueta.dataset.para}`;
+      }
+    });
+
+    fila.querySelector("[data-impresora-marca]")?.addEventListener("change", () => {
+      actualizarModelos(fila);
+      actualizarBotones();
+    });
+    fila.querySelector("[data-impresora-modelo]")?.addEventListener("change", () => {
+      actualizarModeloOtro(fila);
+      actualizarBotones();
+    });
+    fila.querySelectorAll("input").forEach((entrada) => entrada.addEventListener("input", actualizarBotones));
+    fila.querySelector("[data-quitar-impresora]")?.addEventListener("click", () => {
+      fila.remove();
+      renumerarImpresoras();
+      actualizarBotones();
+      const ultima = filasImpresora().at(-1)?.querySelector("[data-impresora-marca]");
+      if (ultima instanceof HTMLElement) ultima.focus();
+    });
+
+    zonaImpresoras.appendChild(fragmento);
+    renumerarImpresoras();
+    actualizarBotones();
+    if (enfocar) {
+      const marca = fila.querySelector("[data-impresora-marca]");
+      if (marca instanceof HTMLElement) marca.focus();
+    }
+  };
+
+  botonAnadirImpresora?.addEventListener("click", () => anadirImpresora({ enfocar: true }));
+
+  const marcado = (boton) => boton.getAttribute("aria-pressed") === "true";
+  const alternar = (boton) => boton.setAttribute("aria-pressed", String(!marcado(boton)));
+
+  const valor = (clave) => {
+    const campo = document.querySelector(`[data-equipo-input="${clave}"]`);
+    return campo instanceof HTMLInputElement ? campo.value.trim() : "";
+  };
+
+  const materialesElegidos = () =>
+    botonesMaterial.filter(marcado).map((boton) => boton.dataset.material || "");
+
+  // La resina no usa boquilla: solo se piden si hay algún material de filamento.
+  const revisarBoquillas = () => {
+    if (!(zonaBoquillas instanceof HTMLElement)) return;
+    zonaBoquillas.hidden = !materialesElegidos().some((material) => material !== "Resina");
+  };
+
+  const boquillasElegidas = () =>
+    zonaBoquillas instanceof HTMLElement && !zonaBoquillas.hidden
+      ? botonesBoquilla.filter(marcado).map((boton) => boton.dataset.nozzle || "")
+      : [];
+
+  const paso1Valido = () => {
+    const boquillasOk =
+      zonaBoquillas instanceof HTMLElement && !zonaBoquillas.hidden
+        ? botonesBoquilla.some(marcado)
+        : true;
+    return Boolean(
+      EMAIL.test(valor("email")) &&
+        impresorasCompletas() &&
+        botonesMulticolor.some(marcado) &&
+        materialesElegidos().length > 0 &&
+        boquillasOk,
+    );
+  };
+
+  const coloresDe = (material) => {
+    const estado = colores.get(material);
+    if (!estado) return [];
+    const lista = Array.from(estado.colores);
+    if (estado.otros.trim()) lista.push(estado.otros.trim());
+    return lista;
+  };
+
+  const paso2Valido = () => {
+    const elegidos = materialesElegidos();
+    return elegidos.length > 0 && elegidos.every((material) => coloresDe(material).length > 0);
+  };
+
+  const actualizarBotones = () => {
+    const siguiente = document.querySelector('[data-next="1"]');
+    if (siguiente instanceof HTMLButtonElement) siguiente.disabled = !paso1Valido();
+    if (enviar instanceof HTMLButtonElement) enviar.disabled = !(paso1Valido() && paso2Valido());
+  };
+
+  const actualizarProgreso = (numero) => {
+    const porcentaje = Math.round(((numero - 1) / TOTAL_PASOS) * 100);
+    if (pasoActual) pasoActual.textContent = String(numero);
+    if (textoAvance) textoAvance.textContent = String(porcentaje);
+    if (rellenoAvance instanceof HTMLElement) rellenoAvance.style.width = `${porcentaje}%`;
+    barraAvance?.setAttribute("aria-valuenow", String(porcentaje));
+    indicadoresPaso.forEach((indicador) => {
+      const indice = Number(indicador.dataset.equipoPaso);
+      indicador.toggleAttribute("data-completo", indice < numero);
+      if (indice === numero) indicador.setAttribute("aria-current", "step");
+      else indicador.removeAttribute("aria-current");
+    });
+  };
+
+  const crearMuestra = (material, color) => {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "muestra";
+    boton.setAttribute("aria-pressed", String(Boolean(colores.get(material)?.colores.has(color.nombre))));
+
+    const punto = document.createElement("span");
+    punto.className = "muestra__punto";
+    if (color.transparente) {
+      punto.style.backgroundImage =
+        "conic-gradient(#cfcfcf 90deg, transparent 90deg 180deg, #cfcfcf 180deg 270deg, transparent 270deg)";
+      punto.style.backgroundSize = "8px 8px";
+    } else {
+      punto.style.backgroundColor = color.hex;
+    }
+
+    const nombre = document.createElement("span");
+    nombre.className = "muestra__nombre";
+    nombre.textContent = color.nombre;
+
+    boton.append(punto, nombre);
+    boton.addEventListener("click", () => {
+      const estado = colores.get(material);
+      if (!estado) return;
+      if (estado.colores.has(color.nombre)) estado.colores.delete(color.nombre);
+      else estado.colores.add(color.nombre);
+      alternar(boton);
+      actualizarBotones();
+    });
+    return boton;
+  };
+
+  const dibujarColores = () => {
+    if (!(zonaColores instanceof HTMLElement)) return;
+    const elegidos = materialesElegidos();
+
+    // Se olvida el estado de los materiales que ya no están marcados.
+    Array.from(colores.keys()).forEach((material) => {
+      if (!elegidos.includes(material)) colores.delete(material);
+    });
+
+    zonaColores.replaceChildren();
+
+    elegidos.forEach((material) => {
+      if (!colores.has(material)) colores.set(material, { colores: new Set(), otros: "" });
+
+      const bloque = document.createElement("fieldset");
+      bloque.className = "material-colores";
+
+      const titulo = document.createElement("legend");
+      titulo.className = "material-colores__titulo";
+      titulo.textContent = material;
+      bloque.appendChild(titulo);
+
+      const muestras = document.createElement("div");
+      muestras.className = "material-colores__muestras";
+      paleta.forEach((color) => muestras.appendChild(crearMuestra(material, color)));
+      bloque.appendChild(muestras);
+
+      const otros = document.createElement("input");
+      otros.type = "text";
+      otros.className = "entrada";
+      otros.maxLength = 80;
+      otros.placeholder = "Ej.: verde oliva, cobre…";
+      otros.value = colores.get(material)?.otros ?? "";
+      otros.addEventListener("input", () => {
+        const estado = colores.get(material);
+        if (estado) estado.otros = otros.value;
+        actualizarBotones();
+      });
+      const grupoOtros = document.createElement("label");
+      grupoOtros.className = "material-colores__otros";
+      const nombreOtros = document.createElement("span");
+      nombreOtros.className = "material-colores__otros-nombre";
+      nombreOtros.textContent = "Otros colores (opcional)";
+      grupoOtros.append(nombreOtros, otros);
+      bloque.appendChild(grupoOtros);
+
+      zonaColores.appendChild(bloque);
+    });
+  };
+
+  const irAlPaso = (numero, enfocar = true) => {
+    if (numero === 2) dibujarColores();
+    paneles.forEach((panel) => {
+      panel.hidden = panel.dataset.stepPanel !== String(numero);
+    });
+    if (numero === 2) turnstile.montar();
+    actualizarProgreso(numero);
+    if (enfocar && formulario instanceof HTMLElement) {
+      formulario.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      const titulo = document.querySelector(`[data-step-panel="${numero}"] [data-step-title]`);
+      if (titulo instanceof HTMLElement) titulo.focus({ preventScroll: true });
+    }
+    actualizarBotones();
+  };
+
+  entradas.forEach((entrada) => entrada.addEventListener("input", actualizarBotones));
+
+  botonesMulticolor.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      botonesMulticolor.forEach((otro) => otro.setAttribute("aria-pressed", "false"));
+      boton.setAttribute("aria-pressed", "true");
+      actualizarBotones();
+    });
+  });
+
+  botonesMaterial.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      alternar(boton);
+      revisarBoquillas();
+      actualizarBotones();
+    });
+  });
+
+  botonesBoquilla.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      alternar(boton);
+      actualizarBotones();
+    });
+  });
+
+  botonesSiguiente.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      if (Number(boton.dataset.next) === 1 && paso1Valido()) irAlPaso(2);
+    });
+  });
+
+  botonesAtras.forEach((boton) => {
+    boton.addEventListener("click", () => irAlPaso(Number(boton.dataset.prev) - 1));
+  });
+
+  formulario?.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (!(enviar instanceof HTMLButtonElement) || enviar.disabled) return;
+    if (!(formulario instanceof HTMLFormElement) || !exito || !(error instanceof HTMLElement)) return;
+    if (!paso1Valido() || !paso2Valido()) return;
+
+    enviar.disabled = true;
+    enviar.textContent = "Enviando…";
+    error.hidden = true;
+    formulario.setAttribute("aria-busy", "true");
+
+    // Impresoras y colores en mayúsculas y sin tildes. Materiales y boquillas
+    // son valores de lista que la función compara tal cual.
+    const impresoras = impresorasElegidas()
+      .filter(Boolean)
+      .map(({ marca, modelo }) => ({ marca: normalizarTexto(marca), modelo: normalizarTexto(modelo) }));
+    const datos = new FormData(formulario);
+    datos.set("printersJson", JSON.stringify(impresoras));
+    datos.set("printerModel", describirImpresoras(impresoras));
+    datos.set("multicolor", botonesMulticolor.find(marcado)?.dataset.multicolor || "");
+    datos.set("materials", materialesElegidos().join(", "));
+    datos.set("nozzleSizes", boquillasElegidas().join(", "));
+    datos.set(
+      "colorsJson",
+      JSON.stringify(
+        Object.fromEntries(
+          materialesElegidos().map((material) => [
+            material,
+            coloresDe(material).map(normalizarTexto),
+          ]),
+        ),
+      ),
+    );
+
+    try {
+      const respuesta = await fetch(formulario.dataset.endpoint || "", {
+        method: "POST",
+        body: datos,
+        headers: { Accept: "application/json" },
+      });
+      if (!respuesta.ok) throw new Error("Error al enviar");
+
+      formulario.removeAttribute("aria-busy");
+      formulario.hidden = true;
+      exito.hidden = false;
+      exito.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      if (tituloExito instanceof HTMLElement) tituloExito.focus({ preventScroll: true });
+    } catch {
+      turnstile.reiniciar();
+      formulario.removeAttribute("aria-busy");
+      enviar.textContent = TEXTO_ENVIAR;
+      actualizarBotones();
+      error.textContent =
+        "No se han podido enviar los datos. Compruébalos y vuelve a intentarlo.";
+      error.hidden = false;
+      error.focus();
+    }
+  });
+
+  anadirImpresora();
+  actualizarProgreso(1);
+  actualizarBotones();
+</script>

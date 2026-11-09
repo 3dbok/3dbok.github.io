@@ -10,7 +10,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <article class="envoltura--angosta legal__contenido">
       <p class="etiqueta etiqueta--marca">Privacidad</p>
       <h1>Cómo tratamos tus datos</h1>
-      <p class="legal__actualizacion dato">Última actualización: 7 de noviembre de 2026</p>
+      <p class="legal__actualizacion dato">Última actualización: 9 de noviembre de 2026</p>
 
       <p>
         3dbok es responsable de los datos que envías desde esta web. Puedes
@@ -30,14 +30,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
       <h3>Altas de makers</h3>
       <p>
-        Al solicitar el alta como maker recogemos tu nombre, email, ciudad y los
-        datos que facilitas sobre impresora, experiencia, materiales, boquillas
-        y colores disponibles. Los usamos para revisar la solicitud y
-        contactarte sobre los siguientes pasos. La información se envía a una
-        función de Supabase y queda almacenada en la base de datos de 3dbok en
-        una región europea de Supabase. El envío no crea automáticamente una
-        cuenta ni publica un perfil. La base jurídica es la aplicación de
-        medidas precontractuales que solicitas.
+        Al solicitar el alta como maker recogemos tu nombre, apellidos, código
+        postal, ciudad, email y experiencia imprimiendo en 3D y, cuando nos los
+        facilitas, los datos de tu equipo: marca y modelo de tus impresoras, si
+        puedes imprimir en varios colores, materiales, boquillas y colores
+        disponibles. Los usamos para revisar la solicitud, contactarte sobre los
+        siguientes pasos y proponerte encargos que encajen con tu zona y tu
+        equipo. La información se envía a funciones de Supabase y queda
+        almacenada en la base de datos de 3dbok en una región europea de
+        Supabase. El envío no crea automáticamente una cuenta ni publica un
+        perfil. La base jurídica es la aplicación de medidas precontractuales
+        que solicitas.
       </p>
 
       <h3>Opiniones sobre makers</h3>
@@ -80,7 +83,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <a href="https://formspree.io/legal/privacy-policy/">política de privacidad</a>.
         </li>
         <li>
-          <strong>Supabase</strong> ejecuta el formulario de alta de makers y
+          <strong>Supabase</strong> ejecuta los formularios de alta de makers y
           aloja sus datos principales y copias de seguridad en la región europea
           configurada para el proyecto. Supabase puede tratar metadatos, registros
           técnicos o datos necesarios para soporte y operaciones fuera de esa
@@ -89,18 +92,35 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <a href="https://supabase.com/legal/customer-resources/data-processing-addendum">acuerdo de tratamiento de datos</a>.
         </li>
         <li>
-          <strong>Cloudflare Turnstile</strong> comprueba en el alta de makers
+          <strong>Cloudflare Turnstile</strong> comprueba en los formularios de alta de makers
           que el envío no proceda de un sistema automatizado. Para ello procesa
           señales técnicas del dispositivo y la solicitud, pero no accede a los
           campos del formulario. La base jurídica es nuestro interés legítimo
           en proteger el formulario frente al abuso. Consulta el
           <a href="https://www.cloudflare.com/turnstile-privacy-policy/">anexo de privacidad de Turnstile</a>.
         </li>
+        <li>
+          <strong>Upstash</strong> aloja el registro temporal con el que
+          limitamos cuántas veces se pueden enviar los formularios de alta de
+          makers desde una misma conexión. No guardamos tu dirección IP, sino un
+          identificador cifrado calculado a partir de ella, que se borra solo a
+          los 15 minutos. La base jurídica es nuestro interés legítimo en
+          proteger el formulario frente al abuso. Consulta su
+          <a href="https://upstash.com/static/trust/privacy.pdf">política de privacidad</a>.
+        </li>
+        <li>
+          <strong>Zippopotam.us</strong> es un servicio público de códigos
+          postales. Cuando escribes tu código postal en el alta de makers, tu
+          navegador lo consulta allí para mostrarte la ciudad. Solo se envía el
+          código postal; como en cualquier conexión a internet, el servicio
+          recibe también la dirección IP de tu dispositivo, pero no tu nombre ni
+          tu email. La base jurídica es nuestro interés legítimo en que puedas
+          comprobar que el código postal es correcto.
+        </li>
       </ul>
       <p>
         Cuando sea necesario para valorar o realizar un encargo, podremos
-        comunicar los datos mínimos imprescindibles al diseñador o maker
-        correspondiente. Las opiniones aprobadas quedan visibles públicamente
+        comunicar los datos mínimos imprescindibles al maker correspondiente. Las opiniones aprobadas quedan visibles públicamente
         en los términos indicados arriba. No vendemos tus datos ni los usamos
         para publicidad ajena a tu solicitud.
       </p>
@@ -114,7 +134,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         envíos.
       </p>
       <p>
-        Las solicitudes de alta permanecen en Supabase mientras se revisan. Si
+        Las solicitudes de alta, incluidos los datos de tu equipo, permanecen
+        en Supabase mientras se revisan. Si
         el alta se acepta, conservamos los datos necesarios durante la relación
         con el maker; si no prospera, los suprimimos cuando dejan de ser
         necesarios, salvo que debamos conservarlos para atender una reclamación

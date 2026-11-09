@@ -753,6 +753,17 @@
   grid-column: 1 / -1;
 }
 
+.opinar__privacidad {
+  margin-top: 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--linea);
+  border-radius: var(--r-2);
+  background: var(--bancada);
+  color: var(--tinta-suave);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
 .opinar__pie {
   display: flex;
   gap: 1rem 1.5rem;
