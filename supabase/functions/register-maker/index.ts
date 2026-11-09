@@ -3,6 +3,8 @@
 // la función maker-details, con el enlace que mandamos al revisar el alta.
 import { withSupabase } from "npm:@supabase/server@1";
 
+import { readProtectedForm } from "../_shared/formulario.ts";
+import { createRateLimiter } from "../_shared/rateLimit.ts";
 import { normalizeText } from "../_shared/texto.ts";
 import { verifyTurnstile } from "../_shared/turnstile.ts";
 
@@ -19,23 +21,18 @@ const postalCodePattern = /^(?:0[1-9]|[1-4]\d|5[0-2])\d{3}$/;
 const reply = (message: string, status = 200) =>
   Response.json({ message }, { status });
 
+const rateLimiter = createRateLimiter("3dbok:maker:ratelimit");
+
 export default {
   fetch: withSupabase({ auth: "none" }, async (req, ctx) => {
     if (req.method !== "POST") {
       return reply("Método no permitido", 405);
     }
 
-    if (Number(req.headers.get("content-length") || 0) > 20000) {
-      return reply("Solicitud demasiado grande", 413);
-    }
-
-    let data: FormData;
-
-    try {
-      data = await req.formData();
-    } catch {
-      return reply("Formulario inválido", 400);
-    }
+    // Tamaño, límite por IP y lectura del formulario
+    const form = await readProtectedForm(req, rateLimiter);
+    if ("response" in form) return form.response;
+    const { data } = form;
 
     const value = (key: string) => {
       const field = data.get(key);
