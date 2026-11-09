@@ -1,18 +1,20 @@
+// Primer formulario del alta de makers (/maker): solo datos de contacto y
+// experiencia. El equipo (impresoras, materiales, colores) llega después, por
+// la función maker-details, con el enlace que mandamos al revisar el alta.
 import { withSupabase } from "npm:@supabase/server@1";
 
-const allowedMaterials = [
-  "PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"
-];
+import { normalizeText } from "../_shared/texto.ts";
+import { verifyTurnstile } from "../_shared/turnstile.ts";
 
+// Copia de EXPERIENCIAS en src/lib/makerShared.js.
 const allowedExperiences = [
   "Menos de 6 meses",
   "Entre 6 meses y 2 años",
   "Más de 2 años",
 ];
 
-const allowedNozzles = [
-  "0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"
-];
+// Códigos postales de España: provincias 01 a 52 y tres cifras más.
+const postalCodePattern = /^(?:0[1-9]|[1-4]\d|5[0-2])\d{3}$/;
 
 const reply = (message: string, status = 200) =>
   Response.json({ message }, { status });
@@ -40,115 +42,40 @@ export default {
       return typeof field === "string" ? field.trim() : "";
     };
 
-    const name = value("name");
-    const city = value("city");
+    const name = normalizeText(value("name"));
+    const last_name = normalizeText(value("lastName"));
+    const postal_code = value("postalCode");
+    const city = normalizeText(value("city"));
     const email = value("email").toLowerCase();
-    const printer_model = value("printerModel");
     const experience = value("experience");
 
-    const split = (key: string) =>
-      value(key).split(",").map(x => x.trim()).filter(Boolean);
-
-    const materials = split("materials");
-    const nozzle_sizes = split("nozzleSizes");
-
-    let colors: Record<string, string[]>;
-
-    try {
-      colors = JSON.parse(value("colorsJson"));
-    } catch {
-      return reply("Colores inválidos", 400);
-    }
-
-    const validColors =
-      colors !== null &&
-      typeof colors === "object" &&
-      !Array.isArray(colors) &&
-      materials.every(material =>
-        Array.isArray(colors[material]) &&
-        colors[material].length > 0 &&
-        colors[material].length <= 30 &&
-        colors[material].every(
-          color =>
-            typeof color === "string" &&
-            color.trim().length > 0 &&
-            color.length <= 80
-        )
-      );
-
     const valid =
-      name.length > 0 && name.length <= 120 &&
+      name.length > 0 && name.length <= 80 &&
+      last_name.length > 0 && last_name.length <= 120 &&
+      postalCodePattern.test(postal_code) &&
       city.length > 0 && city.length <= 120 &&
-      printer_model.length > 0 && printer_model.length <= 180 &&
       email.length <= 254 &&
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-      allowedExperiences.includes(experience) &&
-      materials.length > 0 &&
-      materials.every(m => allowedMaterials.includes(m)) &&
-      nozzle_sizes.every(n => allowedNozzles.includes(n)) &&
-      (
-        materials.every(m => m === "Resina") ||
-        nozzle_sizes.length > 0
-      ) &&
-      validColors &&
-      value("colorsJson").length <= 5000;
+      allowedExperiences.includes(experience);
 
     if (!valid) {
       return reply("Datos incompletos o inválidos", 422);
     }
 
     // Verificación antibots
-    const token = value("cf-turnstile-response");
-    const secret = Deno.env.get("TURNSTILE_SECRET_KEY");
-
-    if (!token || !secret) {
-      return reply("Verificación de seguridad no disponible", 403);
-    }
-
-    let verified = false;
-
-    try {
-      const response = await fetch(
-        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            secret,
-            response: token,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        return reply("Error de verificación", 503);
-      }
-
-      const result = await response.json();
-
-      verified =
-        result.success === true &&
-        ["3dbok.com", "www.3dbok.com"].includes(result.hostname);
-    } catch {
-      return reply("Error de verificación", 503);
-    }
-
-    if (!verified) {
-      return reply("Verificación de seguridad fallida", 403);
-    }
+    const rejected = await verifyTurnstile(value("cf-turnstile-response"));
+    if (rejected) return rejected;
 
     // Registro en la base de datos
     const { error } = await ctx.supabaseAdmin
       .from("maker_applications")
       .insert({
         name,
-        email,
+        last_name,
+        postal_code,
         city,
-        printer_model,
-        materials,
-        nozzle_sizes,
+        email,
         experience,
-        colors,
       });
 
     if (error) {

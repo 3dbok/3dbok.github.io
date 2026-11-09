@@ -431,3 +431,9 @@ entrypoint = "./functions/register-maker/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/register-maker/*.html" ]
+
+[functions.maker-details]
+enabled = true
+verify_jwt = false
+import_map = "./functions/maker-details/deno.json"
+entrypoint = "./functions/maker-details/index.ts"
