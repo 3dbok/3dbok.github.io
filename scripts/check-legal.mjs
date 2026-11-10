@@ -6,7 +6,7 @@
  * El modo --remote exige que maker-details publicado en Supabase informe de su
  * versión activa mediante GET. Si no responde, el despliegue queda bloqueado.
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, appendFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
@@ -81,6 +81,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     const version = checkLocal();
     if (process.argv.includes("--remote")) await checkRemote(version);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+      appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+        `### Condiciones de uso comprobadas\\n\\n- Versión: \`${version}\`\\n- Repositorio: coherente\\n- Supabase: ${process.argv.includes("--remote") ? "versión desplegada verificada" : "no consultado en esta ejecución"}\\n\\n`);
+    }
   } catch (error) {
     console.error(`❌ ${error.message}`);
     process.exitCode = 1;
