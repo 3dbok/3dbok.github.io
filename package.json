@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run check:legal && astro build",
+    "check:legal": "node scripts/check-legal.mjs",
+    "check:legal:remote": "node scripts/check-legal.mjs --remote",
     "preview": "astro preview",
     "test": "node --test"
   },

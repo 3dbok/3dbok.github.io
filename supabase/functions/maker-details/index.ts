@@ -24,6 +24,14 @@ const rateLimiter = createRateLimiter("3dbok:maker-details:ratelimit");
 
 export default {
   fetch: withSupabase({ auth: "none" }, async (req, ctx) => {
+    // Endpoint sin datos personales para que CI compruebe la versión que
+    // realmente está desplegada. La respuesta no debe quedar cacheada.
+    if (req.method === "GET") {
+      return Response.json(
+        { termsVersion: ACTIVE_TERMS_VERSION },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+    }
     if (req.method !== "POST") {
       return reply("Método no permitido", 405);
     }

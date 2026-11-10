@@ -34,6 +34,11 @@ jobs:
       - name: Ejecutar pruebas
         run: npm test
 
+      # Fallar cerrado si la función desplegada en Supabase no confirma
+      # exactamente la versión contractual compilada para esta web.
+      - name: Verificar condiciones legales y versión de Supabase en producción
+        run: npm run check:legal:remote
+
       - name: Compilar el proyecto
         run: npm run build
         env:
