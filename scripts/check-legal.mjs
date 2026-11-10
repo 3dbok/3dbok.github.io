@@ -83,7 +83,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     if (process.argv.includes("--remote")) await checkRemote(version);
     if (process.env.GITHUB_STEP_SUMMARY) {
       appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-        `### Condiciones de uso comprobadas\\n\\n- Versión: \`${version}\`\\n- Repositorio: coherente\\n- Supabase: ${process.argv.includes("--remote") ? "versión desplegada verificada" : "no consultado en esta ejecución"}\\n\\n`);
+        `### Condiciones de uso comprobadas\n\n- Versión: \`${version}\`\n- Repositorio: coherente\n- Supabase: ${process.argv.includes("--remote") ? "versión desplegada verificada" : "no consultado en esta ejecución"}\n\n`);
     }
   } catch (error) {
     console.error(`❌ ${error.message}`);
