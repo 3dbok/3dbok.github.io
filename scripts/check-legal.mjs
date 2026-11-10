@@ -6,7 +6,7 @@
  * El modo --remote exige que maker-details publicado en Supabase informe de su
  * versión activa mediante GET. Si no responde, el despliegue queda bloqueado.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
@@ -28,12 +28,12 @@ export function checkLocal() {
   const page = read("src/pages/condiciones.astro");
   const form = read("src/pages/maker/equipo.astro");
   const server = read("supabase/functions/maker-details/index.ts");
-  const migration = read("supabase/migrations/20261110113000_maker_terms_acceptances.sql");
+  const migrations = readdirSync(resolve(ROOT, "supabase/migrations")).filter((f) => f.endsWith(".sql")).sort().map((f) => read(`supabase/migrations/${f}`));
+  const migrationText = migrations.join("\n");
   const version = extract("versión del formulario", form, /const VERSION_CONDICIONES = "([^"]+)"/);
   const serverVersion = extract("versión de la función", server, /const ACTIVE_TERMS_VERSION = "([^"]+)"/);
-  const sqlVersion = extract("versión reconocida por la migración", migration, /when '([^']+)' then '[a-f0-9]{40}'/);
   if (!/^\d{4}-\d{2}-\d{2}-v\d+$/.test(version)) fail(`Identificador de versión inválido: ${version}`);
-  if (version !== serverVersion || version !== sqlVersion) fail(`Versiones diferentes: formulario=${version}, función=${serverVersion}, SQL=${sqlVersion}.`);
+  if (version !== serverVersion) fail(`Versiones diferentes: formulario=${version}, función=${serverVersion}.`);
 
   const archivePath = `docs/legal/versions/${version}.astro`;
   const recordPath = `docs/legal/versions/${version}.md`;
@@ -48,13 +48,15 @@ export function checkLocal() {
   if (archive !== page) fail(`Las condiciones publicables no coinciden con ${archivePath}. Si modificas el texto, crea una nueva versión y su histórico.`);
   const sha = gitBlobSha(page);
   const registeredSha = extract("huella del histórico", record, /Git blob SHA del archivo contractual cerrado:\*\* \`([a-f0-9]{40})\`/);
-  const sqlSha = extract("huella de la migración", migration, /when '[^']+' then '([a-f0-9]{40})'/);
+  const sqlMatches = [...migrationText.matchAll(/when '([^']+)' then '([a-f0-9]{40})'/g)].filter((m) => m[1] === version);
+  if (sqlMatches.length !== 1) fail(`La versión ${version} debe estar registrada exactamente una vez en las migraciones SQL.`);
+  const sqlSha = sqlMatches[0][2];
   if (sha !== registeredSha || sha !== sqlSha) fail(`Huella incorrecta: contenido=${sha}, histórico=${registeredSha}, SQL=${sqlSha}.`);
   if (!record.includes(`Versión: \`${version}\``)) fail(`El registro histórico no identifica ${version}.`);
   if (!page.includes(`Versión de las condiciones: ${version}`)) fail("La página no muestra la versión vigente.");
   if (!form.includes('name="termsAccepted"') || !form.includes('data-terms-accepted') || !form.includes('required')) fail("Falta la casilla obligatoria de aceptación.");
   if (!form.includes('name="termsVersion"') || !server.includes('value("termsAccepted") !== "true"') || !server.includes('value("termsVersion") !== ACTIVE_TERMS_VERSION')) fail("Falta validar en el servidor la versión y aceptación enviadas.");
-  if (!migration.includes("maker_terms_acceptances") || !migration.includes("terms_accepted_at")) fail("Falta el historial de aceptaciones.");
+  if (!migrationText.includes("maker_terms_acceptances") || !migrationText.includes("terms_accepted_at")) fail("Falta el historial de aceptaciones.");
   console.log(`✅ Control legal local correcto: ${version} (Git blob ${sha}).`);
   return version;
 }
