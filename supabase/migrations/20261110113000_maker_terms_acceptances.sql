@@ -1,7 +1,8 @@
 -- Registro de aceptación de condiciones de makers.
 -- Aplicar ANTES de desplegar maker-details con la validación de términos.
--- La versión 2026-11-10-v1 corresponde al borrador de la rama legal:
--- REVISAR Y CERRAR LOS TEXTOS LEGALES antes de desplegar en producción.
+-- La versión 2026-11-10-v1 tiene texto congelado en GitHub.
+-- Antes de desplegar en producción: verificar identidad por email,
+-- revisar cumplimiento legal y ejecutar pruebas de migración.
 
 alter table public.maker_applications
   add column if not exists terms_version text,
@@ -58,7 +59,7 @@ begin
 
   -- Una huella documental por versión: no aceptar etiquetas arbitrarias.
   v_git_blob_sha := case new.terms_version
-    when '2026-11-10-v1' then '00bf43240080914e5425cad7a37201cfb44d2ec8'
+    when '2026-11-10-v1' then 'e88f53cd6b7bbea7e705f334cf4b2a6aeec78824'
     else null
   end;
   if v_git_blob_sha is null then
