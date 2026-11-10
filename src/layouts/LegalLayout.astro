@@ -1,0 +1,25 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import "../styles/legal.css";
+
+const {
+  title,
+  descripcion,
+  etiqueta = "Información legal",
+  actualizacion = "10 de noviembre de 2026",
+  noindex = false,
+} = Astro.props;
+---
+
+<BaseLayout title={title} descripcion={descripcion} noindex={noindex}>
+  <main class="legal">
+    <article class="envoltura legal__contenido">
+      <header class="legal__cabecera">
+        <p class="etiqueta etiqueta--marca">{etiqueta}</p>
+        <h1>{title}</h1>
+        <p class="legal__actualizacion dato">Última actualización: {actualizacion}</p>
+      </header>
+      <slot />
+    </article>
+  </main>
+</BaseLayout>
