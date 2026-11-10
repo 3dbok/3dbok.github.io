@@ -2,6 +2,17 @@
 
 This file applies to the whole repository. It describes the codebase as it exists and gives implementation guidance for future changes. Preserve existing behaviour and the established visual language unless a task explicitly calls for a redesign or product change.
 
+## Mandatory legal-version check before deployment
+
+3dbok uses versioned contractual terms. **Before touching `src/pages/condiciones.astro`, `src/pages/maker/equipo.astro`, `supabase/functions/maker-details/index.ts` or the legal migrations**, read `docs/legal/COMO_ACTUALIZAR_CONDICIONES.md`. Never silently modify terms while keeping an already-accepted version identifier.
+
+- Run `npm run check:legal` for consistency; `npm run build` automatically runs it.
+- `.github/workflows/check-legal.yml` checks PRs into `main`.
+- `.github/workflows/deploy.yml` additionally runs `npm run check:legal:remote` against the **deployed** Supabase Edge Function and blocks Pages deployment if it disagrees or is unavailable.
+- To publish a new version, create a complete historical copy, a new version entry with Git blob SHA, and an **additional** migration (do not rewrite applied migrations), then deploy Supabase before the frontend.
+- The endpoint check is not proof that SQL migrations were applied. Test the database separately.
+- The maker email ownership check and the legal notice's actual owner identification are pending prerequisites for reliable contractual and legal operation.
+
 ## Product and business context
 
 3dbok is a Spanish platform that connects:
