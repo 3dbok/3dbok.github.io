@@ -13,6 +13,10 @@ import { verifyTurnstile } from "../_shared/turnstile.ts";
 const allowedMaterials = ["PLA", "PETG", "ABS", "Resina", "TPU", "Nylon"];
 const allowedNozzles = ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"];
 
+// Versión que acepta este endpoint. Debe coincidir con /maker/equipo y el
+// archivo histórico inalterable registrado en docs/legal/versions/.
+const ACTIVE_TERMS_VERSION = "2026-11-10-v1";
+
 const reply = (message: string, status = 200) =>
   Response.json({ message }, { status });
 
@@ -20,6 +24,14 @@ const rateLimiter = createRateLimiter("3dbok:maker-details:ratelimit");
 
 export default {
   fetch: withSupabase({ auth: "none" }, async (req, ctx) => {
+    // Endpoint sin datos personales para que CI compruebe la versión que
+    // realmente está desplegada. La respuesta no debe quedar cacheada.
+    if (req.method === "GET") {
+      return Response.json(
+        { termsVersion: ACTIVE_TERMS_VERSION },
+        { headers: { "Cache-Control": "no-store" } },
+      );
+    }
     if (req.method !== "POST") {
       return reply("Método no permitido", 405);
     }
@@ -40,6 +52,10 @@ export default {
     const email = value("email").toLowerCase();
     const materials = split("materials");
     const multicolor = value("multicolor");
+    // Nunca confiar únicamente en la casilla del navegador: verificar aquí.
+    if (value("termsAccepted") !== "true" || value("termsVersion") !== ACTIVE_TERMS_VERSION) {
+      return reply("Debes aceptar la versión vigente de las condiciones de uso", 422);
+    }
 
     // Impresoras: [{ marca, modelo }], elegidas del catálogo o escritas a mano.
     let rawPrinters: unknown;
@@ -139,6 +155,9 @@ export default {
         nozzle_sizes,
         colors: normalizedColors,
         details_submitted_at: new Date().toISOString(),
+        terms_version: ACTIVE_TERMS_VERSION,
+        // La fecha se establece en la base de datos mediante un trigger para
+        // registrar una aceptación con hora del servidor, no del navegador.
       })
       .eq("email", email)
       .select("id");

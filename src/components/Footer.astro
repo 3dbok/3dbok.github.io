@@ -31,9 +31,15 @@ const anio = new Date().getFullYear();
     <div class="pie__columna">
       <p class="etiqueta">Contacto</p>
       <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>
-      <a href="/privacidad">Privacidad</a>
       <p class="pie__nota">Respondemos en 48 h laborables</p>
     </div>
+
+    <nav class="pie__columna" aria-label="Legal">
+      <p class="etiqueta">Legal</p>
+      <a href="/privacidad/">Política de privacidad</a>
+      <a href="/aviso-legal/">Aviso legal</a>
+      <a href="/condiciones/">Condiciones de uso</a>
+    </nav>
   </div>
 
   <div class="envoltura pie__cierre">
@@ -49,7 +55,7 @@ const anio = new Date().getFullYear();
 
   .pie__interior {
     display: grid;
-    grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr));
     gap: 2.5rem 2rem;
     padding-bottom: 2.5rem;
   }

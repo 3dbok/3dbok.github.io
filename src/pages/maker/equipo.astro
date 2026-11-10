@@ -1,6 +1,6 @@
 ---
-// Segundo formulario del alta: datos del equipo. No está enlazado desde la
-// web ni se indexa; mandamos el enlace por email al revisar el alta.
+// Formulario de datos del equipo durante el proceso de verificación.
+// No está enlazado desde la web ni se indexa; compartimos el enlace por email.
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { BOQUILLAS, FUNCIONES_SUPABASE, MATERIALES } from "../../lib/makerShared.js";
 import { MARCAS_IMPRESORA, MAX_IMPRESORAS, OTRO } from "../../lib/impresoras.js";
@@ -8,6 +8,8 @@ import "../../styles/AltaMaker.css";
 import "../../styles/EquipoMaker.css";
 
 const PASOS = ["Impresora y materiales", "Colores disponibles"];
+// Mantener sincronizada esta versión con la función maker-details y el registro de versiones.
+const VERSION_CONDICIONES = "2026-11-10-v1";
 
 const SUPABASE_DETALLES_ENDPOINT = `${FUNCIONES_SUPABASE}/maker-details`;
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
@@ -15,13 +17,13 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 <BaseLayout
   title="Datos de tu equipo"
-  descripcion="Último paso del alta de makers verificados en 3dbok: impresora, materiales, boquillas y colores disponibles."
+  descripcion="Completa los datos de tus impresoras, materiales, boquillas y colores durante la verificación de tu alta como maker en 3dbok."
   noindex
 >
   <main class="alta">
     <section class="equipo__cabecera">
       <div class="envoltura">
-        <p class="etiqueta">Para makers verificados</p>
+        <p class="etiqueta">Para makers en proceso de alta</p>
         <h1 class="alta__titulo equipo__titulo">Cuéntanos con qué imprimes</h1>
         <p class="equipo__entrada">
           Con estos datos te mandamos solo los encargos que puedes hacer con tu
@@ -29,9 +31,11 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
         </p>
         <div class="equipo__aviso" role="note">
           <p>
-            <strong>Antes de seguir:</strong> este formulario es solo para makers
-            que ya han pasado la verificación. Si todavía no te has dado de
-            alta,
+            <strong>Antes de seguir:</strong> completa este formulario si ya
+            te has registrado como maker y te hemos pedido los datos de tu equipo
+            para continuar con la verificación.
+            <br>
+            Si aún no te has registrado,
             <a href="/maker#alta-maker">empieza por darte de alta como maker</a>.
           </p>
         </div>
@@ -49,7 +53,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       >
         <aside class="alta__guia" aria-label="Progreso de los datos del equipo">
           <div class="alta__cabeza-guia">
-            <!-- La última capa de la pieza: el alta ya está hecha. -->
+            <!-- Progreso del formulario de equipo dentro del proceso de alta. -->
             <svg class="pila pila--fase-3" viewBox="0 0 32 32" aria-hidden="true">
               <rect width="32" height="32" rx="7.5" class="pila__placa"></rect>
               <rect x="6.5" y="20" width="19" height="4" rx="1.2" class="pila__capa pila__capa--1"></rect>
@@ -259,6 +263,28 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
             <div data-colors-container></div>
 
+            <div class="equipo__condiciones">
+              <label class="equipo__condiciones-casilla" for="equipo-condiciones">
+                <input
+                  id="equipo-condiciones"
+                  type="checkbox"
+                  name="termsAccepted"
+                  value="true"
+                  data-terms-accepted
+                  required
+                />
+                <span>
+                  He leído y acepto las <a href="/condiciones/" target="_blank" rel="noopener noreferrer">Condiciones de uso</a>
+                  de 3dbok (versión {VERSION_CONDICIONES}).
+                </span>
+              </label>
+              <input type="hidden" name="termsVersion" value={VERSION_CONDICIONES} />
+              <p class="equipo__condiciones-ayuda">
+                La aceptación es necesaria para completar tu solicitud. Te informamos
+                sobre el tratamiento de tus datos en la política de privacidad.
+              </p>
+            </div>
+
             <p class="alta__privacidad">
               Añadimos estos datos a tu solicitud de alta, guardada en una región
               europea de Supabase. Cloudflare Turnstile comprueba que el envío no
@@ -276,7 +302,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
             <p class="alta__error" data-equipo-error hidden role="alert" tabindex="-1"></p>
 
             <div class="alta__pie">
-              <p class="alta__requisito">Elige al menos un color por material.</p>
+              <p class="alta__requisito">Elige al menos un color por material y acepta las condiciones de uso.</p>
               <div class="alta__acciones alta__acciones--doble">
                 <button class="boton boton--secundario" data-prev="2" type="button">Atrás</button>
                 <button class="boton boton--principal" data-equipo-submit type="submit" disabled>
@@ -292,8 +318,9 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
         <p class="etiqueta">Datos recibidos</p>
         <h2 class="alta__titulo" data-success-title tabindex="-1">Ya casi está</h2>
         <p class="alta__texto">
-          Repasamos tu equipo y activamos tu perfil de maker. Te avisamos por
-          email en cuanto esté listo. Si tienes cualquier duda, escríbenos a
+          Revisaremos tu equipo junto con el resto de tu solicitud antes de
+          confirmar si podemos activar tu perfil. Te escribiremos con los siguientes
+          pasos. Si tienes cualquier duda, escríbenos a
           <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
         </p>
         <a href="/" class="boton boton--principal alta__accion">Volver al inicio</a>
@@ -318,6 +345,38 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
     font-size: var(--paso-1);
     line-height: 1.55;
     color: var(--tinta-media);
+  }
+
+  .equipo__condiciones {
+    margin-top: 1.5rem;
+    padding: 1.15rem;
+    background: var(--pieza);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-2);
+  }
+
+  .equipo__condiciones-casilla {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    cursor: pointer;
+    line-height: 1.55;
+  }
+
+  .equipo__condiciones-casilla input {
+    width: 1.2rem;
+    height: 1.2rem;
+    flex: 0 0 auto;
+    margin: 0.2rem 0 0;
+    accent-color: var(--cianotipo);
+    cursor: pointer;
+  }
+
+  .equipo__condiciones-ayuda {
+    margin-top: 0.6rem;
+    padding-left: 2.05rem;
+    color: var(--tinta-suave);
+    font-size: 0.85rem;
   }
 
   .equipo__aviso {
@@ -370,6 +429,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   const exito = document.querySelector("[data-equipo-success]");
   const error = document.querySelector("[data-equipo-error]");
   const enviar = document.querySelector("[data-equipo-submit]");
+  const casillaCondiciones = document.querySelector("[data-terms-accepted]");
   const entradas = Array.from(document.querySelectorAll("[data-equipo-input]"));
   const botonesMaterial = Array.from(document.querySelectorAll("[data-material]"));
   const zonaBoquillas = document.querySelector("[data-nozzle-container]");
@@ -590,7 +650,12 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   const actualizarBotones = () => {
     const siguiente = document.querySelector('[data-next="1"]');
     if (siguiente instanceof HTMLButtonElement) siguiente.disabled = !paso1Valido();
-    if (enviar instanceof HTMLButtonElement) enviar.disabled = !(paso1Valido() && paso2Valido());
+    if (enviar instanceof HTMLButtonElement) {
+      enviar.disabled = !(
+        paso1Valido() && paso2Valido() &&
+        casillaCondiciones instanceof HTMLInputElement && casillaCondiciones.checked
+      );
+    }
   };
 
   const actualizarProgreso = (numero) => {
@@ -710,6 +775,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   };
 
   entradas.forEach((entrada) => entrada.addEventListener("input", actualizarBotones));
+  casillaCondiciones?.addEventListener("change", actualizarBotones);
 
   botonesMulticolor.forEach((boton) => {
     boton.addEventListener("click", () => {
@@ -748,7 +814,10 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
     evento.preventDefault();
     if (!(enviar instanceof HTMLButtonElement) || enviar.disabled) return;
     if (!(formulario instanceof HTMLFormElement) || !exito || !(error instanceof HTMLElement)) return;
-    if (!paso1Valido() || !paso2Valido()) return;
+    if (
+      !paso1Valido() || !paso2Valido() ||
+      !(casillaCondiciones instanceof HTMLInputElement) || !casillaCondiciones.checked
+    ) return;
 
     enviar.disabled = true;
     enviar.textContent = "Enviando…";

@@ -1,0 +1,358 @@
+---
+import LegalLayout from "../layouts/LegalLayout.astro";
+
+const secciones = [
+  ["ambito", "Ámbito y aceptación"],
+  ["funcionamiento", "Cómo funciona 3dbok"],
+  ["registro", "Registro y verificación de makers"],
+  ["propuestas", "Presupuestos y contratación"],
+  ["pagos", "Precio y pagos"],
+  ["envios", "Fabricación y entrega"],
+  ["devoluciones", "Desistimiento, garantías y reclamaciones"],
+  ["obligaciones", "Obligaciones de los usuarios"],
+  ["archivos", "Archivos 3D y propiedad intelectual"],
+  ["seguridad", "Seguridad de los productos"],
+  ["perfiles", "Perfiles, fotografías y opiniones"],
+  ["responsabilidad", "Responsabilidades"],
+  ["suspension", "Medidas ante incumplimientos"],
+  ["cambios", "Cambios en el servicio y las condiciones"],
+  ["privacidad", "Privacidad y comunicaciones"],
+  ["normativa", "Ley aplicable y resolución de conflictos"],
+];
+---
+
+<LegalLayout
+  title="Condiciones de uso"
+  descripcion="Condiciones de uso de 3dbok para clientes y makers: solicitudes, presupuestos, pagos directos, impresión 3D, reclamaciones y archivos."
+  noindex={true}
+>
+  <p>
+    Estas condiciones explican las reglas básicas para utilizar 3dbok como cliente
+    o como maker. Queremos que sepas quién interviene en cada encargo, qué se
+    acuerda antes de imprimir y cómo comunicar cualquier problema.
+  </p>
+  <p class="dato">Versión de las condiciones: 2026-11-10-v1</p>
+  <nav class="legal__indice" aria-label="Índice de las condiciones">
+    <h2>En esta página</h2>
+    <ol>
+      {secciones.map(([id, titulo]) => <li><a href={`#${id}`}>{titulo}</a></li>)}
+    </ol>
+  </nav>
+
+  <h2 id="ambito">1. Ámbito y aceptación</h2>
+  <p>
+    3dbok es una plataforma que pone en contacto a quienes necesitan una pieza
+    impresa en 3D (en adelante, «clientes») con personas que cuentan con equipos
+    y conocimientos para fabricarla (en adelante, «makers»). El prestador del
+    servicio se identificará en el <a href="/aviso-legal/">Aviso legal</a>.
+  </p>
+  <p>
+    Estas condiciones regulan el uso de la web y la intermediación de 3dbok.
+    Consultar páginas públicas no implica contratar una fabricación. Al enviar
+    formularios, deben respetarse las reglas aplicables y los avisos específicos
+    del formulario. Cuando una operación o alta requiera aceptación contractual,
+    3dbok debe facilitar estas condiciones antes de la aceptación y conservar
+    prueba de la versión aceptada.
+  </p>
+  <p>
+    Si un maker y un cliente conciertan una fabricación, sus obligaciones
+    contractuales se establecen entre ellos en los términos de la propuesta
+    aceptada y conforme a la normativa aplicable. Las disposiciones que
+    correspondan por ley a consumidores no pueden quedar desplazadas por
+    estas condiciones ni por pactos que les resulten desfavorables.
+  </p>
+
+  <h2 id="funcionamiento">2. Cómo funciona 3dbok</h2>
+  <p>El proceso habitual es el siguiente:</p>
+  <ol>
+    <li>El cliente explica qué pieza necesita y, cuando corresponde, proporciona información técnica, medidas, fotografías o un modelo 3D.</li>
+    <li>3dbok revisa la información y puede contactar con uno o varios makers en función de la ubicación, el equipo, los materiales disponibles y la idoneidad del encargo.</li>
+    <li>El maker decide libremente si quiere valorar el trabajo y propone precio, plazo, material, entrega y otras condiciones lícitas.</li>
+    <li>El cliente decide si acepta la propuesta concreta. No existe una obligación de compra por presentar una solicitud.</li>
+    <li>Si las partes acuerdan realizar el trabajo, el maker fabrica y entrega la pieza conforme a lo pactado.</li>
+  </ol>
+  <p>
+    El envío de un formulario no garantiza la asignación de un maker,
+    la viabilidad técnica, un presupuesto ni un plazo de respuesta concreto.
+    La selección y asignación de propuestas puede incluir revisión manual;
+    no se garantiza la existencia de una asignación íntegramente automatizada.
+  </p>
+
+  <h2 id="registro">3. Registro y verificación de makers</h2>
+  <p>
+    Para solicitar la incorporación como maker pueden pedirse datos de contacto,
+    ubicación aproximada, experiencia y características de las impresoras.
+    También podrán solicitarse muestras o vídeos de impresión, como una prueba
+    Benchy, para una valoración inicial de la capacidad técnica.
+  </p>
+  <p>
+    La revisión del perfil no constituye una certificación oficial de calidad,
+    homologación del equipo ni garantía de todas las piezas futuras. 3dbok puede
+    solicitar aclaraciones o no activar un perfil cuando existan razones objetivas
+    relacionadas con la seguridad, la veracidad de los datos o la idoneidad del servicio,
+    con respeto a las normas aplicables. La solicitud de alta no obliga a
+    3dbok a aceptar al solicitante.
+  </p>
+  <p>
+    El maker se compromete a facilitar información correcta y actualizada
+    sobre materiales, capacidad productiva, disponibilidad y, cuando proceda,
+    su condición de profesional o particular. La actividad habitual y con
+    finalidad económica puede generar obligaciones fiscales, mercantiles,
+    de consumo y de seguridad que corresponde cumplir a quien la realiza.
+    Una autodeclaración no determina por sí sola su calificación legal.
+  </p>
+
+  <h2 id="propuestas">4. Presupuestos y contratación de encargos</h2>
+  <p>
+    Antes de iniciar la fabricación, el cliente y el maker deben acordar,
+    al menos, qué pieza se hará, cantidad, dimensiones o tolerancias relevantes,
+    material, acabado, precio total y gastos adicionales, plazo estimado,
+    forma de entrega, método de pago y condiciones legales de modificación,
+    cancelación y reclamación.
+  </p>
+  <p>
+    Una propuesta es orientativa hasta que las partes confirmen sus términos.
+    Si el diseño está incompleto o requiere modificaciones, deben aclararse
+    su alcance y coste antes de comenzar. Las modificaciones posteriores
+    requieren acuerdo y, cuando proceda, un presupuesto actualizado.
+    3dbok no puede aceptar un presupuesto en nombre del cliente ni del maker
+    sin autorización suficiente.
+  </p>
+  <p>
+    La confirmación del encargo genera una relación contractual entre cliente
+    y maker. Si el maker actúa como empresario o profesional frente a un
+    consumidor, deberá facilitar la información precontractual exigida
+    legalmente, incluida la información sobre su identidad, el precio total,
+    el derecho de desistimiento cuando exista y las garantías.
+  </p>
+
+  <h2 id="pagos">5. Precio y pagos</h2>
+  <p>
+    En la modalidad actualmente ofrecida, utilizar 3dbok no conlleva comisiones,
+    cuotas ni suscripciones por los encargos para clientes o makers. El
+    maker establece el presupuesto de fabricación y acuerda directamente
+    con el cliente el medio y el momento de pago.
+  </p>
+  <p>
+    3dbok no procesa, recibe ni retiene el dinero de estas operaciones; no
+    ofrece un servicio de depósito, protección del pago o reembolso gestionado
+    por la plataforma. Los pagos y posibles devoluciones monetarias se
+    gestionan entre las partes conforme a lo pactado y a la ley.
+  </p>
+  <p>
+    Un cambio futuro que introduzca comisiones u otros servicios de pago
+    se informará de manera clara antes de aplicarse y, cuando sea necesario,
+    exigirá la correspondiente aceptación. No se aplicarán cargos
+    retroactivos a operaciones previamente acordadas.
+  </p>
+
+  <h2 id="envios">6. Fabricación, plazos y entrega</h2>
+  <p>
+    El maker es responsable de realizar el trabajo que haya aceptado de
+    acuerdo con las especificaciones pactadas y las obligaciones legales que
+    le correspondan. Debe advertir de limitaciones técnicas relevantes
+    de la impresión 3D, especialmente cuando afecten a la resistencia,
+    precisión dimensional, acabado, temperatura de servicio o uso previsto.
+  </p>
+  <p>
+    Las partes acordarán si la entrega es en mano o mediante transporte,
+    quién lo contrata y paga y qué ocurre ante daños, extravío o retrasos.
+    La atribución legal de los riesgos, en particular en ventas de profesionales
+    a consumidores, prevalece sobre cualquier pacto contrario a sus derechos.
+    3dbok no presta actualmente un servicio de mensajería o logística.
+  </p>
+
+  <h2 id="devoluciones">7. Desistimiento, garantías y reclamaciones</h2>
+  <p>
+    Las condiciones de cancelación y devolución deben respetar la legislación
+    aplicable y no pueden dejarse íntegramente a la discreción del maker.
+    Si un maker vende como profesional a un consumidor, pueden existir
+    obligaciones específicas sobre información previa, conformidad de los
+    bienes, garantías y remedios por defectos.
+  </p>
+  <p>
+    En contratos a distancia con consumidores existe, por regla general,
+    un derecho de desistimiento de 14 días, con excepciones legales.
+    Entre ellas están los bienes confeccionados conforme a las
+    especificaciones del consumidor o claramente personalizados.
+    La excepción no se aplica de manera automática a cualquier objeto
+    fabricado mediante impresión 3D: depende de las características
+    reales del producto y del contrato.
+  </p>
+  <p>
+    La ausencia de desistimiento cuando legalmente proceda la excepción
+    no elimina la garantía legal ni los derechos ante productos defectuosos
+    o distintos de lo acordado. En España, la responsabilidad por falta de
+    conformidad de bienes nuevos en ventas de profesionales a consumidores
+    tiene, con carácter general, un plazo legal de tres años desde la entrega.
+    Los derechos aplicables pueden variar según las partes y la operación.
+  </p>
+  <p>
+    El cliente debe comunicar la incidencia al maker con la mayor
+    información posible (número de solicitud, fotografías, defecto
+    observado y fecha de entrega). También puede escribir a
+    <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a> para solicitar
+    ayuda en la comunicación. 3dbok podrá facilitar el contacto y revisar
+    incumplimientos de las reglas de la plataforma, pero no sustituye al
+    vendedor ni a las autoridades competentes.
+  </p>
+
+  <h2 id="obligaciones">8. Obligaciones de clientes y makers</h2>
+  <h3>El cliente se compromete a:</h3>
+  <ul>
+    <li>Proporcionar medidas, uso previsto y requisitos suficientemente claros para valorar el encargo.</li>
+    <li>Aportar archivos y contenidos que tenga derecho a usar y fabricar.</li>
+    <li>No solicitar objetos ilícitos ni ocultar usos que afecten a la seguridad del producto.</li>
+    <li>Respetar las condiciones aceptadas y mantener una comunicación correcta con el maker.</li>
+  </ul>
+  <h3>El maker se compromete a:</h3>
+  <ul>
+    <li>Actuar con diligencia y no ofrecer capacidades, certificaciones o materiales de los que carezca.</li>
+    <li>Informar de limitaciones, cambios y retrasos relevantes antes de continuar con la fabricación.</li>
+    <li>Respetar las normas aplicables a su actividad, tributación, facturación, consumo y seguridad de productos.</li>
+    <li>Proteger los modelos y datos del cliente y no reutilizarlos ni distribuirlos sin autorización.</li>
+    <li>Atender directamente las incidencias y los derechos que correspondan al comprador.</li>
+  </ul>
+  <p>
+    Ambas partes se comprometen a no utilizar el servicio para fraudes,
+    comunicaciones abusivas, contenidos ilícitos o actividades que vulneren
+    derechos de terceros.
+  </p>
+
+  <h2 id="archivos">9. Archivos 3D y propiedad intelectual</h2>
+  <p>
+    El cliente debe asegurarse de que cuenta con los derechos o una licencia
+    suficiente para encargar la fabricación de diseños y archivos STL, 3MF,
+    STEP u otros formatos que aporte. Que un modelo esté disponible
+    gratuitamente en internet no significa necesariamente que se permita
+    su fabricación con fines comerciales.
+  </p>
+  <p>
+    Los derechos sobre el diseño original no se transfieren a 3dbok ni al
+    maker por el mero envío del archivo. El cliente autoriza exclusivamente
+    los usos necesarios para evaluar y, si acepta el presupuesto,
+    fabricar el encargo acordado, sin perjuicio de otras autorizaciones
+    pactadas con su verdadero titular.
+  </p>
+  <p>
+    El maker no podrá publicar, vender, compartir ni reutilizar los
+    archivos del cliente para otros pedidos sin autorización válida.
+    Deberá emplear canales razonablemente seguros de intercambio y
+    acordar con el cliente cuándo eliminar los archivos de trabajo, salvo
+    obligaciones legales de conservación.
+  </p>
+  <p>
+    Si se detecta una posible infracción de propiedad intelectual, puede
+    comunicarse a <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>,
+    identificando la obra, el contenido cuestionado y el motivo de la reclamación.
+    La plataforma podrá estudiar la incidencia y adoptar las medidas que
+    legalmente correspondan.
+  </p>
+
+  <h2 id="seguridad">10. Seguridad de los productos y encargos no admitidos</h2>
+  <p>
+    Los makers deben evaluar las exigencias de seguridad aplicables al
+    producto, su material, el uso previsto y el público al que se destina.
+    La impresión 3D no garantiza por sí misma aptitud para contacto
+    alimentario, uso médico, aplicaciones eléctricas, contacto infantil
+    o funciones estructurales críticas. No deben hacerse alegaciones
+    técnicas o de certificación sin fundamento.
+  </p>
+  <p>
+    3dbok podrá rechazar solicitudes de objetos cuya fabricación o venta
+    sea ilícita o implique un riesgo injustificado, incluidos productos
+    prohibidos, artículos que vulneren derechos de terceros o elementos
+    cuya seguridad no pueda acreditarse cuando sea exigible. Esta facultad
+    no sustituye las obligaciones del fabricante ni las de la plataforma
+    que establezca la normativa.
+  </p>
+
+  <h2 id="perfiles">11. Perfiles públicos, fotografías y opiniones</h2>
+  <p>
+    Cuando se habiliten perfiles públicos, 3dbok podrá solicitar al maker
+    fotografías, una presentación y ejemplos de trabajos. Su publicación
+    se realizará en los términos autorizados y no implica que 3dbok
+    adquiera los derechos sobre estos materiales.
+  </p>
+  <p>
+    Las opiniones deben corresponder a experiencias reales y expresarse
+    de buena fe, sin suplantaciones, insultos ni datos personales de terceros.
+    3dbok puede moderar las opiniones conforme a criterios objetivos
+    y a las obligaciones legales. La forma en que se comprueben las
+    valoraciones y su posible influencia en la asignación de encargos
+    se explicará cuando esas funciones estén operativas.
+  </p>
+
+  <h2 id="responsabilidad">12. Responsabilidades de las partes</h2>
+  <p>
+    Como regla general, el maker responde frente al cliente de la fabricación,
+    entrega y conformidad de las piezas que venda o fabrique, conforme
+    a la naturaleza del contrato y a la ley. El cliente responde de
+    la información y materiales que suministre y de sus propias
+    obligaciones contractuales.
+  </p>
+  <p>
+    3dbok presta un servicio de intermediación y responde de sus
+    propias actuaciones, servicios y obligaciones legales. No garantiza
+    que todos los pedidos se acepten ni que todos los productos fabricados
+    por terceros sean adecuados para cualquier finalidad. Ninguna cláusula
+    excluye o limita responsabilidades imperativas, incluidas las que
+    procedan por daños, conducta propia o incumplimiento legal.
+  </p>
+
+  <h2 id="suspension">13. Incumplimientos y medidas sobre el servicio</h2>
+  <p>
+    En caso de indicios fundados de fraude, información falsa, riesgos para
+    la seguridad, infracción de derechos o incumplimiento de estas
+    condiciones, 3dbok podrá pedir información adicional, limitar
+    solicitudes, retirar contenidos o suspender la participación,
+    respetando las garantías, motivación y vías de reclamación que
+    sean exigibles por la normativa aplicable.
+  </p>
+  <p>
+    Puedes notificar contenido presuntamente ilícito y formular
+    reclamaciones sobre decisiones de moderación escribiendo a
+    <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>,
+    con el enlace o referencia del contenido y una explicación.
+  </p>
+
+  <h2 id="cambios">14. Cambios en el servicio y estas condiciones</h2>
+  <p>
+    Podremos actualizar estas condiciones por motivos legales,
+    técnicos o cambios en el servicio. Indicaremos la fecha de la
+    versión y comunicaremos las modificaciones relevantes con la
+    antelación que corresponda, para que quien deba aceptarlas
+    pueda hacerlo antes de que resulten aplicables.
+    Las modificaciones no alterarán retroactivamente los acuerdos
+    de fabricación ya concluidos.
+  </p>
+
+  <h2 id="privacidad">15. Privacidad y comunicaciones</h2>
+  <p>
+    El tratamiento de datos personales y el uso de proveedores
+    se describen en la <a href="/privacidad/">Política de privacidad</a>.
+    Los datos de contacto proporcionados para una solicitud se usarán
+    para atenderla y mantener las comunicaciones necesarias.
+    Las comunicaciones comerciales, si las hubiera, se regirán por
+    sus requisitos legales específicos.
+  </p>
+
+  <h2 id="normativa">16. Ley aplicable y resolución de conflictos</h2>
+  <p>
+    Estas condiciones se interpretan conforme a la normativa española
+    y europea que corresponda. Si surge un desacuerdo entre cliente y
+    maker, recomendamos intentar primero una solución documentada
+    y amistosa, sin perjuicio del derecho a acudir a las autoridades
+    de consumo u organismos competentes y a los tribunales que
+    correspondan conforme a la ley.
+  </p>
+  <p>
+    No se establece un fuero obligatorio distinto del legalmente
+    aplicable a las personas consumidoras. Para consultas sobre
+    la plataforma, escribe a
+    <a href="mailto:contacto@3dbok.com">contacto@3dbok.com</a>.
+  </p>
+  <div class="legal__cierre">
+    <p>Consulta también el <a href="/aviso-legal/">Aviso legal</a> y nuestra <a href="/privacidad/">Política de privacidad</a>.</p>
+  </div>
+</LegalLayout>
