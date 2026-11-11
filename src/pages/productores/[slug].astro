@@ -4,7 +4,7 @@ import MaterialChip from "../../components/MaterialChip.astro";
 import Estrellas from "../../components/Estrellas.astro";
 import productores from "../../data/productores.json";
 import resenasData from "../../data/resenas.json";
-import { MATERIALES, calcularMediaValoracion } from "../../lib/productorShared.js";
+import { calcularMediaValoracion } from "../../lib/productorShared.js";
 import "../../styles/ProductorPage.css";
 
 export function getStaticPaths() {
@@ -37,18 +37,9 @@ const fichaTecnica = [
     valor: productor.tamNozzle.join(" · "),
     nota: "El diámetro influye en el detalle y el tiempo de impresión.",
   },
-  {
-    clave: "Respuesta habitual",
-    valor: `~${productor.tiempoRespuestaHoras} h`,
-    nota: "Tiempo aproximado para responder al briefing.",
-  },
 ];
 
-const formatearPrecio = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-  minimumFractionDigits: 2,
-});
+const piezas = productor.productos.slice(0, 9);
 
 const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
 ---
@@ -90,17 +81,6 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
               </div>
             </div>
           </div>
-
-          <dl class="ficha__resumen">
-            <div>
-              <dt class="etiqueta">Respuesta habitual</dt>
-              <dd class="dato">~{productor.tiempoRespuestaHoras} h</dd>
-            </div>
-            <div>
-              <dt class="etiqueta">Trabajos publicados</dt>
-              <dd class="dato">{String(productor.productos.length).padStart(2, "0")}</dd>
-            </div>
-          </dl>
         </div>
 
         <div class="ficha__encargo en-cianotipo">
@@ -156,84 +136,54 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
       </aside>
 
       <div class="ficha__contenido">
-        <section class="ficha__trabajos" aria-labelledby="trabajos-titulo">
+        <section class="ficha__galeria" aria-labelledby="galeria-titulo">
           <header class="ficha__seccion-cabecera">
             <div>
               <p class="etiqueta etiqueta--marca">Muestra del taller</p>
-              <h2 class="ficha__seccion-titulo" id="trabajos-titulo">
-                Trabajos publicados
+              <h2 class="ficha__seccion-titulo" id="galeria-titulo">
+                Galería
               </h2>
             </div>
             <p class="ficha__seccion-intro">
-              Referencias reales para entender el tamaño, material, tiempo y
-              precio de piezas similares.
+              Fotos de trabajos reales para ver el tipo de piezas que imprime
+              este taller.
             </p>
           </header>
 
           {
-            productor.productos.length === 0 ? (
+            piezas.length === 0 ? (
               <div class="ficha__vacio">
-                <p class="etiqueta">Sin trabajos publicados</p>
+                <p class="etiqueta">Galería vacía</p>
                 <p>
-                  Todavía no ha publicado ningún trabajo. Puedes encargarle una
-                  pieza igualmente.
+                  Todavía no ha subido fotos de sus trabajos. Puedes encargarle
+                  una pieza igualmente.
                 </p>
               </div>
             ) : (
-              <div class="trabajos" data-cantidad={productor.productos.length}>
-                {productor.productos.map((producto, indice) => (
-                  <a
-                    class="trabajo"
-                    href={`/briefing?maker=${encodeURIComponent(productor.id)}&product=${encodeURIComponent(producto.id)}`}
-                  >
-                    <div class="trabajo__visual">
-                      <p class="trabajo__numero dato">
-                        Referencia {String(indice + 1).padStart(2, "0")}
-                      </p>
+              <ul class="galeria" role="list">
+                {piezas.map((pieza, indice) => (
+                  <li class="galeria__celda">
+                    <button
+                      type="button"
+                      class="galeria__boton"
+                      data-galeria-abrir
+                      data-indice={indice}
+                      data-foto={pieza.foto}
+                      data-titulo={pieza.nombre}
+                    >
                       <img
-                        class="trabajo__foto"
-                        src={producto.foto}
-                        alt={producto.nombre}
+                        class="galeria__foto"
+                        src={pieza.foto}
+                        alt={pieza.nombre}
                         loading="lazy"
+                        width="400"
+                        height="400"
                       />
-                    </div>
-                    <div class="trabajo__cuerpo">
-                      <p class="etiqueta">Pieza publicada</p>
-                      <h3 class="trabajo__nombre">{producto.nombre}</h3>
-                      <p class="trabajo__intro">
-                        Una referencia para orientar tu solicitud. El precio final
-                        depende de los detalles del encargo.
-                      </p>
-                      <dl class="trabajo__ficha">
-                        <div>
-                          <dt>Material</dt>
-                          <dd>
-                            {MATERIALES[producto.material]?.label ?? producto.material}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Medidas</dt>
-                          <dd>{producto.dimensiones}</dd>
-                        </div>
-                        <div>
-                          <dt>Tiempo de impresión</dt>
-                          <dd>{producto.tiempoImpresionHoras} h</dd>
-                        </div>
-                      </dl>
-                      <div class="trabajo__pie">
-                        <p class="trabajo__precio">
-                          <span>Precio publicado desde</span>
-                          {formatearPrecio.format(producto.precioDesde)}
-                        </p>
-                        <span class="trabajo__accion">
-                          Pedir una similar
-                          <span class="boton__flecha" aria-hidden="true">→</span>
-                        </span>
-                      </div>
-                    </div>
-                  </a>
+                      <span class="galeria__lupa" aria-hidden="true">⤢</span>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )
           }
         </section>
@@ -378,10 +328,105 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
         </section>
       </div>
     </div>
+
+    <dialog class="visor" data-galeria-visor aria-label="Galería del taller">
+      <div class="visor__marco" data-galeria-fondo>
+        <button
+          type="button"
+          class="visor__cerrar"
+          data-galeria-cerrar
+          aria-label="Cerrar galería"
+        >
+          ×
+        </button>
+        <button
+          type="button"
+          class="visor__nav visor__nav--prev"
+          data-galeria-prev
+          aria-label="Foto anterior"
+          hidden={piezas.length <= 1}
+        >
+          ‹
+        </button>
+        <figure class="visor__figura">
+          <img class="visor__foto" data-galeria-foto src="" alt="" />
+        </figure>
+        <button
+          type="button"
+          class="visor__nav visor__nav--next"
+          data-galeria-next
+          aria-label="Foto siguiente"
+          hidden={piezas.length <= 1}
+        >
+          ›
+        </button>
+      </div>
+    </dialog>
   </main>
 </BaseLayout>
 
 <script>
+  const visor = document.querySelector("[data-galeria-visor]");
+  const aperturas = Array.from(document.querySelectorAll("[data-galeria-abrir]"));
+
+  if (visor && aperturas.length) {
+    const foto = visor.querySelector("[data-galeria-foto]");
+    const fondo = visor.querySelector("[data-galeria-fondo]");
+    const prev = visor.querySelector("[data-galeria-prev]");
+    const siguiente = visor.querySelector("[data-galeria-next]");
+    const cerrar = visor.querySelector("[data-galeria-cerrar]");
+
+    const piezas = aperturas.map((boton) => ({
+      foto: boton.dataset.foto || "",
+      titulo: boton.dataset.titulo || "",
+    }));
+    let actual = 0;
+    let origen = null;
+
+    const mostrar = (indice) => {
+      actual = (indice + piezas.length) % piezas.length;
+      const pieza = piezas[actual];
+      foto.src = pieza.foto;
+      foto.alt = pieza.titulo;
+    };
+
+    const abrir = (indice, boton) => {
+      origen = boton;
+      mostrar(indice);
+      if (typeof visor.showModal === "function") visor.showModal();
+      else visor.setAttribute("open", "");
+    };
+
+    aperturas.forEach((boton, indice) => {
+      boton.addEventListener("click", () => abrir(indice, boton));
+    });
+
+    prev?.addEventListener("click", () => mostrar(actual - 1));
+    siguiente?.addEventListener("click", () => mostrar(actual + 1));
+    cerrar?.addEventListener("click", () => visor.close());
+
+    fondo?.addEventListener("click", (evento) => {
+      if (evento.target === fondo) visor.close();
+    });
+
+    visor.addEventListener("keydown", (evento) => {
+      if (piezas.length <= 1) return;
+      if (evento.key === "ArrowLeft") {
+        evento.preventDefault();
+        mostrar(actual - 1);
+      } else if (evento.key === "ArrowRight") {
+        evento.preventDefault();
+        mostrar(actual + 1);
+      }
+    });
+
+    visor.addEventListener("close", () => {
+      foto.removeAttribute("src");
+      origen?.focus({ preventScroll: true });
+      origen = null;
+    });
+  }
+
   const formulario = document.querySelector("[data-review-form]");
   const exito = document.querySelector("[data-review-success]");
   const error = document.querySelector("[data-review-error]");
