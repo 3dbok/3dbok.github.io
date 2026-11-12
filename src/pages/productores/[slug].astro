@@ -5,6 +5,7 @@ import Estrellas from "../../components/Estrellas.astro";
 import productores from "../../data/productores.json";
 import resenasData from "../../data/resenas.json";
 import { calcularMediaValoracion } from "../../lib/productorShared.js";
+import { fotoDeProductor, galeriaDeProductor } from "../../lib/imagenesProductor.js";
 import "../../styles/ProductorPage.css";
 
 export function getStaticPaths() {
@@ -39,7 +40,11 @@ const fichaTecnica = [
   },
 ];
 
-const piezas = productor.productos.slice(0, 9);
+const foto = fotoDeProductor(productor.slug);
+const galeria = galeriaDeProductor(productor.slug).map((ruta, indice) => ({
+  foto: ruta,
+  titulo: `Foto ${indice + 1} del taller de ${productor.nombre}`,
+}));
 
 const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
 ---
@@ -57,7 +62,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
           <div class="ficha__identidad">
             <img
               class="ficha__retrato"
-              src={productor.foto}
+              src={foto}
               alt=""
               width="120"
               height="120"
@@ -151,7 +156,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
           </header>
 
           {
-            piezas.length === 0 ? (
+            galeria.length === 0 ? (
               <div class="ficha__vacio">
                 <p class="etiqueta">Galería vacía</p>
                 <p>
@@ -161,7 +166,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
               </div>
             ) : (
               <ul class="galeria" role="list">
-                {piezas.map((pieza, indice) => (
+                {galeria.map((pieza, indice) => (
                   <li class="galeria__celda">
                     <button
                       type="button"
@@ -169,12 +174,12 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
                       data-galeria-abrir
                       data-indice={indice}
                       data-foto={pieza.foto}
-                      data-titulo={pieza.nombre}
+                      data-titulo={pieza.titulo}
                     >
                       <img
                         class="galeria__foto"
                         src={pieza.foto}
-                        alt={pieza.nombre}
+                        alt={pieza.titulo}
                         loading="lazy"
                         width="400"
                         height="400"
@@ -344,7 +349,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
           class="visor__nav visor__nav--prev"
           data-galeria-prev
           aria-label="Foto anterior"
-          hidden={piezas.length <= 1}
+          hidden={galeria.length <= 1}
         >
           ‹
         </button>
@@ -356,7 +361,7 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
           class="visor__nav visor__nav--next"
           data-galeria-next
           aria-label="Foto siguiente"
-          hidden={piezas.length <= 1}
+          hidden={galeria.length <= 1}
         >
           ›
         </button>

@@ -71,7 +71,6 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
       <div class="brief__panel">
         <p class="etiqueta etiqueta--marca brief__etiqueta">Solicitud de impresión</p>
 
-        <p class="brief__elegido" data-selected-product hidden></p>
         <p class="brief__recuperado dato" data-draft-notice role="status" hidden></p>
 
         <h1 class="brief__titulo" data-step-title tabindex="-1">
@@ -204,9 +203,6 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
                   <option
                     value={productor.id}
                     data-slug={productor.slug}
-                    data-products={JSON.stringify(
-                      productor.productos.map(({ id, nombre }) => ({ id, nombre })),
-                    )}
                   >
                     {productor.nombre} — {productor.ubicacion}
                   </option>
@@ -584,7 +580,6 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     font-weight: 400;
   }
 
-  .brief__elegido,
   .brief__recuperado {
     padding: 0.8rem 1rem;
     margin-bottom: 1.25rem;
@@ -969,7 +964,6 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
   const estadoArchivo = document.querySelector("[data-design-file-status]");
   const botonQuitarArchivo = document.querySelector("[data-design-remove]");
   const contador = document.querySelector("[data-description-count]");
-  const trabajoElegido = document.querySelector("[data-selected-product]");
   const vistaStl = document.querySelector("[data-stl-preview]");
   const lienzoStl = document.querySelector("[data-stl-container]");
   const mensajeStl = document.querySelector("[data-stl-message]");
@@ -1262,22 +1256,6 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     selectorMaker.value = opcionMaker?.value ?? (valorRestauradoValido ? pedido.makerId : "recommended");
     pedido.makerId = selectorMaker.value;
     origenMakerSlug = opcionMaker?.dataset.slug ?? "";
-
-    let trabajos = [];
-    try {
-      trabajos = JSON.parse(opcionMaker?.dataset.products || "[]");
-    } catch {}
-
-    const trabajo = trabajos.find((item) => item.id === parametros.get("product"));
-    if (trabajo) {
-      pedido.productId = trabajo.id;
-      pedido.productName = trabajo.nombre;
-      selectorMaker.disabled = true;
-      if (trabajoElegido) {
-        trabajoElegido.textContent = `Trabajo elegido: ${trabajo.nombre}. Completa los pasos para solicitar uno similar.`;
-        trabajoElegido.hidden = false;
-      }
-    }
   }
 
   sincronizarCampos();

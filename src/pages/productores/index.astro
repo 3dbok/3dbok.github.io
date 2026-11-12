@@ -5,6 +5,7 @@ import Estrellas from "../../components/Estrellas.astro";
 import productores from "../../data/productores.json";
 import resenas from "../../data/resenas.json";
 import { calcularMediaValoracion } from "../../lib/productorShared.js";
+import { fotoDeProductor } from "../../lib/imagenesProductor.js";
 import "../../styles/ProductorPage.css";
 
 const ciudades = [...new Set(productores.map((productor) => productor.ubicacion))];
@@ -67,7 +68,7 @@ const recuento =
 
                   <img
                     class="fila-maker__foto"
-                    src={productor.foto}
+                    src={fotoDeProductor(productor.slug)}
                     alt=""
                     width="112"
                     height="112"

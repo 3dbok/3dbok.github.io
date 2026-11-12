@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PiezaEnCapas from "../components/PiezaEnCapas.astro";
 import MaterialChip from "../components/MaterialChip.astro";
 import productores from "../data/productores.json";
+import { fotoDeProductor } from "../lib/imagenesProductor.js";
 import { tonosDePared } from "../lib/capas.js";
 
 // Los makers que ya están dados de alta, con nombre y taller: es más honesto
@@ -461,7 +462,7 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
               <li class="ficha">
                 <img
                   class="ficha__foto"
-                  src={maker.foto}
+                  src={fotoDeProductor(maker.slug)}
                   alt=""
                   width="120"
                   height="120"
