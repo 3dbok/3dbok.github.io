@@ -119,5 +119,38 @@
     "materiales": ["PLA", "PETG", "ABS"],
     "impresoras": ["Creality K2"],
     "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm"]
+  },
+  {
+    "id": "fierasoul",
+    "slug": "fierasoul",
+    "nombre": "FieraSouL",
+    "ubicacion": "Valencia, España",
+    "bio": "Manitas y curioso por naturaleza. Imprimo por gusto y eso se nota.\n\nUna impresora, diferentes filamentos, caja cerrada, multicolor y multimaterial.",
+    "especialidades": ["Abierto a cualquier proyecto que encaje con mi perfil de impresión"],
+    "materiales": ["PLA", "PETG", "TPU"],
+    "impresoras": ["Bambu Lab P1S"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "pedro-gonzalez",
+    "slug": "pedro-gonzalez",
+    "nombre": "Pedro González",
+    "ubicacion": "Ávila, España",
+    "bio": "Soy un abulense apasionado por las impresoras 3D. Tengo en mi arsenal la impresora Sindoh 3Dwox1 desde hace mas de 2 años, con mi taller situado en Ávila capital puedo solucionar encargos a toda la provincia y más allá mediante correos y otras empresas certificadas.\n\nMe encanta el modelado y la impresión 3D así como otras habilidades técnicas como el vuelo de UAS (drones) para lo que cuento con todos los certificados.",
+    "especialidades": ["Repuestos", "Piezas descatalogadas", "Replicas exactas de piezas reales", "Elementos interactivos", "Objetos de juegos", "Encargos personalizados", "Elementos decorativos", "Piezas para Scouts"],
+    "materiales": ["PLA", "PETG", "ABS"],
+    "impresoras": ["Sindoh 3DWOX 1"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "avidtronics",
+    "slug": "avidtronics",
+    "nombre": "Avidtronics",
+    "ubicacion": "Barcelona, España",
+    "bio": "Todo comenzó con un proyecto de una prótesis, ahí me compré mi primera Ender 3. Para poder financiar mi proyecto empecé a vender productos 3d y gracias a eso pude comprarme las siguientes impresoras.\n\nA día de hoy AVIDTRONICS es un negocio de impresión 3d, kits de robótica educativa y la meta son las prótesis económicas 🦾",
+    "especialidades": ["Figuras personalizadas", "Kit robótica", "Decoraciones", "Prótesis", "Deckbox", "Productos para mascotas"],
+    "materiales": ["PLA", "PETG", "RESINA", "TPU"],
+    "impresoras": ["Bambu Lab A1 Mini", "Bambu Lab A1", "Snapmaker U1", "Elegoo Mars 5"],
+    "tamNozzle": ["0.2 mm", "0.4 mm"]
   }
 ]
