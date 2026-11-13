@@ -148,8 +148,7 @@ Prefer extending an existing component or shared helper when a pattern is used o
 
 ```text
 id, slug, nombre, ubicacion, bio,
-especialidades[], materiales[], impresoras[], tamNozzle[],
-tiempoRespuestaHoras
+especialidades[], materiales[], impresoras[], tamNozzle[]
 ```
 
 Producers no longer carry image paths or a `productos[]` array; images follow a folder convention instead.

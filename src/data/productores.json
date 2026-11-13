@@ -8,7 +8,116 @@
     "especialidades": ["Figuras Industriales", "Repuestos", "Decoración"],
     "materiales": ["PLA"],
     "impresoras": ["Bambu Lab A1 Mini"],
-    "tamNozzle": ["0.2 mm", "0.4 mm"],
-    "tiempoRespuestaHoras": 48
+    "tamNozzle": ["0.2 mm", "0.4 mm"]
+  },
+  {
+    "id": "victor",
+    "slug": "victor",
+    "nombre": "Victor",
+    "ubicacion": "Amposta, España",
+    "bio": "Soy un apasionado de la impresión 3D y la fabricación digital. Trabajo con una Bambu Lab H2D y me centro principalmente en crear piezas personalizadas, prototipos y soluciones para problemas reales.\n\nMe gusta diseñar y fabricar piezas que sean útiles, funcionales y tengan buenos acabados. También trabajo con personalización y grabado láser.",
+    "especialidades": ["Repuestos y recambios de piezas de plástico", "Carcasas para electrónica y proyectos DIY", "Decoración y objetos personalizados", "Prototipos"],
+    "materiales": ["PLA", "PETG", "ABS", "TPU"],
+    "impresoras": ["Bambu Lab H2D"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "bernylop",
+    "slug": "bernylop",
+    "nombre": "Bernylop",
+    "ubicacion": "Málaga, España",
+    "bio": "Maker desde hace más de un año, tengo un pequeño taller en casa donde hago de todo y diseño mis propias piezas. Prefiero la calidad a la cantidad.",
+    "especialidades": ["Decoración", "Piezas de Airsoft"],
+    "materiales": ["PLA", "PETG", "ABS", "TPU"],
+    "impresoras": ["Bambu Lab P1S"],
+    "tamNozzle": ["0.2 mm", "0.4 mm"]
+  },
+  {
+    "id": "alex",
+    "slug": "alex",
+    "nombre": "Alex",
+    "ubicacion": "Salceda de Caselas, España",
+    "bio": "Mi nombre es Alex y llevo desde mediados de 2025 adentrándome en el mundo de la impresión 3D.\n\nMe dedico a crear e imprimir todo tipo de piezas y objetos, desde llaveros, accesorios y utensilios para el hogar hasta soportes para herramientas y piezas funcionales, como engranajes y componentes de ingeniería.\n\nActualmente sigo aprendiendo y perfeccionando mis habilidades en el diseño 3D, creando mis propios archivos y desarrollando proyectos cada vez más complejos y originales. Mi objetivo es dar forma a nuevas ideas y convertirlas en piezas reales, útiles y personalizadas.",
+    "especialidades": ["Llaveros", "Engranajes", "Componentes de ingeniería", "Piezas funcionales", "Soportes para herramientas"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Bambu Lab A1"],
+    "tamNozzle": ["0.2 mm", "0.4 mm"]
+  },
+  {
+    "id": "3detalles",
+    "slug": "3detalles",
+    "nombre": "3Detalles",
+    "ubicacion": "Valladolid, España",
+    "bio": "Soy Daniel, de Herrera de Duero (Valladolid), y llevo más de 4 años en el mundo de la impresión 3D.\n\nAhora me centro sobre todo en el merchandising deportivo, en especial para clubes de deporte base. Diseño mis propias piezas desde cero en Fusion 360 e imprimo con dos Bambu Lab (P1S y A1), así que puedo hacer tanto piezas únicas como series de varias unidades.\n\nPuedes ver mis trabajos en @3detalles3, donde no solo hay escudos, también figuras, personalizados...",
+    "especialidades": ["Decoración", "Regalos personalizados", "Escudos", "Logotipos", "Trofeos", "Diseño 3D a medida"],
+    "materiales": ["PLA"],
+    "impresoras": ["Bambu Lab A1", "Bambu Lab P1S"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "dmamu3d",
+    "slug": "dmamu3d",
+    "nombre": "Dmamu3D",
+    "ubicacion": "Polinyà del Xúquer, España",
+    "bio": "Mi nombre es Daniel. En las navidades pasadas decidí emprender en este mundo, y la verdad que cada vez me fascina más, y sobre todo, saber hasta dónde puedo llegar y qué será lo siguiente en crear.",
+    "especialidades": ["Figuras", "Decoración", "Urnas de Incineración de animales", "Repuestos", "Llaveros"],
+    "materiales": ["PLA", "PETG", "ABS"],
+    "impresoras": ["Bambu Lab A1 Mini", "Bambu Lab P2S"],
+    "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm"]
+  },
+  {
+    "id": "eric",
+    "slug": "eric",
+    "nombre": "Eric",
+    "ubicacion": "Barcelona, España",
+    "bio": "¡Hola! Soy un maker apasionado por el diseño, la tecnología y la fabricación mediante impresión 3D. Trabajo desde mi propio taller, donde doy forma a ideas y proyectos, transformando diseños digitales en piezas físicas.\n\nMe gusta cuidar cada detalle del proceso, desde el diseño y la elección del material hasta la impresión y el postprocesado, buscando siempre el mejor resultado posible. Cuento con capacidad para trabajar con diferentes materiales, incluido TPU para la fabricación de piezas flexibles y resistentes.\n\nActualmente estoy especialmente enfocado en el sector FPV, desarrollando accesorios y componentes para drones, aunque estoy abierto a explorar nuevos sectores y afrontar proyectos de todo tipo.\n\nMi objetivo es ofrecer soluciones personalizadas, piezas funcionales y creaciones únicas, adaptándome a las necesidades de cada proyecto. La impresión es solo una parte del proceso: también realizo trabajos de postprocesado para mejorar el aspecto y el acabado final de las piezas.",
+    "especialidades": ["Piezas funcionales", "Recambios", "Sector FPV y drones", "Diseños personalizados", "Miniaturas y dioramas", "Accesorios y complementos", "Prototipos y proyectos personalizados"],
+    "materiales": ["PLA", "PETG", "TPU", "NYLON"],
+    "impresoras": ["Elegoo Neptune 4"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "linkazo-lab",
+    "slug": "linkazo-lab",
+    "nombre": "Linkazo Lab",
+    "ubicacion": "Valencia, España",
+    "bio": "Soy Oscar, más conocido como Linkazo, estudiante de informática en Valencia y apasionado de la impresión 3D.\n\nLinkazo Lab es mi pequeño taller, donde diseño y fabrico piezas con una Bambu Lab P1S, cuidando el acabado capa a capa. Me gusta tanto diseñar mis propios modelos como adaptar piezas a lo que necesita cada cliente. Trabajo sobre todo con PLA y PETG, en varios colores.",
+    "especialidades": ["Piezas funcionales a medida", "Llaveros personalizados", "Piezas inspiradas en monumentos y sitios emblemáticos", "Figuras articuladas", "Objetos de escritorio", "Encargos personalizados"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Bambu Lab P1S"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "terraz3d",
+    "slug": "terraz3d",
+    "nombre": "Terraz3D",
+    "ubicacion": "Barcenilla de Piélagos, España",
+    "bio": "Somos una empresa ubicada en Cantabria, trabajamos tanto con particulares como con empresas y solemos imprimir de momento en PLA y PETG, más adelante iremos incorporando más materiales.",
+    "especialidades": ["Figuras", "Escudos", "Trofeos", "Decoración", "Chapas personalizadas"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Bambu Lab H2C", "Bambu Lab H3C", "Bambu Lab A1", "Bambu Lab A2L", "Bambu Lab X1 Carbon"],
+    "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"]
+  },
+  {
+    "id": "capa780",
+    "slug": "capa780",
+    "nombre": "CAPA780",
+    "ubicacion": "Mataró, España",
+    "bio": "¡Hola! Soy Marina, la persona detrás de CAPA780.\n\nLo que comenzó como una afición por el diseño y la impresión 3D se ha convertido poco a poco en un proyecto con muchas ganas de crecer. Cuento con experiencia previa en diseño 3D y disfruto especialmente de todo el proceso creativo: imaginar una solución, diseñar una pieza y convertirla en un objeto real.\n\nTrabajo desde mi propio espacio de creación, combinando diseño y fabricación mediante impresión 3D. Desarrollo piezas desde cero, adapto diseños existentes y busco soluciones prácticas para necesidades concretas, sin dejar de lado la parte más creativa y decorativa.\n\nEn CAPA780, cada encargo es un nuevo reto. Valoro cada propuesta de manera individual para encontrar la mejor solución posible, siempre con ilusión, creatividad y atención a los detalles.",
+    "especialidades": ["Piezas funcionales", "Decoración", "Reparaciones", "Soportes", "Accesorios", "Objetos para el hogar", "Figuras", "Productos personalizados", "Diseños personalizados"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Creality K2"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "pro3d",
+    "slug": "pro3d",
+    "nombre": "Pro3D",
+    "ubicacion": "Fuenlabrada, España",
+    "bio": "¡Hola! Mi nombre es Javi, aunque en el mundo maker me doy a conocer como Lenda.\n\nMe dedico a hacer que las ideas se conviertan en piezas; cada día que pasa aprendo más y mejor y nunca me doy por satisfecho hasta que el trabajo que realizo está PERFECTO.\n\nMi meta es tener un local con varias máquinas e ir creciendo poco a poco: ya tengo mi propia web, algo impensable cuando empecé en este mundo hace apenas un año. ¿Me ayudas a seguir creciendo?",
+    "especialidades": ["Adornos", "Piezas funcionales", "Diseños para hostelería", "Pedidos personalizados"],
+    "materiales": ["PLA", "PETG", "ABS"],
+    "impresoras": ["Creality K2"],
+    "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm"]
   }
 ]

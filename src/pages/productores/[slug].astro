@@ -112,7 +112,9 @@ const FORMSPREE_RESENAS_ENDPOINT = "https://formspree.io/f/mvzjyjrb";
       <aside class="ficha__barra">
         <section class="ficha__bloque">
           <h2 class="ficha__bloque-titulo etiqueta">Sobre el maker</h2>
-          <p class="ficha__bio">{productor.bio}</p>
+          {productor.bio.split(/\n\n+/).map((parrafo) => (
+            <p class="ficha__bio">{parrafo}</p>
+          ))}
         </section>
 
         <section class="ficha__bloque">

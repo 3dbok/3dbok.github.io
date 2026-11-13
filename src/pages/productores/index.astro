@@ -8,11 +8,10 @@ import { calcularMediaValoracion } from "../../lib/productorShared.js";
 import { fotoDeProductor } from "../../lib/imagenesProductor.js";
 import "../../styles/ProductorPage.css";
 
-const ciudades = [...new Set(productores.map((productor) => productor.ubicacion))];
 const recuento =
   productores.length === 1
-    ? `1 taller disponible · ${ciudades.join(", ")}`
-    : `${productores.length} talleres disponibles · ${ciudades.join(" · ")}`;
+    ? "1 taller disponible"
+    : `${productores.length} talleres disponibles`;
 ---
 
 <BaseLayout
@@ -57,15 +56,11 @@ const recuento =
 
       <ol class="directorio__lista">
         {
-          productores.map((productor, indice) => {
+          productores.map((productor) => {
             const { media, total } = calcularMediaValoracion(productor.id, resenas);
             return (
               <li class="directorio__item">
                 <a class="fila-maker" href={`/productores/${productor.slug}`}>
-                  <span class="fila-maker__indice dato" aria-hidden="true">
-                    {String(indice + 1).padStart(2, "0")}
-                  </span>
-
                   <img
                     class="fila-maker__foto"
                     src={fotoDeProductor(productor.slug)}
@@ -78,7 +73,7 @@ const recuento =
                     <p class="etiqueta fila-maker__tipo">Taller local</p>
                     <h3 class="fila-maker__nombre">{productor.nombre}</h3>
                     <p class="fila-maker__sitio dato">
-                      {productor.ubicacion} · Responde en ~{productor.tiempoRespuestaHoras} h
+                      {productor.ubicacion}
                     </p>
                     {media !== null && (
                       <p class="fila-maker__nota dato">
