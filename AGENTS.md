@@ -89,7 +89,7 @@ A five-step, client-side customer wizard:
 4. maker, material, colour, date, and budget;
 5. contact details.
 
-`?maker=<productor.id>` preselects a producer. The order payload still carries empty `productoId`/`producto` fields (always `"No procede"` in the Formspree payload) for backward compatibility, but nothing populates them: the old `?product=` deep link was removed when the profile gallery became folder-based.
+`?maker=<productor.id>` preselects a producer. The maker `<select>` is alphabetical in the HTML and shuffled on load (except «Que 3dbok elija por mí», always first) so no maker is permanently on top. The order payload still carries empty `productoId`/`producto` fields (always `"No procede"` in the Formspree payload) for backward compatibility, but nothing populates them: the old `?product=` deep link was removed when the profile gallery became folder-based.
 
 The final step submits `FormData` to the dedicated Formspree endpoint `https://formspree.io/f/xpqgngdj` with `Accept: application/json`; it can be changed at build time with `PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT`. Every customer submission includes `tipo=pedido_cliente`, a stable `requestId`, and a human-readable reference. Only a successful HTTP response creates the short-lived confirmation summary and redirects to `/confirmacion`; failures stay in the wizard with a retry message.
 
@@ -110,6 +110,8 @@ A three-step maker-registration form for printer/material/experience details, pe
 ### `/productores` — `src/pages/productores/index.astro`
 
 Build-time directory of all entries in `productores.json`. It calculates ratings from approved entries in `resenas.json`, uses the shared producer stylesheet, and links to each generated profile.
+
+Makers have no fixed ranking. The static HTML lists them alphabetically (no-JS/SEO fallback); an inline script right after the list shuffles them before first paint on every visit, followed by a short staggered entrance (skipped under reduced motion). A client-side search (hidden without JS) filters by free text — name, city, specialities/piece, printer, bio, accent- and plural-tolerant — and by material toggles, syncing `?q=…&material=PLA,TPU` to the URL. Per-maker search data travels in each `<li data-busqueda>`; the matching rules live in `src/lib/buscadorMakers.js`.
 
 ### `/productores/[slug]` — `src/pages/productores/[slug].astro`
 
@@ -136,6 +138,7 @@ Small branded not-found page using `BaseLayout` with the normal shared navigatio
 - `Estrellas.astro`: renders a five-character star string and exposes the numerical rating through an accessible label.
 - `src/lib/productorShared.js`: the canonical material map for producer views, star rendering, and approved-review aggregation.
 - `src/lib/imagenesProductor.js`: build-time resolution of maker images by folder convention (`node:fs`, never runs in the browser). `fotoDeProductor(slug)` returns the profile photo path or `null`; `galeriaDeProductor(slug)` returns up to nine ordered gallery photo paths. See the image convention in Data contracts.
+- `src/lib/buscadorMakers.js`: pure helpers for the maker directory and briefing selector — `barajar` (Fisher–Yates), `normalizarBusqueda`, `datosBusqueda(productor)` and `coincideMaker(datos, { q, materiales })`. Tested in `test/buscadorMakers.test.js`.
 - `src/lib/pedidoShared.js`: the canonical customer-order options, labels, storage keys/expiry times, preview size limit, request/reference validation, Formspree payload/error mapping, and identity generator.
 - `src/lib/boquerones.js`: geometry for the hero boquerón models (`natural`, `tricolor`, `articulado`, `lowpoly`). `PiezaEnCapas` takes a `modelo` prop and only stacks, projects and prints the layers it returns; `/boquerones` is an unlinked, `noindex` page that shows all models side by side.
 - `src/lib/capas.js`: colour helpers that shade stacked SVG layers so printed pieces read as solids (hero boquerón, home wheel).

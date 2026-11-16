@@ -10,6 +10,12 @@ import {
 
 const FORMSPREE_PEDIDOS_ENDPOINT =
   import.meta.env.PUBLIC_FORMSPREE_PEDIDOS_ENDPOINT ?? "https://formspree.io/f/xpqgngdj";
+
+// Orden alfabético solo como base sin JavaScript: en el navegador se baraja
+// en cada visita para que ningún maker salga siempre el primero.
+const makersOrdenados = [...productores].sort((a, b) =>
+  a.nombre.localeCompare(b.nombre, "es"),
+);
 ---
 
 <BaseLayout
@@ -199,7 +205,7 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
             >
               <option value="recommended">Que 3dbok elija por mí</option>
               {
-                productores.map((productor) => (
+                makersOrdenados.map((productor) => (
                   <option
                     value={productor.id}
                     data-slug={productor.slug}
@@ -914,6 +920,7 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
     esIdentidadPedidoValida,
     mensajeErrorEnvioPedido,
   } from "../lib/pedidoShared.js";
+  import { barajar } from "../lib/buscadorMakers.js";
 
   let paso = 0;
   let enviando = false;
@@ -1244,6 +1251,13 @@ const FORMSPREE_PEDIDOS_ENDPOINT =
   restaurarBorrador();
 
   if (selectorMaker instanceof HTMLSelectElement) {
+    // Baraja los makers (no «Que 3dbok elija por mí», que va siempre primero).
+    // El paso 3 está oculto al cargar, así que el cambio no se ve.
+    const opcionesMaker = Array.from(selectorMaker.options).filter(
+      (opcion) => opcion.value !== "recommended",
+    );
+    for (const opcion of barajar(opcionesMaker)) selectorMaker.append(opcion);
+
     const parametros = new URLSearchParams(window.location.search);
     const makerPedido = parametros.get("maker");
     const opcionMaker = Array.from(selectorMaker.options).find(

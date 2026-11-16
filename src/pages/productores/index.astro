@@ -4,7 +4,8 @@ import MaterialChip from "../../components/MaterialChip.astro";
 import Estrellas from "../../components/Estrellas.astro";
 import productores from "../../data/productores.json";
 import resenas from "../../data/resenas.json";
-import { calcularMediaValoracion } from "../../lib/productorShared.js";
+import { MATERIALES, calcularMediaValoracion } from "../../lib/productorShared.js";
+import { datosBusqueda } from "../../lib/buscadorMakers.js";
 import { fotoDeProductor } from "../../lib/imagenesProductor.js";
 import "../../styles/ProductorPage.css";
 
@@ -12,6 +13,21 @@ const recuento =
   productores.length === 1
     ? "1 taller disponible"
     : `${productores.length} talleres disponibles`;
+
+// El HTML sale en orden alfabético: es lo que leen los buscadores y quien
+// navega sin JavaScript. En el navegador, el script en línea que va justo
+// después de la lista lo baraja antes de pintar, para que nadie salga
+// siempre primero.
+const makers = [...productores].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+const textoMakers = (n) => `${n} ${n === 1 ? "maker" : "makers"}`;
+
+// Lo que necesita el buscador de cada maker viaja en su <li> (data-busqueda).
+const busquedas = new Map(makers.map((productor) => [productor.id, datosBusqueda(productor)]));
+
+// Solo se ofrecen los materiales que trabaja al menos un maker, en el orden
+// canónico de MATERIALES.
+const materialesUsados = new Set([...busquedas.values()].flatMap((datos) => datos.materiales));
+const materialesFiltro = Object.keys(MATERIALES).filter((codigo) => materialesUsados.has(codigo));
 ---
 
 <BaseLayout
@@ -47,19 +63,101 @@ const recuento =
       <div class="directorio__lista-cabecera">
         <div>
           <p class="etiqueta">Talleres disponibles</p>
-          <h2 id="talleres-titulo">Conoce quién hará tu pieza</h2>
+          <h2 id="talleres-titulo">Conoce a los makers de 3dbok</h2>
         </div>
-        <p class="dato directorio__lista-nota">
-          Perfiles con capacidad y trabajos visibles
-        </p>
       </div>
 
-      <ol class="directorio__lista">
+      {/* Sin JavaScript el buscador no serviría de nada: sale oculto y lo
+          enseña el script en línea de después de la lista. */}
+      <form class="buscador" role="search" aria-label="Buscar makers" data-buscador hidden>
+        <div class="buscador__controles">
+          <div class="buscador__campo">
+            <label class="etiqueta buscador__titulo" for="buscador-texto">
+              Busca por nombre, ciudad o pieza
+            </label>
+            <div class="buscador__caja">
+              <svg
+                class="buscador__lupa"
+                viewBox="0 0 20 20"
+                width="18"
+                height="18"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+                <path d="m12.6 12.6 4.4 4.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+              </svg>
+              <input
+                id="buscador-texto"
+                class="entrada buscador__entrada"
+                type="search"
+                name="q"
+                placeholder="Ej.: llaveros, repuestos, Málaga…"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                enterkeyhint="search"
+                data-buscador-texto
+              />
+            </div>
+          </div>
+
+          <div class="buscador__grupo" role="group" aria-labelledby="buscador-material-titulo">
+            <p class="etiqueta buscador__titulo" id="buscador-material-titulo">
+              Material
+            </p>
+            <div class="buscador__opciones">
+              {
+                materialesFiltro.map((codigo) => (
+                  <button
+                    type="button"
+                    class="filtro"
+                    aria-pressed="false"
+                    data-filtro-material={codigo}
+                  >
+                    <span
+                      class="filtro__punto"
+                      style={`--color-material:${MATERIALES[codigo].color}`}
+                      aria-hidden="true"
+                    />
+                    {MATERIALES[codigo].label}
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="buscador__barra">
+          <div class="buscador__estado">
+            <p class="dato buscador__resultado" data-buscador-recuento>{textoMakers(makers.length)}</p>
+          </div>
+          <div class="buscador__acciones">
+            <button
+              type="button"
+              class="boton boton--secundario buscador__accion"
+              data-buscador-limpiar
+              hidden
+            >
+              Quitar filtros
+            </button>
+          </div>
+        </div>
+
+        <p class="solo-lectores" role="status" data-buscador-aviso></p>
+      </form>
+
+      <ol class="directorio__lista" id="directorio-lista" data-buscador-lista>
         {
-          productores.map((productor) => {
+          makers.map((productor) => {
             const { media, total } = calcularMediaValoracion(productor.id, resenas);
             return (
-              <li class="directorio__item">
+              <li
+                class="directorio__item"
+                data-maker={productor.id}
+                data-nombre={productor.nombre}
+                data-busqueda={JSON.stringify(busquedas.get(productor.id))}
+              >
                 <a class="fila-maker" href={`/productores/${productor.slug}`}>
                   <img
                     class="fila-maker__foto"
@@ -105,6 +203,49 @@ const recuento =
           })
         }
       </ol>
+      <script is:inline>
+        // Corre antes del primer pintado (va justo detrás de la lista): baraja
+        // los makers sin salto visible y enseña el buscador. Si la URL ya trae
+        // una búsqueda, la lista espera transparente a que el buscador la
+        // filtre (ProductorPage.css tiene una red de seguridad por si no llega).
+        (() => {
+          const lista = document.querySelector("[data-buscador-lista]");
+          if (!lista) return;
+          const items = Array.from(lista.children);
+          for (let i = items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [items[i], items[j]] = [items[j], items[i]];
+          }
+          lista.append(...items);
+
+          const buscador = document.querySelector("[data-buscador]");
+          if (buscador) buscador.hidden = false;
+
+          const params = new URLSearchParams(window.location.search);
+          if (params.get("q") || params.get("material")) {
+            lista.classList.add("directorio__lista--pendiente");
+          } else {
+            items.forEach((item, i) => {
+              item.style.setProperty("--retardo", `${Math.min(i, 8) * 55}ms`);
+            });
+            lista.classList.add("directorio__lista--entrando");
+          }
+        })();
+      </script>
+
+      <div class="directorio__vacio malla" data-buscador-vacio hidden>
+        <p class="etiqueta">Bancada vacía</p>
+        <h3 class="directorio__vacio-titulo">Ningún maker encaja con esa búsqueda</h3>
+        <p class="directorio__vacio-texto">
+          Prueba con menos filtros o con otra palabra. Y si sigues sin
+          encontrarlo, haz el pedido igualmente: buscamos al maker adecuado por
+          ti.
+        </p>
+        <a href="/briefing" class="boton boton--principal directorio__vacio-accion">
+          Pedir una pieza
+          <span class="boton__flecha" aria-hidden="true">→</span>
+        </a>
+      </div>
     </section>
 
     <section class="en-cianotipo directorio__aviso">
@@ -127,3 +268,199 @@ const recuento =
     </section>
   </main>
 </BaseLayout>
+
+<script>
+  import { coincideMaker, normalizarBusqueda } from "../../lib/buscadorMakers.js";
+
+  // Parámetros de la URL que guardan la búsqueda, para poder compartirla:
+  // /productores?q=llaveros&material=PLA,TPU
+  const PARAMETROS = ["q", "material"];
+  const ESPERA_AVISO_TEXTO = 500; // ms sin teclear antes de anunciar el recuento
+  const ESPERA_AVISO = 150;
+  const ESPERA_URL_TEXTO = 300;
+
+  const textoMakers = (n) => `${n} ${n === 1 ? "maker" : "makers"}`;
+
+  const leerDatos = (item) => {
+    try {
+      return JSON.parse(item.dataset.busqueda ?? "");
+    } catch {
+      return { texto: "", materiales: [] };
+    }
+  };
+
+  const iniciarBuscador = () => {
+    const formulario = document.querySelector("[data-buscador]");
+    const lista = document.querySelector("[data-buscador-lista]");
+    const texto = document.querySelector("[data-buscador-texto]");
+    const recuento = document.querySelector("[data-buscador-recuento]");
+    const aviso = document.querySelector("[data-buscador-aviso]");
+    const vacio = document.querySelector("[data-buscador-vacio]");
+    const botonLimpiar = document.querySelector("[data-buscador-limpiar]");
+    if (
+      !(formulario instanceof HTMLFormElement) ||
+      !(lista instanceof HTMLElement) ||
+      !(texto instanceof HTMLInputElement) ||
+      !(botonLimpiar instanceof HTMLButtonElement) ||
+      !recuento ||
+      !aviso ||
+      !(vacio instanceof HTMLElement)
+    ) {
+      return;
+    }
+
+    const botonesMaterial = Array.from(formulario.querySelectorAll("[data-filtro-material]"));
+    const materialesDisponibles = botonesMaterial.map((boton) => boton.dataset.filtroMaterial);
+    const makers = Array.from(lista.querySelectorAll("[data-maker]")).map((item) => ({
+      item,
+      datos: leerDatos(item),
+    }));
+    const total = makers.length;
+
+    const estado = { q: "", materiales: new Set() };
+    const hayFiltros = () => normalizarBusqueda(estado.q) !== "" || estado.materiales.size > 0;
+
+    // --- URL ---------------------------------------------------------------
+
+    const leerUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      estado.q = params.get("q") ?? "";
+      const pedidos = params
+        .getAll("material")
+        .join(",")
+        .split(",")
+        .map((codigo) => codigo.trim().toUpperCase());
+      estado.materiales = new Set(materialesDisponibles.filter((codigo) => pedidos.includes(codigo)));
+    };
+
+    // Se respetan otros parámetros que traiga la URL (campañas, etc.). Las
+    // comas de `material` se dejan sin codificar para que se lea bien.
+    const escribirUrl = () => {
+      const otros = new URLSearchParams(window.location.search);
+      PARAMETROS.forEach((clave) => otros.delete(clave));
+      const partes = otros.toString() ? [otros.toString()] : [];
+      const q = estado.q.trim();
+      if (q) partes.push(`q=${encodeURIComponent(q)}`);
+      const materiales = materialesDisponibles.filter((codigo) => estado.materiales.has(codigo));
+      if (materiales.length) partes.push(`material=${materiales.join(",")}`);
+      const destino = `${window.location.pathname}${partes.length ? `?${partes.join("&")}` : ""}${window.location.hash}`;
+      try {
+        window.history.replaceState(window.history.state, "", destino);
+      } catch {
+        // Safari limita las llamadas seguidas a replaceState; la próxima vale.
+      }
+    };
+
+    let temporizadorUrl = 0;
+    const programarUrl = (espera) => {
+      window.clearTimeout(temporizadorUrl);
+      temporizadorUrl = window.setTimeout(() => {
+        temporizadorUrl = 0;
+        escribirUrl();
+      }, espera);
+    };
+
+    // Si se sale antes de que venza la espera, la URL se guarda igual: así al
+    // volver atrás se recupera la búsqueda.
+    window.addEventListener("pagehide", () => {
+      if (!temporizadorUrl) return;
+      window.clearTimeout(temporizadorUrl);
+      temporizadorUrl = 0;
+      escribirUrl();
+    });
+
+    // --- Avisos para lectores de pantalla ---------------------------------
+
+    // Se vacía y se rellena después para que un mismo mensaje seguido se
+    // vuelva a anunciar.
+    let temporizadorAviso = 0;
+    const anunciar = (mensaje, espera = ESPERA_AVISO) => {
+      window.clearTimeout(temporizadorAviso);
+      aviso.textContent = "";
+      temporizadorAviso = window.setTimeout(() => {
+        aviso.textContent = mensaje;
+      }, espera);
+    };
+
+    // --- Filtrado ----------------------------------------------------------
+
+    // Una vez se filtra, la entrada escalonada sobra: si siguiera activa,
+    // cada tarjeta que vuelve a mostrarse repetiría la animación.
+    const terminarEntrada = () => lista.classList.remove("directorio__lista--entrando");
+
+    const aplicar = () => {
+      const filtros = { q: estado.q, materiales: [...estado.materiales] };
+      let visibles = 0;
+      makers.forEach(({ item, datos }) => {
+        const encaja = coincideMaker(datos, filtros);
+        item.hidden = !encaja;
+        if (encaja) visibles += 1;
+      });
+
+      const filtrando = hayFiltros();
+      const resumen = filtrando ? `${visibles} de ${textoMakers(total)}` : textoMakers(total);
+      recuento.textContent = resumen;
+      vacio.hidden = visibles > 0;
+      botonLimpiar.hidden = !filtrando;
+      botonesMaterial.forEach((boton) => {
+        boton.setAttribute("aria-pressed", String(estado.materiales.has(boton.dataset.filtroMaterial)));
+      });
+
+      return visibles === 0 ? "Ningún maker encaja con esa búsqueda." : resumen;
+    };
+
+    const alCambiar = ({ esperaAviso = ESPERA_AVISO, esperaUrl = 0 } = {}) => {
+      terminarEntrada();
+      anunciar(aplicar(), esperaAviso);
+      programarUrl(esperaUrl);
+    };
+
+    // --- Eventos -------------------------------------------------------------
+
+    texto.addEventListener("input", () => {
+      estado.q = texto.value;
+      alCambiar({ esperaAviso: ESPERA_AVISO_TEXTO, esperaUrl: ESPERA_URL_TEXTO });
+    });
+
+    formulario.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      // En el móvil, «Buscar» en el teclado lo cierra para dejar ver la lista.
+      if (window.matchMedia("(pointer: coarse)").matches) texto.blur();
+    });
+
+    botonesMaterial.forEach((boton) => {
+      boton.addEventListener("click", () => {
+        const codigo = boton.dataset.filtroMaterial;
+        if (estado.materiales.has(codigo)) estado.materiales.delete(codigo);
+        else estado.materiales.add(codigo);
+        alCambiar();
+      });
+    });
+
+    // El botón desaparece al quitar los filtros: el foco pasa al campo de
+    // búsqueda para no perderse.
+    botonLimpiar.addEventListener("click", () => {
+      estado.q = "";
+      estado.materiales.clear();
+      texto.value = "";
+      alCambiar();
+      texto.focus();
+    });
+
+    // --- Arranque --------------------------------------------------------------
+
+    leerUrl();
+    texto.value = estado.q;
+    aplicar();
+    lista.classList.remove("directorio__lista--pendiente");
+    formulario.hidden = false;
+
+    if (lista.classList.contains("directorio__lista--entrando") && lista.getAnimations) {
+      Promise.allSettled(lista.getAnimations({ subtree: true }).map((animacion) => animacion.finished)).then(
+        terminarEntrada,
+      );
+    }
+  };
+
+  iniciarBuscador();
+</script>
