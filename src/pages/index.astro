@@ -444,11 +444,10 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
     </section>
 
     <!-- Makers por toda España ----------------------------------------- -->
-    <section class="seccion mapa-makers">
+    <section class="seccion mapa-makers" aria-labelledby="mapa-makers-titulo">
       <div class="envoltura">
         <div class="rotulo">
-          <p class="etiqueta etiqueta--marca">Makers por toda España</p>
-          <h2>Detrás de cada pieza hay alguien con su máquina</h2>
+          <h2 class="etiqueta etiqueta--marca" id="mapa-makers-titulo">Makers por toda España</h2>
           <p class="mapa-makers__intro">
             Talleres locales repartidos por el país. Mira dónde están, elige el
             tuyo o deja que te asignemos uno cercano a tu zona.
@@ -1698,6 +1697,10 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
 
   .mapa-makers .rotulo {
     text-align: center;
+  }
+
+  .mapa-makers .rotulo h2 {
+    max-width: none;
   }
 
   .mapa-makers__intro {

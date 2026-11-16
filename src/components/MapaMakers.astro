@@ -1,8 +1,10 @@
 ---
-// Mapa de España (península, Baleares y Canarias en recuadro) con un punto por
-// ciudad donde hay makers, al estilo de Airbnb/Booking. Usa los colores de la
+// Mapa de España (península, Baleares y Canarias en recuadro) con un círculo
+// por ciudad donde hay makers, al estilo de Airbnb/Booking. El tamaño del
+// círculo depende de cuántos talleres hay en esa ciudad. Usa los colores de la
 // marca y se genera a partir de la `ubicacion` de productores.json (nunca del
-// dashboard ni del código postal).
+// dashboard ni del código postal). Es solo informativo: al pasar el ratón (o
+// tocar) un círculo aparece la ciudad; no enlaza a ningún sitio.
 import productores from "../data/productores.json";
 import mapa from "../data/mapaEspana.json";
 import { coordenadasDe } from "../lib/ciudadesMakers.js";
@@ -13,7 +15,44 @@ const proyectar = (lat, lng) => [
   proj.padY + (proj.north - lat) * proj.pxPorLat,
 ];
 
-// Agrupar por ciudad (varias piezas en la misma ciudad = un punto).
+// --- Recuadro de Canarias -------------------------------------------------
+// El recuadro va abajo a la izquierda, junto a la costa de Huelva y Cádiz.
+// Se desplaza a la izquierda lo necesario para que NUNCA toque la península:
+// se recorre el contorno (densificado) y se busca la x más a la izquierda de
+// la tierra dentro de la franja vertical que ocupa el recuadro.
+const HOLGURA = 14; // separación mínima entre el recuadro y la costa
+const MARGEN = 10; // aire entre el recuadro y el borde del dibujo
+
+const vertices = (d) =>
+  d
+    .split(/(?=M)/)
+    .map((sub) => [...sub.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map((m) => [+m[1], +m[2]]));
+
+const rec = mapa.recuadro;
+const franjaArriba = rec.y - HOLGURA;
+const franjaAbajo = rec.y + rec.h + HOLGURA;
+let costaX = Infinity;
+for (const anillo of vertices(mapa.tierra)) {
+  for (let i = 0; i < anillo.length; i++) {
+    const [x1, y1] = anillo[i];
+    const [x2, y2] = anillo[(i + 1) % anillo.length];
+    const pasos = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1)));
+    for (let p = 0; p <= pasos; p++) {
+      const x = x1 + ((x2 - x1) * p) / pasos;
+      const y = y1 + ((y2 - y1) * p) / pasos;
+      if (y >= franjaArriba && y <= franjaAbajo && x < costaX) costaX = x;
+    }
+  }
+}
+const desplazaX = Math.min(0, costaX - HOLGURA - (rec.x + rec.w));
+const recuadro = { ...rec, x: rec.x + desplazaX };
+
+// El viewBox crece por la izquierda si el recuadro se ha salido del dibujo.
+const [vbX, vbY, vbW, vbH] = mapa.viewBox.split(/\s+/).map(Number);
+const izquierda = Math.min(vbX, recuadro.x - MARGEN);
+const viewBox = { x: izquierda, y: vbY, w: vbW + (vbX - izquierda), h: vbH };
+
+// --- Círculos por ciudad --------------------------------------------------
 const grupos = new Map();
 const sinCoords = [];
 for (const productor of productores) {
@@ -25,12 +64,51 @@ for (const productor of productores) {
   const ciudad = productor.ubicacion.replace(/,\s*España\s*$/i, "").trim();
   if (!grupos.has(ciudad)) {
     const [x, y] = proyectar(coord[0], coord[1]);
-    grupos.set(ciudad, { ciudad, x, y, makers: [] });
+    grupos.set(ciudad, { ciudad, x, y, talleres: 0 });
   }
-  grupos.get(ciudad).makers.push(productor);
+  grupos.get(ciudad).talleres += 1;
 }
-// Pintar de arriba abajo para que las etiquetas de abajo queden por encima.
-const pines = [...grupos.values()].sort((a, b) => a.y - b.y);
+
+// Área proporcional al número de talleres (radio ∝ √n), con tope para que
+// una ciudad muy poblada no tape a sus vecinas.
+const RADIO_BASE = 16;
+const RADIO_MAX = 40;
+const radioDe = (n) => Math.min(RADIO_MAX, RADIO_BASE * Math.sqrt(n));
+
+const pines = [...grupos.values()].map((g) => ({ ...g, r: radioDe(g.talleres) }));
+
+// Ciudades muy cercanas (Barcelona y Mataró, Torrelavega y Barcenilla...)
+// taparían un círculo con otro: se separan un poco hasta que solo se solapen
+// ligeramente. El desplazamiento es de unos pocos kilómetros a esta escala.
+// En móvil los círculos se dibujan a ESCALA_MOVIL (ver la regla de 620 px):
+// la separación se calcula para ese tamaño, que es el más apretado.
+const ESCALA_MOVIL = 1.3;
+const SOLAPE = 0.78 * ESCALA_MOVIL; // distancia mínima, en sumas de radios
+for (let vuelta = 0; vuelta < 60; vuelta++) {
+  let movido = false;
+  for (let i = 0; i < pines.length; i++) {
+    for (let j = i + 1; j < pines.length; j++) {
+      const a = pines[i];
+      const b = pines[j];
+      let dx = b.x - a.x;
+      let dy = b.y - a.y;
+      let d = Math.hypot(dx, dy);
+      const minimo = (a.r + b.r) * SOLAPE;
+      if (d >= minimo) continue;
+      if (d < 0.01) [dx, dy, d] = [1, 0, 1];
+      const empuje = (minimo - d) / 2;
+      a.x -= (dx / d) * empuje;
+      a.y -= (dy / d) * empuje;
+      b.x += (dx / d) * empuje;
+      b.y += (dy / d) * empuje;
+      movido = true;
+    }
+  }
+  if (!movido) break;
+}
+
+// Los grandes debajo y los pequeños encima, para que ninguno quede oculto.
+pines.sort((a, b) => b.r - a.r || a.y - b.y);
 
 if (sinCoords.length) {
   console.warn(
@@ -41,65 +119,131 @@ if (sinCoords.length) {
 
 const totalMakers = productores.length;
 const totalCiudades = grupos.size;
+const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+const ciudadesOrdenadas = [...grupos.values()].sort((a, b) =>
+  a.ciudad.localeCompare(b.ciudad, "es"),
+);
+const r2 = (n) => Math.round(n * 10) / 10;
 ---
 
 <figure class="mapa-fig">
-  <svg
-    class="mapa"
-    viewBox={mapa.viewBox}
-    role="img"
-    aria-label={`Mapa de España con ${totalMakers} makers repartidos en ${totalCiudades} ciudades`}
-  >
-    <path class="mapa__tierra" d={mapa.tierra} />
+  <div class="mapa-fig__lienzo" data-mapa>
+    <svg
+      class="mapa"
+      viewBox={`${r2(viewBox.x)} ${viewBox.y} ${r2(viewBox.w)} ${viewBox.h}`}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path class="mapa__tierra" d={mapa.tierra} />
 
-    <!-- Islas Canarias (recuadro aparte, como en cualquier mapa de España) -->
-    <rect
-      class="mapa__recuadro"
-      x={mapa.recuadro.x}
-      y={mapa.recuadro.y}
-      width={mapa.recuadro.w}
-      height={mapa.recuadro.h}
-      rx="6"
-    />
-    <path class="mapa__tierra" d={mapa.canarias} />
-    <text class="mapa__recuadro-txt" x={mapa.recuadro.x + 9} y={mapa.recuadro.y + 15}>
-      Canarias
-    </text>
+      <!-- Islas Canarias, en recuadro aparte como en cualquier mapa de España -->
+      <g transform={`translate(${r2(desplazaX)} 0)`}>
+        <rect
+          class="mapa__recuadro"
+          x={rec.x}
+          y={rec.y}
+          width={rec.w}
+          height={rec.h}
+          rx="6"
+        />
+        <path class="mapa__tierra" d={mapa.canarias} />
+      </g>
 
-    {
-      pines.map((grupo) => {
-        const multi = grupo.makers.length > 1;
-        const href = multi ? "/productores" : `/productores/${grupo.makers[0].slug}`;
-        const etiqueta = multi
-          ? `${grupo.ciudad} · ${grupo.makers.length} talleres`
-          : `${grupo.makers[0].nombre} · ${grupo.ciudad}`;
-        const ancho = Math.max(48, etiqueta.length * 6.4 + 20);
-        return (
-          <a class="pin" href={href} aria-label={etiqueta}>
-            <title>{etiqueta}</title>
-            <circle class="pin__hit" cx={grupo.x} cy={grupo.y} r="13" />
-            <g class="pin__tip" transform={`translate(${grupo.x} ${grupo.y})`}>
-              <rect class="pin__tip-bg" x={-ancho / 2} y={-36} width={ancho} height={23} rx="6" />
-              <text class="pin__tip-txt" x="0" y="-20.5">
-                {etiqueta}
+      {
+        pines.map((pin) => (
+          <g
+            class="pin"
+            tabindex="-1"
+            data-mapa-pin
+            data-ciudad={pin.ciudad}
+            transform={`translate(${r2(pin.x)} ${r2(pin.y)})`}
+          >
+            <g class="pin__cuerpo">
+              <circle class="pin__dot" r={r2(pin.r)} />
+              <text class="pin__n" y="0.5" font-size={r2(pin.r * 0.95)}>
+                {pin.talleres}
               </text>
             </g>
-            <circle class="pin__halo" cx={grupo.x} cy={grupo.y} r="8.5" />
-            <circle class="pin__dot" cx={grupo.x} cy={grupo.y} r="5.5" />
-            {multi && (
-              <text class="pin__n" x={grupo.x} y={grupo.y + 3}>
-                {grupo.makers.length}
-              </text>
-            )}
-          </a>
-        );
-      })
-    }
-  </svg>
-  <figcaption class="mapa-fig__pie dato">
-    {totalMakers} talleres en {totalCiudades} ciudades de España
+          </g>
+        ))
+      }
+    </svg>
+    <p class="mapa__tip" data-mapa-tip hidden></p>
+  </div>
+
+  <figcaption class="mapa-fig__pie">
+    <span class="dato">
+      {plural(totalMakers, "taller", "talleres")} en {plural(totalCiudades, "ciudad", "ciudades")} de España
+    </span>
+    <ul class="solo-lectores">
+      {
+        ciudadesOrdenadas.map((g) => (
+          <li>
+            {g.ciudad}: {plural(g.talleres, "taller", "talleres")}
+          </li>
+        ))
+      }
+    </ul>
   </figcaption>
 </figure>
+
+<script>
+  // Etiqueta con la ciudad al pasar el ratón o tocar un círculo. Es HTML (no
+  // texto del SVG) para que se lea igual de bien en móvil que en escritorio.
+  for (const lienzo of document.querySelectorAll("[data-mapa]")) {
+    const tip = lienzo.querySelector("[data-mapa-tip]");
+    const pines = lienzo.querySelectorAll("[data-mapa-pin]");
+    if (!tip) continue;
+
+    const mostrar = (pin) => {
+      tip.textContent = pin.dataset.ciudad;
+      tip.hidden = false;
+
+      const caja = lienzo.getBoundingClientRect();
+      const punto = pin.querySelector("circle").getBoundingClientRect();
+      const mitad = tip.offsetWidth / 2;
+      const centro = punto.left + punto.width / 2 - caja.left;
+      // Que la etiqueta no se salga por los lados en pantallas estrechas.
+      const x = Math.min(Math.max(centro, mitad), caja.width - mitad);
+      tip.style.left = `${x}px`;
+      tip.style.top = `${punto.top - caja.top - 6}px`;
+
+      for (const otro of pines) otro.classList.toggle("pin--activo", otro === pin);
+    };
+
+    const ocultar = () => {
+      const enfocado = lienzo.querySelector("[data-mapa-pin]:focus");
+      if (enfocado) {
+        mostrar(enfocado);
+        return;
+      }
+      tip.hidden = true;
+      for (const pin of pines) pin.classList.remove("pin--activo");
+    };
+
+    for (const pin of pines) {
+      pin.addEventListener("pointerenter", (e) => {
+        if (e.pointerType === "mouse") mostrar(pin);
+      });
+      pin.addEventListener("pointerleave", (e) => {
+        if (e.pointerType === "mouse") ocultar();
+      });
+      // En táctil, tocar el círculo lo enfoca (tabindex="-1") y muestra la
+      // ciudad hasta que se toca en otro sitio.
+      pin.addEventListener("click", () => pin.focus({ preventScroll: true }));
+      pin.addEventListener("focus", () => mostrar(pin));
+      pin.addEventListener("blur", () => requestAnimationFrame(ocultar));
+      pin.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") pin.blur();
+      });
+    }
+
+    window.addEventListener("resize", () => {
+      const activo = lienzo.querySelector(".pin--activo");
+      if (activo) mostrar(activo);
+    });
+  }
+</script>
 
 <style>
   .mapa-fig {
@@ -109,11 +253,15 @@ const totalCiudades = grupos.size;
     max-width: 680px;
   }
 
+  .mapa-fig__lienzo {
+    position: relative;
+  }
+
   .mapa {
     display: block;
     width: 100%;
     height: auto;
-    overflow: visible; /* deja ver las etiquetas que sobresalen */
+    overflow: visible;
   }
 
   .mapa__tierra {
@@ -131,77 +279,71 @@ const totalCiudades = grupos.size;
     opacity: 0.45;
   }
 
-  .mapa__recuadro-txt {
-    fill: var(--marca);
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 11px;
-    opacity: 0.7;
-  }
-
-  /* --- Pines ---------------------------------------------------------- */
+  /* --- Círculos ------------------------------------------------------- */
   .pin {
-    cursor: pointer;
+    --escala: 1;
+    cursor: default;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .pin__hit {
-    fill: transparent; /* objetivo táctil amplio */
-  }
-
-  .pin__halo {
-    fill: #fcfbf7;
-    opacity: 0.9;
+  .pin__cuerpo {
+    transform: scale(var(--escala));
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.14s ease;
   }
 
   .pin__dot {
     fill: var(--marca);
+    fill-opacity: 0.88;
     stroke: #fcfbf7;
-    stroke-width: 1.5;
-    transition: r 0.12s ease;
+    stroke-width: 2;
+    transition: fill-opacity 0.14s ease;
   }
 
   .pin__n {
     fill: #fcfbf7;
     font-family: "IBM Plex Mono", monospace;
-    font-size: 8px;
     font-weight: 700;
     text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+
+  .pin:hover .pin__cuerpo,
+  .pin--activo .pin__cuerpo {
+    transform: scale(calc(var(--escala) * 1.15));
   }
 
   .pin:hover .pin__dot,
-  .pin:focus-visible .pin__dot {
-    r: 7.5;
+  .pin--activo .pin__dot {
+    fill-opacity: 1;
   }
 
-  .pin:focus-visible {
-    outline: none;
+  /* En pantallas estrechas el mapa se encoge mucho: los círculos crecen
+     en proporción para seguir viéndose y poder tocarse. */
+  @media (max-width: 620px) {
+    .pin {
+      --escala: 1.3; /* = ESCALA_MOVIL en el frontmatter */
+    }
   }
 
-  .pin:focus-visible .pin__halo {
-    stroke: var(--marca);
-    stroke-width: 2;
-  }
-
-  /* --- Etiqueta al pasar --------------------------------------------- */
-  .pin__tip {
-    opacity: 0;
+  /* --- Etiqueta con la ciudad ---------------------------------------- */
+  .mapa__tip {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    padding: 0.3rem 0.55rem;
+    border-radius: 6px;
+    background: var(--tinta);
+    color: var(--pieza);
+    font-family: var(--fuente-dato);
+    font-size: 0.78rem;
+    line-height: 1.3;
+    white-space: nowrap;
     pointer-events: none;
-    transition: opacity 0.12s ease;
-  }
-
-  .pin:hover .pin__tip,
-  .pin:focus-visible .pin__tip {
-    opacity: 1;
-  }
-
-  .pin__tip-bg {
-    fill: #15181b;
-  }
-
-  .pin__tip-txt {
-    fill: #fcfbf7;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 11px;
-    text-anchor: middle;
+    transform: translate(-50%, -100%);
   }
 
   .mapa-fig__pie {
@@ -211,8 +353,8 @@ const totalCiudades = grupos.size;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pin__dot,
-    .pin__tip {
+    .pin__cuerpo,
+    .pin__dot {
       transition: none;
     }
   }
