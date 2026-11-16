@@ -25,7 +25,7 @@ test("los Combo no son modelos aparte: el multicolor se pregunta aparte", () => 
 // Modelos que ya usan los makers dados de alta: tienen que seguir en el catálogo.
 const MODELOS_EN_USO = [
   ["Anycubic", ["Kobra 2 Max", "Kobra 2 Neo", "Kobra 3", "Kobra 3 Max", "Kobra 3 V2", "Kobra 4", "Kobra S1", "Kobra S1 Max", "Kobra X", "Photon M7 Max"]],
-  ["Bambu Lab", ["A1", "A1 mini", "A2L", "H2C", "H2D", "H2S", "P1P", "P1S", "P2S", "X1 Carbon", "X2D"]],
+  ["Bambu Lab", ["A1", "A1 mini", "A2L", "H2C", "H2D", "H2S", "H3C", "P1P", "P1S", "P2S", "X1 Carbon", "X2D"]],
   ["Creality", ["CR-10 SE", "Ender 3", "Ender 3 Pro", "Ender 3 V3 SE", "Ender 5", "Hi", "K1", "K1 Max", "K2", "K2 SE"]],
   ["Elegoo", ["Centauri Carbon", "Centauri Carbon 2", "Mars 5", "Neptune 4", "Neptune 4 Max", "OrangeStorm Giga", "Saturn 4 Ultra", "Saturn 4 Ultra 16K"]],
   ["Flashforge", ["AD5X", "Creator 5 Pro"]],

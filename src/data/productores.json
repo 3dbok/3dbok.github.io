@@ -1,16 +1,5 @@
 [
   {
-    "id": "ignacio_printing",
-    "slug": "ignacio",
-    "nombre": "Ignacio",
-    "ubicacion": "Málaga, España",
-    "bio": "Mi nombre es Ignacio, llevo desde 2024 en el mundo de la impresión 3d. Al principio me ceñia solo a imprimir pero desde el último año he empezado a diseñar productos originales",
-    "especialidades": ["Figuras Industriales", "Repuestos", "Decoración"],
-    "materiales": ["PLA"],
-    "impresoras": ["Bambu Lab A1 Mini"],
-    "tamNozzle": ["0.2 mm", "0.4 mm"]
-  },
-  {
     "id": "victor",
     "slug": "victor",
     "nombre": "Victor",

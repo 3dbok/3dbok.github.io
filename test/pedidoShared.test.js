@@ -124,11 +124,11 @@ test("crearCamposFormspreePedido distingue solicitudes sin STL", () => {
       color: "negro",
       deadline: "2026-12-01",
       budget: "20 – 50 €",
-      makerId: "ignacio_printing",
+      makerId: "bernylop",
       productId: "prod-001",
       productName: "Pieza de prueba",
     },
-    "Ignacio — Málaga",
+    "Bernylop — Málaga",
     false,
   );
 
