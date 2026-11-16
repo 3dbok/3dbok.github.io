@@ -214,7 +214,7 @@
     "nombre": "Printing Dreams",
     "ubicacion": "Málaga, España",
     "bio": "Imprimiendo piezas en 3D desde 2022, empecé con una impresora tronxy X1 que monte tornillo a tornillo y que no tenía ningún tipo de sensor de ayuda esto me ayudó a entender como funcionan las impresoras y a saber cómo calibrar las para que funcionen bien.\n\nActualmente trabajo con Bambulab A1 con multicolor una de las mejores impresoras abiertas del mercado.",
-    "especialidades": ["Figuras", "Pokemons", "Naves espaciales", "coches", "Piezas para máquinas", "Barajadores de cartas", "Coches de cuerda", "Topes de puerta", "Modelos de airsoft", "Modelos de Cosplay"],
+    "especialidades": ["Figuras", "Pokemons", "Naves espaciales", "Coches", "Piezas para máquinas", "Barajadores de cartas", "Coches de cuerda", "Topes de puerta", "Modelos de airsoft", "Modelos de Cosplay"],
     "materiales": ["PLA", "PETG", "TPU"],
     "impresoras": ["Bambu Lab A1"],
     "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"]
