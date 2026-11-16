@@ -152,5 +152,71 @@
     "materiales": ["PLA", "PETG", "RESINA", "TPU"],
     "impresoras": ["Bambu Lab A1 Mini", "Bambu Lab A1", "Snapmaker U1", "Elegoo Mars 5"],
     "tamNozzle": ["0.2 mm", "0.4 mm"]
+  },
+  {
+    "id": "printelaoo3d",
+    "slug": "printelaoo3d",
+    "nombre": "Printelaoo3d",
+    "ubicacion": "Torre Pacheco, España",
+    "bio": "Soy estudiante de Ingeniería de Diseño Industrial y llevo año y medio imprimiendo en 3D. Trabajo con dos impresoras, que están disponibles gran parte del tiempo.\n\nVendo bastantes impresiones al mes, por lo que estoy acostumbrado a imprimir con constancia y a mantener una calidad alta. Sé utilizar programas de diseño como Fusion 360 y SolidWorks, así que puedo crear piezas y STLs desde cero.",
+    "especialidades": ["Volantes", "Piezas de Sim racing", "Figuras", "Prototipos", "Diseños a partir de una idea o un STL", "Tiradas de muchas unidades", "Llaveros", "Proyectos grandes impresos por partes"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Bambu Lab A1", "Bambu Lab P2S"],
+    "tamNozzle": ["0.2 mm", "0.4 mm"]
+  },
+  {
+    "id": "sanseiro",
+    "slug": "sanseiro",
+    "nombre": "SANSEIRO",
+    "ubicacion": "Algete, España",
+    "bio": "Soy un padre de familia que ha descubierto una gran afición a la impresión 3D hace ya un buen tiempo, me considero un poco friki, pero sobre todo cuando hago algo es para hacerlo lo mejor posible.",
+    "especialidades": ["Flexis", "Adornos de navidad", "Figuras personalizadas", "Todo personalizable con tu nombre", "Detalles para bodas, bautizos, comuniones"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Anycubic Kobra X", "Anycubic Kobra 4"],
+    "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"]
+  },
+  {
+    "id": "printedracing",
+    "slug": "printedracing",
+    "nombre": "PrintedRacing",
+    "ubicacion": "Torrelavega, España",
+    "bio": "Soy Diego, delineante mecánico y apasionado del diseño 3D, la ingeniería y la fabricación aditiva.\n\nDetrás de PrintedRacing hay un pequeño taller personal donde las ideas pasan de la pantalla a objetos reales. Trabajo principalmente con diseño CAD, modelado 3D y prototipado, buscando combinar funcionalidad, precisión y estética en cada proyecto.\n\nMi taller cuenta con una Bambu Lab P1P, con la que desarrollo piezas funcionales, prototipos, componentes personalizados y pequeños proyectos de ingeniería.\n\nCreo en el diseño práctico, en experimentar y mejorar cada versión. Mi objetivo es aprovechar las posibilidades de la impresión 3D para crear soluciones útiles, bien diseñadas y accesibles.\n\nDiseñado con criterio. Fabricado con precisión.",
+    "especialidades": ["Diseño funcional", "Productos personalizados"],
+    "materiales": ["PLA", "PETG", "TPU"],
+    "impresoras": ["Bambu Lab P1P"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "lorian3d",
+    "slug": "lorian3d",
+    "nombre": "Lorian3D",
+    "ubicacion": "León, España",
+    "bio": "¡Bienvenido a Lorian3D!\n\nSomos un pequeño taller de impresión 3D ubicado en León, donde transformamos ideas digitales en objetos reales.\n\nNos apasiona la fabricación mediante impresión 3D y todas las posibilidades que ofrece, desde crear piezas útiles para el día a día hasta fabricar objetos personalizados, prototipos y elementos decorativos.\n\nTrabajamos con tecnología de impresión 3D FDM y diferentes materiales, como PLA, PETG y TPU, seleccionando el más adecuado según las características de cada proyecto.\n\nNuestro objetivo es ofrecer un servicio cercano, flexible y accesible, prestando atención a los detalles y buscando la mejor solución para cada encargo.\n\n¿Tienes un diseño que quieres hacer realidad? En Lorian3D te ayudamos a convertirlo en una pieza física.",
+    "especialidades": ["Piezas funcionales y repuestos", "Prototipos", "Objetos personalizados", "Decoración", "Accesorios y complementos", "Juegos de mesa", "Piezas flexibles", "Impresión bajo demanda tanto unidades individuales como pequeñas series."],
+    "materiales": ["PLA", "PETG", "TPU"],
+    "impresoras": ["Bambu Lab A1"],
+    "tamNozzle": ["0.4 mm"]
+  },
+  {
+    "id": "h-a",
+    "slug": "h-a",
+    "nombre": "H&A",
+    "ubicacion": "Asturias, España",
+    "bio": "Soy Hector, tengo dos bambulab, 1 A1 combo y 1 P2S combo, hago un poco de todo, desde lamparas personalizadas, hasta piezas funcionales para coches o similares, hacer los diseños etc…",
+    "especialidades": ["Lamparas personalizadas", "Piezas funcionales para coches", "Diseños personalizados"],
+    "materiales": ["PLA", "ABS", "TPU"],
+    "impresoras": ["Bambu Lab P2S"],
+    "tamNozzle": ["0.2 mm", "0.4 mm", "0.6 mm", "0.8 mm"]
+  },
+  {
+    "id": "xelvyon3d",
+    "slug": "xelvyon3d",
+    "nombre": "XELVYON3D",
+    "ubicacion": "Bullas, España",
+    "bio": "¡Hola! 👋 Soy creador apasionado por la impresión 3D.\n\nA través de XELVYON3D, doy vida a ideas y diseños únicos, creando figuras, objetos decorativos y piezas originales con atención al detalle y dedicación.\n\nMe encanta descubrir nuevos modelos, experimentar con diferentes diseños y convertir ideas en creaciones reales.\n\n🚀 Mi objetivo es seguir creciendo, creando y compartiendo mi pasión por la impresión 3D.\n\nXELVYON3D – BUILD BEYOND LIMITS",
+    "especialidades": ["Figuras", "Objetos decorativos", "Piezas originales"],
+    "materiales": ["PLA", "PETG"],
+    "impresoras": ["Bambu Lab A1"],
+    "tamNozzle": ["0.4 mm"]
   }
 ]
