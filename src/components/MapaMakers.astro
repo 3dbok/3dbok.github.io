@@ -1,0 +1,219 @@
+---
+// Mapa de España (península, Baleares y Canarias en recuadro) con un punto por
+// ciudad donde hay makers, al estilo de Airbnb/Booking. Usa los colores de la
+// marca y se genera a partir de la `ubicacion` de productores.json (nunca del
+// dashboard ni del código postal).
+import productores from "../data/productores.json";
+import mapa from "../data/mapaEspana.json";
+import { coordenadasDe } from "../lib/ciudadesMakers.js";
+
+const { proj } = mapa;
+const proyectar = (lat, lng) => [
+  proj.padX + (lng - proj.west) * proj.pxPorLng,
+  proj.padY + (proj.north - lat) * proj.pxPorLat,
+];
+
+// Agrupar por ciudad (varias piezas en la misma ciudad = un punto).
+const grupos = new Map();
+const sinCoords = [];
+for (const productor of productores) {
+  const coord = coordenadasDe(productor.ubicacion);
+  if (!coord) {
+    sinCoords.push(productor.ubicacion);
+    continue;
+  }
+  const ciudad = productor.ubicacion.replace(/,\s*España\s*$/i, "").trim();
+  if (!grupos.has(ciudad)) {
+    const [x, y] = proyectar(coord[0], coord[1]);
+    grupos.set(ciudad, { ciudad, x, y, makers: [] });
+  }
+  grupos.get(ciudad).makers.push(productor);
+}
+// Pintar de arriba abajo para que las etiquetas de abajo queden por encima.
+const pines = [...grupos.values()].sort((a, b) => a.y - b.y);
+
+if (sinCoords.length) {
+  console.warn(
+    "[MapaMakers] ciudades sin coordenadas (no salen en el mapa):",
+    [...new Set(sinCoords)].join(", "),
+  );
+}
+
+const totalMakers = productores.length;
+const totalCiudades = grupos.size;
+---
+
+<figure class="mapa-fig">
+  <svg
+    class="mapa"
+    viewBox={mapa.viewBox}
+    role="img"
+    aria-label={`Mapa de España con ${totalMakers} makers repartidos en ${totalCiudades} ciudades`}
+  >
+    <path class="mapa__tierra" d={mapa.tierra} />
+
+    <!-- Islas Canarias (recuadro aparte, como en cualquier mapa de España) -->
+    <rect
+      class="mapa__recuadro"
+      x={mapa.recuadro.x}
+      y={mapa.recuadro.y}
+      width={mapa.recuadro.w}
+      height={mapa.recuadro.h}
+      rx="6"
+    />
+    <path class="mapa__tierra" d={mapa.canarias} />
+    <text class="mapa__recuadro-txt" x={mapa.recuadro.x + 9} y={mapa.recuadro.y + 15}>
+      Canarias
+    </text>
+
+    {
+      pines.map((grupo) => {
+        const multi = grupo.makers.length > 1;
+        const href = multi ? "/productores" : `/productores/${grupo.makers[0].slug}`;
+        const etiqueta = multi
+          ? `${grupo.ciudad} · ${grupo.makers.length} talleres`
+          : `${grupo.makers[0].nombre} · ${grupo.ciudad}`;
+        const ancho = Math.max(48, etiqueta.length * 6.4 + 20);
+        return (
+          <a class="pin" href={href} aria-label={etiqueta}>
+            <title>{etiqueta}</title>
+            <circle class="pin__hit" cx={grupo.x} cy={grupo.y} r="13" />
+            <g class="pin__tip" transform={`translate(${grupo.x} ${grupo.y})`}>
+              <rect class="pin__tip-bg" x={-ancho / 2} y={-36} width={ancho} height={23} rx="6" />
+              <text class="pin__tip-txt" x="0" y="-20.5">
+                {etiqueta}
+              </text>
+            </g>
+            <circle class="pin__halo" cx={grupo.x} cy={grupo.y} r="8.5" />
+            <circle class="pin__dot" cx={grupo.x} cy={grupo.y} r="5.5" />
+            {multi && (
+              <text class="pin__n" x={grupo.x} y={grupo.y + 3}>
+                {grupo.makers.length}
+              </text>
+            )}
+          </a>
+        );
+      })
+    }
+  </svg>
+  <figcaption class="mapa-fig__pie dato">
+    {totalMakers} talleres en {totalCiudades} ciudades de España
+  </figcaption>
+</figure>
+
+<style>
+  .mapa-fig {
+    --marca: #4959b8; /* color de marca primario */
+    --marca-2: #dbd4a0; /* color de marca secundario */
+    margin: clamp(1.5rem, 1rem + 2vw, 2.75rem) auto 0;
+    max-width: 680px;
+  }
+
+  .mapa {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible; /* deja ver las etiquetas que sobresalen */
+  }
+
+  .mapa__tierra {
+    fill: var(--marca-2);
+    stroke: #b7ae7d;
+    stroke-width: 1.1;
+    stroke-linejoin: round;
+  }
+
+  .mapa__recuadro {
+    fill: none;
+    stroke: var(--marca);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    opacity: 0.45;
+  }
+
+  .mapa__recuadro-txt {
+    fill: var(--marca);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  /* --- Pines ---------------------------------------------------------- */
+  .pin {
+    cursor: pointer;
+  }
+
+  .pin__hit {
+    fill: transparent; /* objetivo táctil amplio */
+  }
+
+  .pin__halo {
+    fill: #fcfbf7;
+    opacity: 0.9;
+  }
+
+  .pin__dot {
+    fill: var(--marca);
+    stroke: #fcfbf7;
+    stroke-width: 1.5;
+    transition: r 0.12s ease;
+  }
+
+  .pin__n {
+    fill: #fcfbf7;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 8px;
+    font-weight: 700;
+    text-anchor: middle;
+  }
+
+  .pin:hover .pin__dot,
+  .pin:focus-visible .pin__dot {
+    r: 7.5;
+  }
+
+  .pin:focus-visible {
+    outline: none;
+  }
+
+  .pin:focus-visible .pin__halo {
+    stroke: var(--marca);
+    stroke-width: 2;
+  }
+
+  /* --- Etiqueta al pasar --------------------------------------------- */
+  .pin__tip {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+  }
+
+  .pin:hover .pin__tip,
+  .pin:focus-visible .pin__tip {
+    opacity: 1;
+  }
+
+  .pin__tip-bg {
+    fill: #15181b;
+  }
+
+  .pin__tip-txt {
+    fill: #fcfbf7;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    text-anchor: middle;
+  }
+
+  .mapa-fig__pie {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--tinta-suave);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pin__dot,
+    .pin__tip {
+      transition: none;
+    }
+  }
+</style>

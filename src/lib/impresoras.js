@@ -19,7 +19,7 @@ export const MARCAS_IMPRESORA = [
     marca: "Bambu Lab",
     modelos: ["A1", "A1 mini", "A2L", "H2C", "H2D", "H2S", "P1P", "P1S", "P2S", "X1 Carbon", "X2D"],
   },
-  { marca: "Creality", modelos: ["CR-10 SE", "Ender 3", "Ender 3 Pro", "Ender 3 V3 SE", "Ender 5", "Hi", "K1", "K1 Max", "K2", "K2 SE"] },
+  { marca: "Creality", modelos: ["CR-10", "CR-10 SE", "Ender 3", "Ender 3 Pro", "Ender 3 V3 SE", "Ender 5", "Hi", "K1", "K1 Max", "K2", "K2 SE"] },
   { marca: "Elegoo", modelos: ["Centauri Carbon", "Centauri Carbon 2", "Mars 5", "Neptune 4", "Neptune 4 Max", "OrangeStorm Giga", "Saturn 4 Ultra", "Saturn 4 Ultra 16K"] },
   { marca: "Flashforge", modelos: ["AD5X", "Creator 5 Pro"] },
   { marca: "FLSUN", modelos: ["V400"] },

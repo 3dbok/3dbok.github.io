@@ -1,14 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PiezaEnCapas from "../components/PiezaEnCapas.astro";
-import MaterialChip from "../components/MaterialChip.astro";
-import productores from "../data/productores.json";
-import { fotoDeProductor } from "../lib/imagenesProductor.js";
+import MapaMakers from "../components/MapaMakers.astro";
 import { tonosDePared } from "../lib/capas.js";
-
-// Los makers que ya están dados de alta, con nombre y taller: es más honesto
-// que una cuadrícula de caras de archivo.
-const makers = productores.slice(0, 3);
 
 const pasos = [
   {
@@ -449,73 +443,24 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
       </div>
     </section>
 
-    <!-- Quién imprime -------------------------------------------------- -->
-    <section class="seccion quienes">
+    <!-- Makers por toda España ----------------------------------------- -->
+    <section class="seccion mapa-makers">
       <div class="envoltura">
         <div class="rotulo">
+          <p class="etiqueta etiqueta--marca">Makers por toda España</p>
           <h2>Detrás de cada pieza hay alguien con su máquina</h2>
+          <p class="mapa-makers__intro">
+            Talleres locales repartidos por el país. Mira dónde están, elige el
+            tuyo o deja que te asignemos uno cercano a tu zona.
+          </p>
         </div>
 
-        <ul class="quienes__lista">
-          {
-            makers.map((maker) => (
-              <li class="ficha">
-                <img
-                  class="ficha__foto"
-                  src={fotoDeProductor(maker.slug)}
-                  alt=""
-                  width="120"
-                  height="120"
-                  loading="lazy"
-                />
-                <div class="ficha__cuerpo">
-                  <h3 class="ficha__nombre">
-                    <a href={`/productores/${maker.slug}`}>{maker.nombre}</a>
-                  </h3>
-                  <p class="ficha__sitio">{maker.ubicacion}</p>
-                  <p class="ficha__bio">{maker.bio}</p>
-                  <dl class="ficha__datos">
-                    <div>
-                      <dt>Impresora</dt>
-                      <dd>{maker.impresoras.join(", ")}</dd>
-                    </div>
-                    <div>
-                      <dt>Boquillas</dt>
-                      <dd class="dato">{maker.tamNozzle.join(" / ")}</dd>
-                    </div>
-                    <div>
-                      <dt>Materiales</dt>
-                      <dd class="ficha__chips">
-                        {maker.materiales.map((codigo) => (
-                          <MaterialChip codigo={codigo} />
-                        ))}
-                      </dd>
-                    </div>
-                  </dl>
-                  <div class="ficha__acciones">
-                    <a class="boton boton--principal" href={`/briefing?maker=${maker.id}`}>
-                      Pedirle una pieza
-                    </a>
-                    <a class="boton boton--secundario" href={`/productores/${maker.slug}`}>
-                      Ver su taller
-                    </a>
-                  </div>
-                </div>
-              </li>
-            ))
-          }
-          <li class="ficha ficha--hueco">
-            <div class="ficha__hueco-placa" aria-hidden="true"></div>
-            <div class="ficha__cuerpo">
-              <h3 class="ficha__nombre">¿Quieres unirte a la comunidad maker?</h3>
-              <p class="ficha__bio">
-                Si tienes una impresora 3D, date de alta y empieza a recibir
-                encargos de gente de tu zona.
-              </p>
-              <a class="ficha__enlace" href="/maker">Unirme como maker</a>
-            </div>
-          </li>
-        </ul>
+        <MapaMakers />
+
+        <div class="mapa-makers__acciones">
+          <a class="boton boton--principal" href="/productores">Ver todos los makers</a>
+          <a class="boton boton--secundario" href="/maker">Tengo una impresora</a>
+        </div>
       </div>
     </section>
 
@@ -1749,134 +1694,26 @@ const lineasCubo = Array.from({ length: 19 }, (_, i) => (i + 1) * 4);
     }
   }
 
-  /* --- Quién imprime --------------------------------------------------- */
+  /* --- Makers por toda España ------------------------------------------ */
 
-  .quienes__lista {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-    gap: 1rem;
+  .mapa-makers .rotulo {
+    text-align: center;
   }
 
-  .ficha {
-    display: grid;
-    grid-template-columns: 120px minmax(0, 1fr);
-    gap: clamp(1.25rem, 2.5vw, 2rem);
-    padding: clamp(1.25rem, 2.5vw, 2rem);
-    border: 1px solid var(--linea);
-    border-radius: var(--r-3);
-    background: var(--pieza);
-  }
-
-  .ficha__foto {
-    width: 120px;
-    height: 120px;
-    border-radius: var(--r-2);
-    background: var(--bancada);
-    object-fit: cover;
-  }
-
-  .ficha__nombre {
-    font-size: var(--paso-2);
-  }
-
-  .ficha__nombre a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .ficha__nombre a:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--cianotipo);
-    text-decoration-thickness: 2px;
-  }
-
-  .ficha__sitio {
-    margin-top: 0.2rem;
-    font-size: 0.93rem;
-    color: var(--tinta-suave);
-  }
-
-  .ficha__bio {
-    margin-top: 0.85rem;
+  .mapa-makers__intro {
     max-width: 52ch;
+    margin: 0.75rem auto 0;
     font-size: 0.98rem;
     line-height: 1.58;
     color: var(--tinta-media);
   }
 
-  .ficha__datos {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem 1.5rem;
-    margin-top: 1.3rem;
-    padding-top: 1.1rem;
-    border-top: 1px solid var(--linea);
-  }
-
-  .ficha__datos dt {
-    font-size: 0.8rem;
-    color: var(--tinta-suave);
-  }
-
-  .ficha__datos dd {
-    margin: 0.15rem 0 0;
-    font-weight: 600;
-  }
-
-  .ficha__chips {
+  .mapa-makers__acciones {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
-  }
-
-  .ficha__acciones {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-top: 1.5rem;
-  }
-
-  .ficha--hueco {
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-    border-style: dashed;
-    border-color: var(--linea-fuerte);
-    background: transparent;
-  }
-
-  /* La placa vacía: una bancada esperando su primera pieza. */
-  .ficha__hueco-placa {
-    width: 120px;
-    height: 120px;
-    border: 1px dashed var(--linea-fuerte);
-    border-radius: var(--r-2);
-    background-image: linear-gradient(var(--linea) 1px, transparent 1px),
-      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
-    background-size: 15px 15px;
-  }
-
-  .ficha__enlace {
-    display: inline-block;
-    margin-top: 1.1rem;
-    font-weight: 650;
-  }
-
-  @media (max-width: 880px) {
-    .quienes__lista {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .ficha {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .ficha__foto,
-    .ficha__hueco-placa {
-      width: 88px;
-      height: 88px;
-    }
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
   }
 
   /* --- Llamada a makers ------------------------------------------------ */
